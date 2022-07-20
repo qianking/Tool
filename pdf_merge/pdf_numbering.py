@@ -1,13 +1,18 @@
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import LETTER
 import os
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfFileReader, PdfFileWriter, PdfMerger
+from glob import glob
 
-path = r'C:\Users\andy_chien\Downloads\PDF整合\整合前\03_02_V534_BF_new_剪力牆設計_404-100(耐震)_X向_110.10.20.pdf'
-outputFile = r'C:\Users\andy_chien\Downloads\PDF整合\整合前\Test_1.pdf'
+path = r'D:\download\整合PDF\整合前\test_1.pdf'
+outputFile = r'D:\download\整合PDF\整合前\Test_2.pdf'
 path_home=r'D:\download\整合PDF\整合前\02_V534_(111.04.13)_地震風力整合大全(100年)_110.12.31_Locked.pdf'
 
 title_1 = ['一、設計概要說明', '1-11．建築物重量計算']
+
+folder = r'D:\download\整合PDF\整合前'
+file_list = glob(f"{folder}\*.pdf")
+print(file_list)
 
 def create_page_pdf(num, tmp, page_middle_position):
     c = canvas.Canvas(tmp)
@@ -62,10 +67,18 @@ def find_string_in_pdf():
         if a.startswith(title):
             print('1-11')
 
+def merge_pdf(file_list):
+    merger = PdfMerger()
+    for pdf in file_list:
+        merger.append(pdf)
+    merger.write('test_1.pdf')
+    merger.close()
+
 
 
 
 if "__main__" == __name__:
-    #add_page_numbers(path)
+    add_page_numbers(path)
     #get_page_size(path)
-    find_string_in_pdf()
+    #merge_pdf(file_list)
+    #find_string_in_pdf()
