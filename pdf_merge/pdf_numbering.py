@@ -5,15 +5,14 @@ import os
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
 path = r'C:\Users\andy_chien\Downloads\PDF整合\整合前\03_02_V534_BF_new_剪力牆設計_404-100(耐震)_X向_110.10.20.pdf'
-outputFile = r'C:\Users\andy_chien\Downloads\PDF整合\整合前\Test_2.pdf'
+outputFile = r'C:\Users\andy_chien\Downloads\PDF整合\整合前\Test_1.pdf'
 
 def create_page_pdf(num, tmp, page_middle_position):
     c = canvas.Canvas(tmp)
     for i in range(1, num+1):
-        c.drawString((page_middle_position[i-1])* mm, (4) * mm, str(i))
-        c.setFont()
+        c.drawString((page_middle_position[i-1]), 20, str(i))
+        #c.setFont()
         c.showPage()
-
     c.save()
 
 def add_page_numbers(pdf_path):
@@ -36,18 +35,18 @@ def add_page_numbers(pdf_path):
                 page.mergePage(numberLayer)
                 output.addPage(page)
 
-            
             if output.getNumPages():
                 with open(outputFile, 'wb') as f:
                     output.write(f)
         os.remove(tmp_pdf)
+
 
 def get_page_size(input_pdf, page_numbers):
     page_middle_position = []
 
     for i in range(page_numbers):
         width = float(input_pdf.pages[i].mediabox.getWidth())
-        page_middle_position.append(width/2.52/2)
+        page_middle_position.append(width/2)
     
     print(page_middle_position)
     return page_middle_position
