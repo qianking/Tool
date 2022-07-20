@@ -10,7 +10,7 @@ styles = getSampleStyleSheet()
 def gonumpage(flowdoc, pdf):
     s = flowdoc.getPageNumber()
     s = str(s)
-    flowdoc.drawCenteredString(300, 10, s)
+    flowdoc.drawCentredString(300, 10, s)
     flowdoc.saveState()
 
 for i in range(1, 10):
