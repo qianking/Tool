@@ -6,7 +6,7 @@ from glob import glob
 from copy import deepcopy
 
 path = r'D:\download\整合PDF\整合前\test_1.pdf'
-outputFile = r'D:\download\整合PDF\整合前\Test_2.pdf'
+outputFile = r'C:\Users\andy_chien\Downloads\整合PDF\Test_2.pdf'
 path_home=r'D:\download\整合PDF\整合前\02_V534_(111.04.13)_地震風力整合大全(100年)_110.12.31_Locked.pdf'
 
 
@@ -77,35 +77,66 @@ class Merge_Pdf_and_GetOutline():
         self.file_list = glob(f"{self.folder_path}\*.pdf")
         self.order_dic = {}
         self.order_list = []
-        self.outline = []
-        self.title_1 = ['設計概要說明', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心', 
-                            '2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析', '2.5．動力分析', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算']
+        self.title_1 = ('設計概要說明', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心', 
+                            '2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析', '2.5．動力分析', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')
         self.title_key_word = ('設計概要說明', '軟層之檢核', '牆之剪力設計', '一樓板剪力傳遞', '梁上柱檢核', '梁柱韌性', '極限層剪力', '上浮力檢核', '地下室外牆設計', '無梁版', '基礎設計')        
         self.title_all = ('設計概要說明','軟層檢核', '剪力牆設計', '一樓樓版剪力傳遞', '梁上柱檢核', '梁柱韌性與扭力檢核', '極限層剪力檢核', '上浮力檢核', '地下室外牆設計', '無梁版檢核', '基礎設計')
+        
+        self.outline = {'一、結構資料': [], 
+                        '二、地震力與風力計算': [], 
+                        '三、結構設計檢核': []}
 
     def merge_pdf(self):
-        merger = PdfMerger(strict = False)
         pages = 1
-        for i in range(len(self.order_dic)):
-            PdfReader = PdfFileReader(self.order_dic[i][0])
-            merger.append(self.order_dic[i][0])
-            if i == 0:    
-                            
-                for page in range(PdfReader.getNumPages()):
-                    if len(self.title_1) != 0:
-                        title = self.title_1[0]
-                    Page_n = PdfReader.getPage(page)
-                    txt = Page_n.extractText()
-                    if title in txt:
+        last_key = 0
+        num = 0
+        merger = PdfMerger(strict = False)
+        for key, values in self.order_dic.items():
+            
+            PdfReader = PdfFileReader(values[0])
+            merger.append(values[0])
+
+            pages, last_key, num = self.get_outline(key, values, PdfReader, pages, last_key, num)
+
+        merger.write(outputFile)
+        merger.close()
+            
+
+    def get_outline(self, key, values, PdfReader, pages, last_key, num):
+        if key == 0:                                              #前一、二大標題
+            last_key = 0
+            pages = 1
+            self.title_1_list = list(deepcopy(self.title_1))           
+            for page in range(PdfReader.getNumPages()):
+                if len(self.title_1_list) != 0:
+                    title = self.title_1_list[0]
+                Page_n = PdfReader.getPage(page)
+                txt = Page_n.extractText()
+                if title in txt:
+                    title_index = self.title_1.index(title)
+                    if title_index < 5:
+                        title = title.replace('．', ' ')
                         tmp = (title, page+1)
-                        self.outline.append(deepcopy(tmp))
-                        self.title_1.pop(0)
-                        del tmp
-            else:
-                pages = pages + self.order_dic[i-1][2]
-                tmp = (self.order_dic[i][1], pages + 1)
-                self.outline.append(deepcopy(tmp))
-                del tmp
+                        self.outline['一、結構資料'].append(deepcopy(tmp))
+                    elif 4 < title_index < 15:
+                        title = title.replace('．', ' ')
+                        tmp = (title, page+1)
+                        self.outline['二、地震力與風力計算'].append(deepcopy(tmp))
+
+                    self.title_1_list.pop(0)
+                    del tmp
+        elif 0 < key:                                     #第三大標題
+            num += 1
+            pages = pages + self.order_dic[last_key][2]
+            tmp = (f'{num}. {values[1]}', pages + 1)
+            self.outline['三、結構設計檢核'].append(deepcopy(tmp))
+
+            if key == 10:
+                num = 0
+
+            del tmp
+        last_key = key
+        return pages, last_key, num
 
     
     def order_pdf_file(self):
