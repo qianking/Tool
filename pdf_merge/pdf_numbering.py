@@ -79,7 +79,7 @@ class Merge_Pdf_and_GetOutline():
         self.title = {'設計概要說明':1, '軟層之檢核':3, '牆之剪力設計':3, '一樓板剪力傳遞':3, '梁上柱檢核':3, '梁柱韌性':3, '極限層剪力':3, '上浮力檢核':3, '地下室外牆設計':3, '無梁版':3, '基礎設計':3}
         self.title_1 = ('設計概要說明', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心', 
                             '2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析', '2.5．動力分析', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')
-        self.title_key_word = ('設計概要說明', '軟層之檢核', '牆之剪力設計', '一樓板剪力傳遞', '梁上柱檢核', '梁柱韌性', '極限層剪力', '上浮力檢核', '地下室外牆設計', '無梁版', '基礎設計')        
+        #self.title_key_word = ('設計概要說明', '軟層之檢核', '牆之剪力設計', '一樓板剪力傳遞', '梁上柱檢核', '梁柱韌性', '極限層剪力', '上浮力檢核', '地下室外牆設計', '無梁版', '基礎設計')        
         self.title_all = ('設計概要說明','軟層檢核', '剪力牆設計', '一樓樓版剪力傳遞', '梁上柱檢核', '梁柱韌性與扭力檢核', '極限層剪力檢核', '上浮力檢核', '地下室外牆設計', '無梁版檢核', '基礎設計')
         
         self.outline = {'一、結構資料': [], 
@@ -139,7 +139,10 @@ class Merge_Pdf_and_GetOutline():
         return pages, last_key, num
 
     
-    def order_pdf_file(self):
+    
+
+    
+    """ def order_pdf_file(self):
         for pdf in file_list:
             with open(pdf, 'rb') as pdfFileObj: 
                 PdfReader = PdfFileReader(pdfFileObj)
@@ -152,7 +155,7 @@ class Merge_Pdf_and_GetOutline():
                         index_title = self.title_key_word.index(title)
                         self.order_dic[index_title] = [pdf, self.title_all[index_title], PdfReader.getNumPages()] 
                         
-        self.order_dic = dict(sorted(self.order_dic.items()))
+        self.order_dic = dict(sorted(self.order_dic.items())) """
         
 
 
