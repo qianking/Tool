@@ -44,7 +44,6 @@ class Add_Page_Number():
             c.showPage()
         c.save()
 
-    
     def add_page_numbers(self):
         tmp_pdf = "__tmp.pdf"           #用來畫頁數的PDF檔案 
 
@@ -125,7 +124,7 @@ class Merge_Pdf_and_GetOutline():
 
                     self.title_1_list.pop(0)
                     del tmp
-        elif 0 < key:                                     #第三大標題
+        elif 0 < key:                                                #第三大標題
             num += 1
             pages = pages + self.order_dic[last_key][2]
             tmp = (f'{num}. {values[1]}', pages + 1)
@@ -156,34 +155,6 @@ class Merge_Pdf_and_GetOutline():
         
 
 
-    
-    def find_string_in_pdf(self, titles):
-        pdfFileObj = open(path_home, 'rb')
-        PdfReader = PdfFileReader(pdfFileObj)
-        pageObj = PdfReader.getPage(6)
-        a = pageObj.extractText()
-        for title in titles:
-            if a.startswith(title):
-                print('1-11')
-
-
-
-def order_pdf_file():
-    for pdf in file_list:
-        with open(pdf, 'rb') as pdfFileObj: 
-            PdfReader = PdfFileReader(pdfFileObj)
-            Page_1 = PdfReader.getPage(0)
-            txt = Page_1.extractText()
-            txt = txt.split('\n')[0:2]
-            txt = ' + '.join(txt)
-            
-
-            
-
-
-
-
-
 
 if "__main__" == __name__:
     #print(u"\u0121")
@@ -192,8 +163,4 @@ if "__main__" == __name__:
     pdf.merge_pdf()
     print(pdf.order_dic)
     print(pdf.outline)
-    #order_pdf_file()
-    #add_page_numbers(path)
-    #get_page_size(path)
-    #merge_pdf(file_list)
-    #find_string_in_pdf()
+    
