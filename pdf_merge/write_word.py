@@ -2,9 +2,9 @@ from docxtpl import DocxTemplate
 import datetime
 import os
 
-doc_template_path = r'\封面\template.docx'
-doc_output_path = r'C:\封面\test_1.docx'
-''' context = {
+doc_template_path = r'.\cover\template.docx'
+#doc_output_path = r'C:\封面\test_1.docx'
+'''context = {
         'title_1': [
             {'title': '1-1~1-10 設計概要說明', 'page': 1}, 
             {'title': '1-11 建築物重量計算', 'page': 7}, 
@@ -45,7 +45,7 @@ doc_output_path = r'C:\封面\test_1.docx'
         'title_6': [
             {'title': '大梁', 'page': 131}
             ]
-        } '''
+        }'''
 
 def output_path(folder_path):
     now_date = datetime.date.today()
@@ -58,3 +58,7 @@ def write_word(folder_path, context):
     doc = DocxTemplate(doc_template_path)
     doc.render(context)
     doc.save(doc_output_path)
+
+
+if "__main__" == __name__:
+    write_word('C:\\Users\\andy_chien\\Downloads\\整合PDF(all)\\整合前')
