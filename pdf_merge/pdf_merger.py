@@ -95,7 +95,6 @@ class Merge_Pdf_and_GetOutline():
                     6:['設計分析報表','大梁', '小梁']}
         
         
-        
         self.outline = {1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}}
         self.to_word_outline = {}
 

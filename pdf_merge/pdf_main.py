@@ -1,6 +1,6 @@
 import write_word
 import os
-import pdf_numbering
+import pdf_merger
 from glob import glob
 import re
 import datetime
@@ -23,22 +23,9 @@ def get_variable_form_UI(**args):
         return args['number'], args['address'], args['name'], args['folder']
 
 
-def check_folder_file(folder_path):
-    illegal_file_list = []
-    patern = r'\d\d_\d\d'
-    file_list = glob(f"{folder_path}\*.pdf")
-    pdf_file_list = [i.split('\\')[-1] for i in file_list]
-    for file in pdf_file_list:
-        if_num = re.findall(patern, file)
-        if len(if_num) == 0:
-            illegal_file_list.append(file)
-    if len(illegal_file_list) != 0:
-        return illegal_file_list
-
-
 def get_first_page_and_merge_pdf(number, address, name, folder_path):
     try:
-        pdf = pdf_numbering.Merge_Pdf_and_GetOutline(folder_path)
+        pdf = pdf_merger.Merge_Pdf_and_GetOutline(folder_path)
         pdf.order_file()
         if len(pdf.debug_file_list) != 0:
             print('debug_file_list:', pdf.debug_file_list)
@@ -49,7 +36,7 @@ def get_first_page_and_merge_pdf(number, address, name, folder_path):
         pdf.merge_and_getpage()
         if len(pdf.debug_title_list) != 0:
             print('debug_title_list', pdf.debug_title_list)
-            msg = f'WORNIG! 第一、二大項有標題未被找到，標題: {pdf.debug_title_list[0]}，請檢查標題是否符合規定'
+            msg = f'WORNING! 第一、二大項有標題未被找到，標題: {pdf.debug_title_list[0]}，請檢查標題是否符合規定'
             send_msg_to_UI(msg)
             return 0
         
@@ -79,12 +66,6 @@ def create_merger_folder(folder_path):
 def main(**args):
     number, address, name, folder_path= get_variable_form_UI(**args)
     create_merger_folder(folder_path)
-    illegal_file_list = check_folder_file(folder_path)
-    if illegal_file_list:
-        msg = f'WORNIG! 有檔案命名不符合規定 {folder_path} : \n{illegal_file_list}'
-        send_msg_to_UI(msg)
-        return 0
-
     get_first_page_and_merge_pdf(number, address, name, folder_path)
 
 
