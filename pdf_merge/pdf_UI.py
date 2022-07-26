@@ -76,6 +76,7 @@ class MainWindow(object):
         
     
     def set_import_btm(self):
+        
         self.import_folder.clicked.connect(self.open_folder)
         self.import_folder.clicked.connect(self.check_pdf_file)
     
@@ -83,12 +84,17 @@ class MainWindow(object):
         fft1 = self.status.currentCharFormat()
         if "WORNING" in txt or "ERROR" in txt:
             fft1.setForeground(Qt.red)
-            self.status.setCurrentCharFormat(fft1)
+            self.start_merge.quit()
+            
+        else:
+            fft1.setForeground(Qt.black)
+        self.status.setCurrentCharFormat(fft1)
         self.status.appendPlainText(txt)
     
 
     def open_folder(self):
-        self.folder_path = QFileDialog.getExistingDirectory(self._window, 'choose folder', 'C:/')
+        self.status.clear()
+        self.folder_path = QFileDialog.getExistingDirectory(self._window, 'choose folder', 'F:/')
         self.folder_path = self.folder_path.replace("/", "\\")
         self.send_to_status(f"選擇資料夾: {self.folder_path}")
 

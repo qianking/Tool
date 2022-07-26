@@ -77,8 +77,9 @@ class Add_Page_Number():
 
 
 class Merge_Pdf_and_GetOutline():
-    def __init__(self, folder_path):
+    def __init__(self, folder_path, output_path):
         self.folder_path = folder_path
+        self.output_path = output_path
         self.file_list = glob(f"{self.folder_path}\*.pdf")
         self.insert_page = {1:None,
                             2:None,
@@ -105,8 +106,8 @@ class Merge_Pdf_and_GetOutline():
     def get_output_file_path(self):
         now_date = datetime.date.today()
         file_name = f'{now_date}_merge.pdf'
-        pdf_output_path = os.path.join(self.folder_path, file_name)
-        return pdf_output_path
+        self.output_merge_pdf_path = os.path.join(self.output_path, file_name)
+
 
     def merge_and_getpage(self):
         page = 0
@@ -124,8 +125,8 @@ class Merge_Pdf_and_GetOutline():
                     page = self.get_outline_page(key, title_name, page, PdfReader)
                     merger.append(pdf_path[1])
 
-        output_path = self.get_output_file_path()
-        merger.write(output_path)
+        self.get_output_file_path()
+        merger.write(self.output_merge_pdf_path)
         merger.close()
         
     def order_file(self):
@@ -201,6 +202,20 @@ class Merge_Pdf_and_GetOutline():
                 del tmp_list[:]
 
 
+def Merge_Final_PDF(first_page_pdf_path, output_merge_pdf_path, number, final_file_name):
+    tmp_final_pdf_path = first_page_pdf_path.split('\\')[:-1]
+    final_pdf_path = '\\'.join(tmp_final_pdf_path)
+    if final_file_name != None:
+        final_pdf_name = final_file_name
+    else:
+        final_pdf_name = f'{number}_結構計算書(全).pdf'
+    final_path = os.path.join(final_pdf_path, final_pdf_name)
+    merger = PdfMerger(strict = False)
+    merger.append(first_page_pdf_path)
+    merger.append(output_merge_pdf_path)
+    merger.write(final_path)
+    merger.close()
+    return final_path
 
 
 
