@@ -16,6 +16,15 @@ class Add_Page_Number():
     def __init__(self, pdf_path):
         self.pdf_path = pdf_path
     
+    def get_output_path(self):
+        now_date = datetime.date.today()
+        path = self.pdf_path.split('\\')[:-1]
+        path = '\\'.join(path)
+        name = f"{now_date}_page_number.pdf"
+        file_path = os.path.join(path, name)
+        return file_path
+
+    
     def get_page_size(self, origin_pdf, page_numbers):
         """
         得到一個包含每頁PDF寬度/2(中間點)位置的list
@@ -61,7 +70,8 @@ class Add_Page_Number():
                     output.addPage(page)
 
                 if output.getNumPages():
-                    with open(outputFile, 'wb') as f:
+                    path = self.get_output_path()
+                    with open(path, 'wb') as f:
                         output.write(f)
             os.remove(tmp_pdf)
 
