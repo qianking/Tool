@@ -20,7 +20,7 @@ def get_variable_form_UI(**args):
     if 'self' in args:
         self = args['self']
         status = args['status']
-        return args['number'], args['address'], args['name'], args['folder']
+        return args['number'], args['address'], args['name'], args['folder_path']
 
 
 def get_first_page_and_merge_pdf(number, address, name, folder_path):
@@ -49,7 +49,7 @@ def get_first_page_and_merge_pdf(number, address, name, folder_path):
         print(word_outline)
     except Exception as ex:
         str_ex = str(ex)
-        msg = f'ERROR! 錯誤:{str_ex}'
+        msg = f'ERROR! 錯誤 : {str_ex}'
         send_msg_to_UI(msg)
         return 0
     

@@ -142,7 +142,8 @@ class Merge_PDF_Thread(QThread):
                     status =  self.status,
                     number = self.number,
                     address = self.address,
-                    name = self.name
+                    name = self.name,
+                    folder_path = self.folder_path
                     )
 
         
