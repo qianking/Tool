@@ -53,10 +53,11 @@ class MainWindow(object):
         
     
     def set_label_txt(self):
+        self._window.setWindowTitle('PDF合併工具 V1.0.0')
         label_list = [self.title, self.title_1, self.title_2]
         label_list_2 = [self.number_label, self.address_label, self.name_label, self.file_name, self.label]
         label_txt = ['合併規則 : ',
-            '   1.要合併的pdf檔案請放在同意資料夾，並遵循檔名開頭為"oo_oo(章節數_小節數)"命名，檔名裡需包含小節的名子', 
+            '   1.要合併的pdf檔案請放在同資料夾，並遵循檔名開頭為"oo_oo(章節數_小節數)"命名，檔名裡需包含小節的名子', 
                     '   2.本工具會自動生成目錄，目錄格式請見 "/cover/template.docx"']
         for i in range(len(label_list)):
             label_list[i].setFont(QFont('Times New Roman', 12))
@@ -67,8 +68,8 @@ class MainWindow(object):
         self.ps.setText('p.s. 本工具不會生成頁碼，請手動加入')
         
         label_txt_2 = ['案號 : ',
-                    '地址 : ',
-                    '名子 : ',
+                    '案名 : ',
+                    '建築師 : ',
                     '檔名 : ',
                     '.pdf (選填，預設檔名為 Vooo_結構計算書(全))']
 

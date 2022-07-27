@@ -87,7 +87,7 @@ class Merge_Pdf_and_GetOutline():
                             5:'.\\cover\\第五章封面.pdf',
                             6:'.\\cover\\第六章封面.pdf'}
         self.order_dic = {1:{0:['結構資料', None]}, 2:{0:['地震力與風力計算',None]}, 3:{0:['結構設計檢核', self.insert_page[3]]}, 4:{0:['開挖設計', self.insert_page[4]]}, 5:{0:['結構外審意見回覆', self.insert_page[5]]}, 6:{0:['設計分析報表', self.insert_page[6]]}}
-        self.title = {1:['結構資料', '1-1~1-10．設計概要說明', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心'],
+        self.all_title = {1:['結構資料', '1-1~1-10．設計概要說明', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心'],
                     2:['地震力與風力計算', '2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算'], 
                     3:['結構設計檢核', '軟層檢核', '剪力牆設計', '一樓樓版剪力傳遞', '梁上柱檢核', '梁柱韌性與扭力檢核', '極限層剪力檢核', '上浮力檢核', '地下室外牆設計', '無梁版檢核', '基礎設計'],
                     4:['開挖設計'],
@@ -138,12 +138,12 @@ class Merge_Pdf_and_GetOutline():
             if chapter == 2:                                       #第一大章節的資料一律存在self.order_dic[1]，不論他前面標的數字為01還是02
                 chapter = 1
             num = int(num_list[0][1])
-            for title_name in self.title[chapter]:
+            for title_name in self.all_title[chapter]:
                 if title_name in file_name:
                     self.order_dic[chapter][num] =[title_name, pdf] 
                     index = self.debug_file_list.index(pdf)
                     self.debug_file_list.pop(index)                          #找到符合的pdf就pop出來，直到找完
-            
+        
             
         for i in list(self.order_dic.keys()):
             self.order_dic[i] = dict(sorted(self.order_dic[i].items()))
@@ -152,11 +152,11 @@ class Merge_Pdf_and_GetOutline():
     
     def get_outline_page(self, key, title_name, page, PdfReader):
         if key == 1:
-            self.title_1_2_list = list(deepcopy(self.title[1][1:]))
-            self.title_1_2_list.extend(list(deepcopy(self.title[2][1:])))
+            self.title_1_2_list = list(deepcopy(self.all_title[1][1:]))
+            self.title_1_2_list.extend(list(deepcopy(self.all_title[2][1:])))
             self.debug_title_list = deepcopy(self.title_1_2_list)
-            self.outline[1][self.title[1][0]] = None
-            self.outline[2][self.title[2][0]] = None 
+            self.outline[1][self.all_title[1][0]] = None
+            self.outline[2][self.all_title[2][0]] = None 
             _page = PdfReader.getNumPages()
 
             for pages in range(_page):                       

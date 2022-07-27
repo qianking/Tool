@@ -2,7 +2,8 @@ from docxtpl import DocxTemplate
 import datetime
 import os
 
-doc_template_path = r'.\cover\template.docx'
+outline_template_path = r'.\cover\outline_template.docx'
+cover_template_path = r'.\cover\cover_template.docx'
 #doc_output_path = r'C:\封面\test_1.docx'
 """ context = {
         'title_1': [
@@ -48,6 +49,10 @@ doc_template_path = r'.\cover\template.docx'
             ]
         } """
 
+context_cover = {'chapter' : '三',
+                    'title': '結構設計檢核'
+
+}
 def output_path(folder_path):
     now_date = datetime.date.today()
     file_name = f'{now_date}_frist_page.docx'
@@ -56,11 +61,19 @@ def output_path(folder_path):
 
 def write_word(folder_path, context):
     doc_output_path = output_path(folder_path)
-    doc = DocxTemplate(doc_template_path)
+    doc = DocxTemplate(outline_template_path)
+    doc.render(context)
+    doc.save(doc_output_path)
+    return doc_output_path
+
+
+def write_cover_word(folder_path, context):
+    doc_output_path = output_path(folder_path)
+    doc = DocxTemplate(cover_template_path)
     doc.render(context)
     doc.save(doc_output_path)
     return doc_output_path
 
 
 if "__main__" == __name__:
-    write_word('D:\\download\\整合PDF(all)\\整合前', context)
+    write_cover_word(r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover', context_cover)
