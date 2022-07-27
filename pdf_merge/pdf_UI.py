@@ -71,7 +71,7 @@ class MainWindow(object):
                     '名子 : ',
                     '檔名 : ',
                     '.pdf (選填，預設檔名為 Vooo_結構計算書(全))']
-                    
+
         for i in range(len(label_list_2)):
             label_list_2[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
             label_list_2[i].setText(label_txt_2[i])
@@ -124,7 +124,10 @@ class MainWindow(object):
 
         elif '合併完成' in txt:
             self.set_all_enable(True)
-
+            self.start_merge = None
+            self.folder_path = None
+            self.start.setEnabled(False)
+            
     def send_to_status(self, txt):
         fft1 = self.status.currentCharFormat()
         if "WORNING" in txt or "ERROR" in txt:

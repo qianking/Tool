@@ -4,6 +4,7 @@ import pdf_merger
 from glob import glob
 import datetime
 import win32com.client
+import comtypes.client
 import time
 
 self = ''
@@ -24,10 +25,22 @@ def get_variable_form_UI(**args):
         return args['number'], args['address'], args['name'], args['folder_path'], args['final_file_name']
 
 
-def turn_word_to_pdf(input_word):
+'''def turn_word_to_pdf(input_word):
     wdFormatPDF = 17
     pdf_output_file = input_word.replace('.docx', '.pdf')
     word = win32com.client.Dispatch('Word.Application')
+    doc = word.Documents.Open(input_word)
+    doc.SaveAs(pdf_output_file, FileFormat=wdFormatPDF)
+    doc.Close()
+    word.Quit()
+
+    return pdf_output_file'''
+
+
+def turn_word_to_pdf(input_word):
+    wdFormatPDF = 17
+    pdf_output_file = input_word.replace('.docx', '.pdf')
+    word = comtypes.client.CreateObject('Word.Application')
     doc = word.Documents.Open(input_word)
     doc.SaveAs(pdf_output_file, FileFormat=wdFormatPDF)
     doc.Close()
@@ -47,7 +60,7 @@ def get_first_page_and_merge_pdf(number, address, name, folder_path, output_fold
         #刪除資料夾
         send_msg_to_UI(msg)
         
-    time.sleep(1)
+    time.sleep(1)   #不加會當掉
     pdf.merge_and_getpage()
     print(pdf.output_merge_pdf_path)
     if len(pdf.debug_title_list) != 0:
@@ -82,8 +95,10 @@ def main(**args):
         output_folder_path = create_merger_folder(folder_path)
         doc_output_path, output_merge_pdf_path = get_first_page_and_merge_pdf(number, address, name, folder_path, output_folder_path)
         send_msg_to_UI('生成合併pdf檔和封面word檔')
+        time.sleep(1)
         first_page_pdf_path = turn_word_to_pdf(doc_output_path)
         send_msg_to_UI('生成封面pdf檔')
+        time.sleep(1)
         final_path = pdf_merger.Merge_Final_PDF(first_page_pdf_path, output_merge_pdf_path, number, final_file_name)
     except Exception as ex:
         str_ex = str(ex)
