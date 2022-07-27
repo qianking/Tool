@@ -6,18 +6,31 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>394</height>
+    <width>684</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>PDF合併工具 V1.0.0</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_4">
+   <layout class="QGridLayout" name="gridLayout_5">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="title">
+        <property name="font">
+         <font>
+          <family>標楷體</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QLabel" name="title_1">
         <property name="font">
          <font>
@@ -33,7 +46,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0">
        <widget class="QLabel" name="title_2">
         <property name="font">
          <font>
@@ -46,8 +59,8 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="title_3">
+      <item row="3" column="0">
+       <widget class="QLabel" name="ps">
         <property name="font">
          <font>
           <family>標楷體</family>
@@ -62,6 +75,13 @@
      </layout>
     </item>
     <item row="1" column="0">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
        <string>GroupBox</string>
@@ -82,8 +102,18 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="number_line"/>
+         <item row="2" column="0">
+          <widget class="QLabel" name="name">
+           <property name="font">
+            <font>
+             <family>標楷體</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
          </item>
          <item row="0" column="2">
           <spacer name="horizontalSpacer_2">
@@ -114,28 +144,64 @@
          <item row="1" column="1" colspan="2">
           <widget class="QLineEdit" name="address_line"/>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="name">
-           <property name="font">
-            <font>
-             <family>標楷體</family>
-             <pointsize>12</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1" colspan="2">
           <widget class="QLineEdit" name="name_line"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="number_line"/>
          </item>
         </layout>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="file_name">
+        <property name="font">
+         <font>
+          <family>標楷體</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="file_name_line">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="4" column="0">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <spacer name="horizontalSpacer">
@@ -207,7 +273,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>667</width>
+     <width>684</width>
      <height>22</height>
     </rect>
    </property>

@@ -1,5 +1,4 @@
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import LETTER
 import os
 from PyPDF2 import PdfFileReader, PdfFileWriter, PdfMerger
 from glob import glob
@@ -111,7 +110,7 @@ class Merge_Pdf_and_GetOutline():
 
     def merge_and_getpage(self):
         page = 0
-        merger = PdfMerger(strict = False)
+        merger = PdfMerger()
         for key, values in self.order_dic.items():
             for num, pdf_path in values.items():
                 if num == 0:                                    #num == 0時為插入大標題的封面頁，所以頁數+1
@@ -148,6 +147,7 @@ class Merge_Pdf_and_GetOutline():
             
         for i in list(self.order_dic.keys()):
             self.order_dic[i] = dict(sorted(self.order_dic[i].items()))
+        
 
     
     def get_outline_page(self, key, title_name, page, PdfReader):
@@ -182,7 +182,6 @@ class Merge_Pdf_and_GetOutline():
                 self.outline[key][title_name] = page + 1          #如果有大標題且有小標題的話小標題頁數要從大標題封面那頁+1
 
         page += _page
-
         return page
 
     def transfer_outline(self):
@@ -205,7 +204,7 @@ class Merge_Pdf_and_GetOutline():
 def Merge_Final_PDF(first_page_pdf_path, output_merge_pdf_path, number, final_file_name):
     tmp_final_pdf_path = first_page_pdf_path.split('\\')[:-1]
     final_pdf_path = '\\'.join(tmp_final_pdf_path)
-    if final_file_name != None:
+    if final_file_name:
         final_pdf_name = final_file_name
     else:
         final_pdf_name = f'{number}_結構計算書(全).pdf'

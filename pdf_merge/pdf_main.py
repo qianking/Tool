@@ -4,6 +4,7 @@ import pdf_merger
 from glob import glob
 import datetime
 import win32com.client
+import time
 
 self = ''
 status = ''
@@ -38,20 +39,22 @@ def turn_word_to_pdf(input_word):
 def get_first_page_and_merge_pdf(number, address, name, folder_path, output_folder_path):
     pdf = pdf_merger.Merge_Pdf_and_GetOutline(folder_path, output_folder_path)
     pdf.order_file()
+    print(pdf.order_dic)
     if len(pdf.debug_file_list) != 0:
         file = '、'.join(pdf.debug_file_list)
         print('debug_file_list:', pdf.debug_file_list)
-        msg = f'WORNIG! 有檔案未被合併，檔案名 {file}，請檢查檔案名稱是否合規定'
+        msg = f'WORNING! 有檔案未被合併，檔案名 {file}，請檢查檔案名稱是否合規定 \n已停止合併，請重新選擇資料夾'
+        #刪除資料夾
         send_msg_to_UI(msg)
         
-    
+    time.sleep(1)
     pdf.merge_and_getpage()
+    print(pdf.output_merge_pdf_path)
     if len(pdf.debug_title_list) != 0:
         print('debug_title_list', pdf.debug_title_list)
-        msg = f'WORNING! 第一、二大項有標題未被找到，標題: {pdf.debug_title_list[0]}，請檢查標題是否符合規定'
+        msg = f'WORNING! 第一、二大項有標題未被找到，標題: {pdf.debug_title_list[0]}，請檢查標題是否符合規定 \n已停止合併，請重新選擇資料夾'
         send_msg_to_UI(msg)
         
-    
     pdf.transfer_outline()
     word_outline = pdf.to_word_outline
     word_outline['number'] = number
@@ -73,11 +76,14 @@ def create_merger_folder(folder_path):
 
 def main(**args):
     try:
-
         number, address, name, folder_path, final_file_name= get_variable_form_UI(**args)
+        start_time = time.time()
+        send_msg_to_UI('合併開始...')
         output_folder_path = create_merger_folder(folder_path)
         doc_output_path, output_merge_pdf_path = get_first_page_and_merge_pdf(number, address, name, folder_path, output_folder_path)
+        send_msg_to_UI('生成合併pdf檔和封面word檔')
         first_page_pdf_path = turn_word_to_pdf(doc_output_path)
+        send_msg_to_UI('生成封面pdf檔')
         final_path = pdf_merger.Merge_Final_PDF(first_page_pdf_path, output_merge_pdf_path, number, final_file_name)
     except Exception as ex:
         str_ex = str(ex)
@@ -86,7 +92,11 @@ def main(**args):
         send_msg_to_UI(msg)
         return 0
     else:
-        pass
+        end_time = time.time()
+        cost_time = str(end_time- start_time)
+        cost_time = cost_time.split('.')[0]
+        msg = f'合併完成!\n生成路徑 : {final_path}\nCost : {cost_time} s'
+        send_msg_to_UI(msg)
 
 
 
