@@ -1,9 +1,9 @@
-import write_word
+import write_word_pdf
 import os
 import pdf_merger
 from glob import glob
 import datetime
-import win32com.client
+
 import comtypes.client
 import time
 
