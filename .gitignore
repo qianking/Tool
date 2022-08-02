@@ -1,5 +1,6 @@
+
+*.pdf
+*.pyc
 pdf_merge/整合PDF(all)/目錄頁/V534_封面+索引表(外審版).docm
 pdf_merge/整合PDF(all)/目錄頁/V534_封面+索引表(核章版).docm
 pdf_merge/整合PDF(all)/目錄頁/V554_封面+索引表(建照掛件版).docm
-*.pyc
-
