@@ -11,7 +11,6 @@ import write_word_pdf as word_pdf
 """
 如果要使用本檔案，需先去 python\lib\site-packages\PyPDF2\_camp.py 檔案中的第287行 註解掉這行
 """
-n = None
 
 All_same_chapter = \
 {1: {'title': '結構設計檢核', 'inner_title_and_file_name' : ['軟層檢核', '剪力牆設計', '一樓樓版剪力傳遞', '梁上柱檢核', '梁柱韌性與扭力檢核', '極限層剪力檢核', 'SRC梁檢核', 'SRC柱檢核', '上浮力檢核', '地下室外牆設計', '無梁版檢核', '基礎設計']},
@@ -28,7 +27,8 @@ Stamp_ver_Chapter_1_2_data = \
 
 #外審版
 Audit_ver_Chapter_1_inner_title = \
-{0: {'file_name': f'外審意見回覆_{n}'}, 1:{'title': '外審意見回覆', 'inner_title' :[f'附件{n}']}}
+{0: {'file_name': '外審意見回覆'}, 
+1:{'title': '外審意見回覆', 'inner_title' :[f'附件_n']}}
 
 
 Chapter_number = \
@@ -36,7 +36,7 @@ Chapter_number = \
 
 stytle = '核章版'
 
-#stytle =[Stamp, Audit]
+#stytle =['核章版': Stamp, '外審版': Audit]
 
 
 class Merge_Pdf_and_GetOutline():
@@ -155,12 +155,13 @@ class Merge_Pdf_and_GetOutline():
         if stytle == '核章版':
             self.find_Stamp_page()
         if stytle == '外審版':
-            pass            
+            self.find_Audit_page_and_merge()
+
     
     def find_Stamp_page(self):
         self.special_chapter_file_path = deepcopy(self.special_chapter_dic[1][0])
         self.special_chapter_dic.clear()
-        for i in range(1,3):
+        for i in range(1, len(Stamp_ver_Chapter_1_2_data)):
             self.special_chapter_dic[i] = {}
             self.special_chapter_dic[i][0] = {'title' : Stamp_ver_Chapter_1_2_data[i]['title'], 'page' : None}
             
@@ -191,9 +192,30 @@ class Merge_Pdf_and_GetOutline():
         if len(title_1_2_list) != 0:
             raise NotFoundErr(f'WORNING! {self.special_chapter_file_path}中，章節{title_1_2_list[0]}未被找到，請檢查檔案')
 
-            
-    
-           
+
+    def find_Audit_page_and_merge(self):
+        special_chapter_file_list = deepcopy(self.special_chapter_dic[1])
+        self.special_chapter_dic.clear()
+        merger = PdfMerger()
+        self.special_chapter_dic[1] = {}
+        self.special_chapter_dic[1][0] = {'title' : Audit_ver_Chapter_1_inner_title[1]['title'], 'page' : None}
+        origin_title = Audit_ver_Chapter_1_inner_title[1]['inner_title'].split('_')
+        now_pages = 1
+        for file_list_num in range(len(special_chapter_file_list)):
+            PdfReader = PdfFileReader(special_chapter_file_list[file_list_num])
+            merger.append(special_chapter_file_list[file_list_num])
+            page = PdfReader.getNumPages()
+            title = f'{origin_title}{Chapter_number[file_list_num + 1]}'
+            special_chapter_file_list[1][file_list_num + 1] = {'title' : title, 'page' : now_pages}
+            now_pages += page
+
+        self.special_chapter_dic['total_page'] = now_pages - 1
+        file_name = 'First_Chapter.pdf'
+        self.special_chapter_file_path = os.path.join(self.output_path, file_name)  
+        merger.write(self.special_chapter_file_path)
+        merger.close()
+
+
     def add_same_and_special_chapter(self):
         now_pages = self.special_chapter_dic.pop('total_page')
         chapter_count = 1
@@ -202,7 +224,7 @@ class Merge_Pdf_and_GetOutline():
             chapter_count += 1
 
         self.same_chapter_flag = chapter_count
-        now_pages+=1
+        now_pages += 1
         self.get_same_chapter_page_cover_page(chapter_count, now_pages)
 
         for chapter in list(self.same_chapter_dic.keys()):
@@ -224,7 +246,7 @@ class Merge_Pdf_and_GetOutline():
                 self.same_chapter_dic[chapter][key]['page'] = now_pages 
                 now_pages += get_page
 
-            chapter_count+= 1
+            chapter_count += 1
 
 
     def generate_cover_pdf(self, chapter, name):
