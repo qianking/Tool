@@ -176,6 +176,7 @@ class MainWindow(object):
 
     def txt_plain_connect(self):
         self.status = self._window.status_txt
+        self.status.setReadOnly(True)
         self.status.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.status.setFont(QFont('Times New Roman', 12))
 
