@@ -201,8 +201,8 @@ class Merge_Pdf_and_GetOutline():
                 del tmp_list[:]
 
 
-def Merge_Final_PDF(first_page_pdf_path, output_merge_pdf_path, number, final_file_name):
-    tmp_final_pdf_path = first_page_pdf_path.split('\\')[:-1]
+def Merge_Final_PDF(Outline_pdf_path, Merged_pdf_path, number, final_file_name):
+    tmp_final_pdf_path = Outline_pdf_path.split('\\')[:-1]
     final_pdf_path = '\\'.join(tmp_final_pdf_path)
     if final_file_name:
         final_pdf_name = final_file_name
@@ -210,8 +210,8 @@ def Merge_Final_PDF(first_page_pdf_path, output_merge_pdf_path, number, final_fi
         final_pdf_name = f'{number}_結構計算書(全).pdf'
     final_path = os.path.join(final_pdf_path, final_pdf_name)
     merger = PdfMerger(strict = False)
-    merger.append(first_page_pdf_path)
-    merger.append(output_merge_pdf_path)
+    merger.append(Outline_pdf_path)
+    merger.append(Merged_pdf_path)
     merger.write(final_path)
     merger.close()
     return final_path

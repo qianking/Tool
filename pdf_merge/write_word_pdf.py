@@ -3,8 +3,8 @@ import datetime
 import os
 import comtypes.client
 
-outline_template_2_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover\outline_template_2.docx'
-outline_template_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover\outline_template.docx'
+Audit_outline_template_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover\Audit_outline_template.docx'
+Stamp_outline_template_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover\Stamp_outline_template.docx'
 cover_template_path = r'.\cover\cover_template.docx'
 #doc_output_path = r'C:\封面\test_1.docx'
 context = {
@@ -70,6 +70,7 @@ context_cover = {'title_1_1' : '1-1~1-10設計概要說',
                                             {'title_5': '2-2垂直地震力計算', 'page' : '49'},
                                             {'title_5': '2-3建築物地震力之豎向分配', 'page' : '50'},
                                             {'title_5': '2-4動力反應譜分析調整放大係數', 'page' : '52'},]}]}
+
 context_cover_2 = {'title_1_1' : '1-1~1-10設計概要說',
                 'data' : 
                     [{'title_2' : 
@@ -86,14 +87,18 @@ context_cover_2 = {'title_1_1' : '1-1~1-10設計概要說',
                     
 
 
-def output_path(output_folder_path, file_name):
-    out_put_file_name = f'{file_name}.docx'
+def output_path(output_folder_path):
+    out_put_file_name = 'Outline.docx'
     doc_output_path = os.path.join(output_folder_path, out_put_file_name)
     return doc_output_path
 
-def write_word(folder_path, file_name, context):
-    doc_output_path = output_path(folder_path, file_name)
-    doc = DocxTemplate(outline_template_path)
+def write_outline_word(stytle, folder_path, context):
+    if stytle == '核章版':
+        path = Stamp_outline_template_path
+    if stytle == '外審版':
+        path = Audit_outline_template_path
+    doc_output_path = output_path(folder_path)
+    doc = DocxTemplate(path)
     doc.render(context)
     doc.save(doc_output_path)
     return doc_output_path
@@ -120,4 +125,4 @@ def turn_word_to_pdf(input_word):
 
 
 if "__main__" == __name__:
-    write_word(r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover', 'test', context)
+    write_outline_word(r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover', 'test', context)

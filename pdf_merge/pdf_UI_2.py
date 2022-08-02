@@ -1,6 +1,8 @@
 import sys
 import re
 from glob import glob
+import subprocess
+import pdf_main
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtCore import Qt, QTimer, QDateTime
 from PySide6.QtCore import QFile, QTimer, QDate, QTime, QThread, Signal, QObject, QPoint, QCoreApplication, Qt
@@ -8,22 +10,18 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow, QLabel, QFileDialog, QPlainTextEdit, QWidget, QDialog, QFontDialog, QTableWidget
 from PySide6.QtGui import QColor, QPalette, QFont
 
+VERSION = '1.0.0'
 
 class MainWindow(object):
     def __init__(self, parent=None):
         self._window = None
-        self._widget = None
-        self.folder_path = None
+        self.start_merge = None
+        self.input_folder_path = None
         self.setup_ui()
         
-
     @property
     def window(self):
         return self._window
-    
-    @property
-    def widget(self):
-        return self._widget
 
     def setup_ui(self):
         loader = QUiLoader()
@@ -33,10 +31,11 @@ class MainWindow(object):
         file.close()
         self.set_window_title()
         self.set_tab_tabwidget()
-        self.set_in_tab_title()
+        self.set_Audit_tab()
+        self.set_Stamp_tab()
+        self.set_ps_in_tab()
         self.set_cover_label_text()
         self.set_config_btm()
-        self.set_Audit_selection_radio_btm()
         self.line_edit_connect()
         self.txt_plain_connect()
         self.btm_connect()
@@ -48,16 +47,12 @@ class MainWindow(object):
         
 #region 設定基本UI
     def set_window_title(self):
-        self._window.setWindowTitle('PDF合併工具 V1.0.0')
+        self._window.setWindowTitle(f'PDF合併工具 V {VERSION}')
 
 
     def set_tab_tabwidget(self):
         self.tabwidget = self._window.tabWidget
         self.tabwidget.setCurrentIndex(0)
-        self.tab_title = ['核章版', '外審版']
-        for i in range(len(self.tab_title)):
-            self.tabwidget.setTabText(i, self.tab_title[i])
-
         text_font = QFont()
         text_font.setFamily('Times New Roman')
         text_font.setPointSize(12)
@@ -69,7 +64,10 @@ class MainWindow(object):
         self.tabwidget.setFont(text_font)
         self.tabwidget.setStyleSheet(style)
     
-    def set_in_tab_title(self):
+    def set_Stamp_tab(self):
+        tab_title = '核章版' 
+        self.tabwidget.setTabText(0, tab_title)
+
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
@@ -77,21 +75,31 @@ class MainWindow(object):
         for i in range(len(tab_1_txt)):
             tab_1[i].setText(tab_1_txt[i])
 
+
+    def set_Audit_tab(self):
+        tab_title = '外審版'
+        self.tabwidget.setTabText(1, tab_title)
+
         self.tab_2_title_1 = self._window.tab_2_title_1
         self.tab_2_title_2 = self._window.tab_2_title_2
         tab_2 = [self.tab_2_title_1, self.tab_2_title_2]
         tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '1. 第一大章節的檔案名稱請包含「」']
         for i in range(len(tab_2_txt)):
             tab_2[i].setText(tab_2_txt[i])
-
-        self.tab_3_title_1 = self._window.tab_3_title_1
-        self.tab_3_title_2 = self._window.tab_3_title_2
-        tab_3 = [self.tab_3_title_1, self.tab_3_title_2]
-        tab_3_txt = []
-        for i in range(len(tab_3_txt)):
-            tab_3[i].setText(tab_3_txt[i])
-
         
+        self.audit_selection_1 = self._window.radioButton_1
+        self.audit_selection_2 = self._window.radioButton_2
+        self.audit_selection_3 = self._window.radioButton_3
+        self.audit_selection_4 = self._window.radioButton_4
+        self.audit_selection_group = self._window.buttonGroup
+        self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3, self.audit_selection_4]
+        select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '會後意見回覆']
+        for i in range(len(select_txt)):
+            self.selection_btm[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
+            self.selection_btm[i].setText(select_txt[i])   
+
+
+    def set_ps_in_tab(self):
         self.tab_1_title_3 = self._window.tab_1_title_3
         self.tab_2_title_3 = self._window.tab_2_title_3
         self.tab_3_title_3 = self._window.tab_3_title_3
@@ -100,20 +108,6 @@ class MainWindow(object):
         for i in ps:
             i.setStyleSheet("color: #FF0000")
             i.setText(ps_text)
-    
-
-    def set_Audit_selection_radio_btm(self):
-        self.audit_selection_1 = self._window.radioButton_1
-        self.audit_selection_2 = self._window.radioButton_2
-        self.audit_selection_3 = self._window.radioButton_3
-        self.audit_selection_4 = self._window.radioButton_4
-        self.audit_selection_group = self._window.buttonGroup
-
-        self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3, self.audit_selection_4]
-        select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '會後意見回覆']
-        for i in range(len(select_txt)):
-            self.selection_btm[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
-            self.selection_btm[i].setText(select_txt[i])   
 
 
     def set_config_btm(self):
@@ -135,8 +129,16 @@ class MainWindow(object):
         config_btm_list = [self.config_1_btm, self.config_2_btm, self.config_3_btm]
         for btm in config_btm_list:
             btm.setText('Config')
-            
+        self.config_1_btm.clicked.connect(self.open_config_1_file)
+        self.config_2_btm.clicked.connect(self.open_config_2_file) 
         #self.start_btm.setStyleSheet(button_style)
+    
+    def open_config_1_file(self):
+        open_config_file(".\data\核章版檔名.txt")
+    
+    def open_config_2_file(self):
+        open_config_file(".\data\外審版檔名.txt")
+
     
     def set_cover_label_text(self):
         self.groupbox = self._window.groupBox
@@ -147,9 +149,8 @@ class MainWindow(object):
         self.label = self._window.label
         self.label_V = self._window.label_V
 
-        label_list = [self.number_label, self.label_V, self.address_label, self.name_label, self.file_name, self.label]
+        label_list = [self.number_label, self.address_label, self.name_label, self.file_name, self.label]
         label_txt = ['案號 : ',
-                    'V',
                     '案名 : ',
                     '建築師 : ',
                     '檔名 : ',
@@ -157,16 +158,20 @@ class MainWindow(object):
         for i in range(len(label_list)):
             label_list[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
             label_list[i].setText(label_txt[i])
+        self.label_V.setFont(QFont('Times New Roman', 12))
+        self.label_V.setText('V')
         self.groupbox.setFont(QFont('Times New Roman', 10))
         self.groupbox.setTitle('封面資訊')
 #endregion
-
 
     def line_edit_connect(self):
         self.number_input = self._window.number_line
         self.address_input = self._window.address_line
         self.name_input = self._window.name_line
         self.file_name_input = self._window.file_name_line
+        input_list = [self.number_input, self.address_input, self.name_input, self.file_name_input]
+        for i in input_list:
+            i.setFont(QFont('Times New Roman', 12))
 
 
     def txt_plain_connect(self):
@@ -194,17 +199,19 @@ class MainWindow(object):
 #region import 按鈕動作
     def open_folder(self):
         self.status.clear()
-        self.folder_path = QFileDialog.getExistingDirectory(self._window, 'choose folder', 'F:/')
-        self.folder_path = self.folder_path.replace("/", "\\")
-        self.send_to_status(f"選擇資料夾: {self.folder_path}")
+        self.input_folder_path = QFileDialog.getExistingDirectory(self._window, 'choose folder', 'F:/')
+        self.input_folder_path = self.input_folder_path.replace("/", "\\")
+        self.send_to_status(f"選擇資料夾: {self.input_folder_path}")
         
 
     def check_file(self):
-        file_list = glob(f"{self.folder_path}\*.pdf")
+        file_list = glob(f"{self.input_folder_path}\*.pdf")
         if len(file_list) == 0:
-            self.send_to_status(f"未找到合法的pdf檔案，請重新選擇資料夾")
-            self.folder_path = None
+            self.send_to_status(f"未找到pdf檔案，請重新選擇資料夾")
+            self.input_folder_path = None
             self.start.setEnabled(False)
+        else:
+            self.send_to_status(f"找到{len(file_list)}個pdf檔案")
 #endregion
 
 #region start 按鈕動作
@@ -219,13 +226,17 @@ class MainWindow(object):
     
     def start_merge_thread(self):
         self.set_all_enable(False)
-        self.start_merge = Merge_PDF_Thread(self.number, self.address, self.name, self.folder_path, self.file_name)
+        data = self.select_stytle, self.number, self.address, self.name, self.input_folder_path, self.file_name
+        if self.select_stytle == '核章版': 
+            self.start_merge = Merge_PDF_Thread(data)
+        if self.select_stytle == '外審版': 
+            self.start_merge = Merge_PDF_Thread(data, Audit_selection=self.Audit_selection)
+    
         self.start_merge.status.connect(self.send_to_status)
         self.start_merge.status.connect(self.set_enable)
         self.start_merge.start()
 #endregion
     
-
     def send_to_status(self, txt):
         fft1 = self.status.currentCharFormat()
         if "WORNING" in txt or "ERROR" in txt:
@@ -235,14 +246,46 @@ class MainWindow(object):
             fft1.setForeground(Qt.black)
         self.status.setCurrentCharFormat(fft1)
         self.status.appendPlainText(txt)
+    
+    def set_all_enable(self, bool):
+        self.start.setEnabled(bool)
+        self.import_folder.setEnabled(bool)
+        self.number_input.setEnabled(bool)
+        self.address_input.setEnabled(bool)
+        self.name_input.setEnabled(bool)
+        self.file_name_input.setEnabled(bool)
+        for i in range(self.tabwidget.count()):
+            self.tabwidget.setTabEnabled(i, bool)
+        
 
+    def set_enable(self, txt):
+        if "WORNING" in txt or "ERROR" in txt:
+            self.set_all_enable(True)
+            if self.start_merge != None:
+                self.start_merge.stop()
+                print(self.start_merge.isRunning())
+                self.start_merge = None
+                self.input_folder_path = None
+                self.start.setEnabled(False)
+
+        elif '合併完成' in txt:
+            self.set_all_enable(True)
+            self.start_merge = None
+            self.input_folder_path = None
+            self.start.setEnabled(False)
+
+
+    def text_input_change(self):
+        self.number_input.textChanged.connect(self.get_information)
+        self.address_input.textChanged.connect(self.get_information)
+        self.name_input.textChanged.connect(self.get_information)
     
     def get_information(self):
         self.number = self.number_input.text()
         self.address = self.address_input.text()
         self.name = self.name_input.text()
         
-        if self.number != '' and self.address != '' and self.name != '' and self.folder_path != None:
+        if self.number != '' and self.address != '' and self.name != '' and self.input_folder_path != None:
             self.start.setEnabled(True)
         else:
             self.start.setEnabled(False)
@@ -251,16 +294,33 @@ class MainWindow(object):
             self.file_name = None
         else:
             self.file_name = self.file_name_input.text()
-
     
-    def text_input_change(self):
-        self.number_input.textChanged.connect(self.get_information)
-        self.address_input.textChanged.connect(self.get_information)
-        self.name_input.textChanged.connect(self.get_information)
+
+def open_config_file(path):                              
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    process = subprocess.Popen(["START",path], startupinfo=startupinfo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)   
+    
+
 
         
 
+        
+class Merge_PDF_Thread(QThread):
+    status = Signal(str)
+    def __init__(self, basic_data, **special_data):
+        super(Merge_PDF_Thread, self).__init__()
+        self.basic_data = basic_data
+        self.special_data = special_data
+    
+    def run(self):
+        self.special_data['self'] = self
+        self.special_data['status'] = self.status
+        pdf_main.main(self.basic_data,
+                    self.special_data,) 
 
+    def stop(self):
+        self.terminate()
 
 
 
