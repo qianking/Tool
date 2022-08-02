@@ -1,11 +1,5 @@
-
-*.pdf
-*.docx
 pdf_merge/整合PDF(all)/目錄頁/V534_封面+索引表(外審版).docm
 pdf_merge/整合PDF(all)/目錄頁/V534_封面+索引表(核章版).docm
 pdf_merge/整合PDF(all)/目錄頁/V554_封面+索引表(建照掛件版).docm
-pdf_merge/__pycache__/pdf_main.cpython-39.pyc
-pdf_merge/__pycache__/pdf_main.cpython-39.pyc
-pdf_merge/__pycache__/pdf_merger.cpython-39.pyc
-pdf_merge/__pycache__/write_word_pdf.cpython-39.pyc
 *.pyc
+
