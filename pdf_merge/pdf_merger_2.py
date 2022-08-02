@@ -48,6 +48,7 @@ class Merge_Pdf_and_GetOutline():
         self.debug_file = deepcopy(self.file_list)
         self.special_chapter_file_path = ''
         self.same_chapter_flag = None
+        self.delete_file_list = []
         self.all_chapter_dic = {}
         self.to_word_outline = {}
         
@@ -165,16 +166,26 @@ class Merge_Pdf_and_GetOutline():
     def order_same_chpater(self):
         count_ch = 1
         for capter in range(1, len(self.same_chapter_dic)+1):
-            title_count = 0
-            count = 0
+            title_count = 1
+            count = 1
             tmp_dic = {}
             if len(self.same_chapter_dic[capter]) != 0:
                 title_data = self.same_chapter_dic.pop(capter)
+                tmp_data = title_data.pop(0)
+                tmp_dic[0] = deepcopy(tmp_data)
                 while len(title_data) != 0:
                     try:
-                        tmp_dic[count] = title_data.pop(title_count)
+                        tmp_data = title_data.pop(title_count)
+                        tmp_title = tmp_data['title']
+                        if tmp_title:
+                            if len(str(count)) == 1:
+                                tmp_title = f"{count}.  {tmp_title}"
+                            elif len(str(count)) == 2:
+                                tmp_title = f"{count}. {tmp_title}"
+                            tmp_data['title'] = tmp_title
+                        tmp_dic[count] = deepcopy(tmp_data)
                     except:
-                        title_count +=1
+                        title_count += 1
                     else:
                         count += 1
                 self.same_chapter_dic[count_ch] = deepcopy(tmp_dic)
@@ -192,14 +203,14 @@ class Merge_Pdf_and_GetOutline():
 
         self.same_chapter_flag = chapter_count
         now_pages+=1
-        self.get_same_chapter_page_cover_pdg(chapter_count, now_pages)
+        self.get_same_chapter_page_cover_page(chapter_count, now_pages)
 
         for chapter in list(self.same_chapter_dic.keys()):
             self.all_chapter_dic[chapter_count] = self.same_chapter_dic.pop(chapter)
             chapter_count += 1
             
 
-    def get_same_chapter_page_cover_pdg(self, chapter_count, now_pages):
+    def get_same_chapter_page_cover_page(self, chapter_count, now_pages):
         for chapter, data in self.same_chapter_dic.items():
             for key, values in data.items():
                 if key == 0:
@@ -222,13 +233,16 @@ class Merge_Pdf_and_GetOutline():
         tmp_dic['title'] = name
         doc_output_path = word_pdf.write_cover_word(self.output_path, f'cover_{chapter}', tmp_dic)
         pdf_output_path = word_pdf.turn_word_to_pdf(doc_output_path)
+        
+        self.delete_file_list.append(doc_output_path)
+        self.delete_file_list.append(pdf_output_path)
         return pdf_output_path 
+
 
     def get_output_file_path(self):
         now_date = datetime.date.today()
         file_name = f'{now_date}_merge.pdf'
         self.output_merge_pdf_path = os.path.join(self.output_path, file_name)    
-
 
     def merge_all_pdf(self):
         merger = PdfMerger()
@@ -240,6 +254,7 @@ class Merge_Pdf_and_GetOutline():
         self.get_output_file_path()
         merger.write(self.output_merge_pdf_path)
         merger.close()
+        self.delete_file()
 
     
     def transfer_to_word_stytle(self):
@@ -293,13 +308,17 @@ class Merge_Pdf_and_GetOutline():
             if chapter == len(self.all_chapter_dic):
                 self.to_word_outline['title_same'] = deepcopy(temp_list)
                 del temp_list[:]
-                
+    
+    def delete_file(self):
+        for file in self.delete_file_list:
+            os.remove(file)
+
 
 def Merge_Final_PDF(Outline_pdf_path, Merged_pdf_path, number, final_file_name):
     tmp_final_pdf_path = Outline_pdf_path.split('\\')[:-1]
     final_pdf_path = '\\'.join(tmp_final_pdf_path)
     if final_file_name:
-        final_pdf_name = final_file_name
+        final_pdf_name = f'{final_file_name}.pdf'
     else:
         final_pdf_name = f'{number}_結構計算書(全).pdf'
     final_path = os.path.join(final_pdf_path, final_pdf_name)

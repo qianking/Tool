@@ -3,12 +3,12 @@ import re
 from glob import glob
 import subprocess
 import pdf_main
-from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtCore import Qt, QTimer, QDateTime
-from PySide6.QtCore import QFile, QTimer, QDate, QTime, QThread, Signal, QObject, QPoint, QCoreApplication, Qt
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
+from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader 
-from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow, QLabel, QFileDialog, QPlainTextEdit, QWidget, QDialog, QFontDialog, QTableWidget
-from PySide6.QtGui import QColor, QPalette, QFont
+from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit
+from PySide6.QtGui import QFont
 
 VERSION = '1.0.0'
 
@@ -302,9 +302,6 @@ def open_config_file(path):
     process = subprocess.Popen(["START",path], startupinfo=startupinfo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)   
     
 
-
-        
-
         
 class Merge_PDF_Thread(QThread):
     status = Signal(str)
@@ -317,7 +314,7 @@ class Merge_PDF_Thread(QThread):
         self.special_data['self'] = self
         self.special_data['status'] = self.status
         pdf_main.main(self.basic_data,
-                    self.special_data,) 
+                    self.special_data) 
 
     def stop(self):
         self.terminate()

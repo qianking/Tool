@@ -8,3 +8,4 @@ pdf_merge/__pycache__/pdf_main.cpython-39.pyc
 pdf_merge/__pycache__/pdf_main.cpython-39.pyc
 pdf_merge/__pycache__/pdf_merger.cpython-39.pyc
 pdf_merge/__pycache__/write_word_pdf.cpython-39.pyc
+*.pyc

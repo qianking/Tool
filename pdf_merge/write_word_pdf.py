@@ -3,9 +3,9 @@ import datetime
 import os
 import comtypes.client
 
-Audit_outline_template_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover\Audit_outline_template.docx'
-Stamp_outline_template_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover\Stamp_outline_template.docx'
-cover_template_path = r'.\cover\cover_template.docx'
+Audit_outline_template_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)\cover\Audit_outline_template.docx'
+Stamp_outline_template_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)\cover\Stamp_outline_template.docx'
+cover_template_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)\cover\cover_template.docx'
 #doc_output_path = r'C:\封面\test_1.docx'
 context = {
         'title_special': [
@@ -48,7 +48,7 @@ context = {
                 'inner_title': []}], 
         }
 
-context_cover = {'title_1_1' : '1-1~1-10設計概要說',
+''' context_cover = {'title_1_1' : '1-1~1-10設計概要說',
                 'data' : [
                     {'title_1': 'A棟 :', 'title_2' : 
                                             [{'title_3': '1-11重量計算', 'page' : '7'},
@@ -69,36 +69,20 @@ context_cover = {'title_1_1' : '1-1~1-10設計概要說',
                                             [{'title_5': '2-1建築物設計地震力計算', 'page' : '47'},
                                             {'title_5': '2-2垂直地震力計算', 'page' : '49'},
                                             {'title_5': '2-3建築物地震力之豎向分配', 'page' : '50'},
-                                            {'title_5': '2-4動力反應譜分析調整放大係數', 'page' : '52'},]}]}
+                                            {'title_5': '2-4動力反應譜分析調整放大係數', 'page' : '52'},]}]} '''
+                 
 
-context_cover_2 = {'title_1_1' : '1-1~1-10設計概要說',
-                'data' : 
-                    [{'title_2' : 
-                                            [{'title_3': '1-11重量計算', 'page' : '7'},
-                                            {'title_3': '1-12動力分析週期及振態參與質量', 'page' : '9'},
-                                            {'title_3': '1-13振態說明', 'page' : '11'},
-                                            {'title_3': '1-14剛性隔板質心及剛心', 'page' : '13'},],
-                                            'title_4' :
-                                            [{'title_5': '2-1建築物設計地震力計算', 'page' : '14'},
-                                            {'title_5': '2-2垂直地震力計算', 'page' : '16'},
-                                            {'title_5': '2-3建築物地震力之豎向分配', 'page' : '17'},
-                                            {'title_5': '2-4動力反應譜分析調整放大係數', 'page' : '21'},]}]
-                    }
-                    
+template = {'核章版': Stamp_outline_template_path,
+            '外審版' : Audit_outline_template_path}
 
-
-def output_path(output_folder_path):
-    out_put_file_name = 'Outline.docx'
+def output_path(output_folder_path, file_name):
+    out_put_file_name = f'{file_name}.docx'
     doc_output_path = os.path.join(output_folder_path, out_put_file_name)
     return doc_output_path
 
-def write_outline_word(stytle, folder_path, context):
-    if stytle == '核章版':
-        path = Stamp_outline_template_path
-    if stytle == '外審版':
-        path = Audit_outline_template_path
-    doc_output_path = output_path(folder_path)
-    doc = DocxTemplate(path)
+def write_outline_word(stytle, folder_path, file_name, context):
+    doc_output_path = output_path(folder_path, file_name)
+    doc = DocxTemplate(template[stytle])
     doc.render(context)
     doc.save(doc_output_path)
     return doc_output_path
@@ -112,11 +96,11 @@ def write_cover_word(output_folder_path, file_name, context):
     return doc_output_path
 
 
-def turn_word_to_pdf(input_word):
+def turn_word_to_pdf(input_word_path):
     wdFormatPDF = 17
-    pdf_output_file = input_word.replace('.docx', '.pdf')
+    pdf_output_file = input_word_path.replace('.docx', '.pdf')
     word = comtypes.client.CreateObject('Word.Application')
-    doc = word.Documents.Open(input_word)
+    doc = word.Documents.Open(input_word_path)
     doc.SaveAs(pdf_output_file, FileFormat=wdFormatPDF)
     doc.Close()
     word.Quit()
