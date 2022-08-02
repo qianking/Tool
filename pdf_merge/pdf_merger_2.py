@@ -92,6 +92,35 @@ class Merge_Pdf_and_GetOutline():
                     self.same_chapter_dic[chapter][0] = {'title': name}
                     return pdf
 
+    def order_same_chpater(self):
+        count_ch = 1
+        for capter in range(1, len(self.same_chapter_dic)+1):
+            title_count = 1
+            count = 1
+            tmp_dic = {}
+            if len(self.same_chapter_dic[capter]) != 0:
+                title_data = self.same_chapter_dic.pop(capter)
+                tmp_data = title_data.pop(0)
+                tmp_dic[0] = deepcopy(tmp_data)
+                while len(title_data) != 0:
+                    try:
+                        tmp_data = title_data.pop(title_count)
+                        tmp_title = tmp_data['title']
+                        if tmp_title:
+                            if len(str(count)) == 1:
+                                tmp_title = f"{count}.  {tmp_title}"
+                            elif len(str(count)) == 2:
+                                tmp_title = f"{count}. {tmp_title}"
+                            tmp_data['title'] = tmp_title
+                        tmp_dic[count] = deepcopy(tmp_data)
+                    except:
+                        title_count += 1
+                    else:
+                        count += 1
+                self.same_chapter_dic[count_ch] = deepcopy(tmp_dic)
+                count_ch +=1
+            else:
+                self.same_chapter_dic.pop(capter)
 
     def find_special_chapter_file(self):
         flag = False
@@ -120,8 +149,8 @@ class Merge_Pdf_and_GetOutline():
 
             if not flag:
                 raise FileNotFoundError('WORNING! 找不到外審版第一章檔案!')
-
-                
+        
+       
     def find_special_chapter_page(self):
         if stytle == '核章版':
             self.find_Stamp_page()
@@ -163,37 +192,8 @@ class Merge_Pdf_and_GetOutline():
             raise NotFoundErr(f'WORNING! {self.special_chapter_file_path}中，章節{title_1_2_list[0]}未被找到，請檢查檔案')
 
             
-    def order_same_chpater(self):
-        count_ch = 1
-        for capter in range(1, len(self.same_chapter_dic)+1):
-            title_count = 1
-            count = 1
-            tmp_dic = {}
-            if len(self.same_chapter_dic[capter]) != 0:
-                title_data = self.same_chapter_dic.pop(capter)
-                tmp_data = title_data.pop(0)
-                tmp_dic[0] = deepcopy(tmp_data)
-                while len(title_data) != 0:
-                    try:
-                        tmp_data = title_data.pop(title_count)
-                        tmp_title = tmp_data['title']
-                        if tmp_title:
-                            if len(str(count)) == 1:
-                                tmp_title = f"{count}.  {tmp_title}"
-                            elif len(str(count)) == 2:
-                                tmp_title = f"{count}. {tmp_title}"
-                            tmp_data['title'] = tmp_title
-                        tmp_dic[count] = deepcopy(tmp_data)
-                    except:
-                        title_count += 1
-                    else:
-                        count += 1
-                self.same_chapter_dic[count_ch] = deepcopy(tmp_dic)
-                count_ch +=1
-            else:
-                self.same_chapter_dic.pop(capter)
     
-                
+           
     def add_same_and_special_chapter(self):
         now_pages = self.special_chapter_dic.pop('total_page')
         chapter_count = 1
@@ -233,7 +233,7 @@ class Merge_Pdf_and_GetOutline():
         tmp_dic['title'] = name
         doc_output_path = word_pdf.write_cover_word(self.output_path, f'cover_{chapter}', tmp_dic)
         pdf_output_path = word_pdf.turn_word_to_pdf(doc_output_path)
-        
+
         self.delete_file_list.append(doc_output_path)
         self.delete_file_list.append(pdf_output_path)
         return pdf_output_path 
