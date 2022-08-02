@@ -28,7 +28,7 @@ Stamp_ver_Chapter_1_2_data = \
 #外審版
 Audit_ver_Chapter_1_inner_title = \
 {0: {'file_name': '外審意見回覆'}, 
-1:{'title': '外審意見回覆', 'inner_title' :[f'附件_n']}}
+1:{'title': '外審意見回覆', 'inner_title' :'附件'}}
 
 
 Chapter_number = \
@@ -199,13 +199,13 @@ class Merge_Pdf_and_GetOutline():
         merger = PdfMerger()
         self.special_chapter_dic[1] = {}
         self.special_chapter_dic[1][0] = {'title' : Audit_ver_Chapter_1_inner_title[1]['title'], 'page' : None}
-        origin_title = Audit_ver_Chapter_1_inner_title[1]['inner_title'].split('_')
+        origin_title = Audit_ver_Chapter_1_inner_title[1]['inner_title']
         now_pages = 1
         for file_list_num in range(len(special_chapter_file_list)):
             PdfReader = PdfFileReader(special_chapter_file_list[file_list_num])
             merger.append(special_chapter_file_list[file_list_num])
             page = PdfReader.getNumPages()
-            title = f'{origin_title}{Chapter_number[file_list_num + 1]}'
+            title = f'{str(file_list_num + 1)}.  {origin_title}{Chapter_number[file_list_num + 1]}'
             special_chapter_file_list[1][file_list_num + 1] = {'title' : title, 'page' : now_pages}
             now_pages += page
 
