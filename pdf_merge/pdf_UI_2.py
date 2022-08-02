@@ -208,7 +208,7 @@ class MainWindow(object):
     def check_file(self):
         file_list = glob(f"{self.input_folder_path}\*.pdf")
         if len(file_list) == 0:
-            self.send_to_status(f"未找到pdf檔案，請重新選擇資料夾")
+            self.send_to_status(f"WORNING! 未找到pdf檔案，請重新選擇資料夾")
             self.input_folder_path = None
             self.start.setEnabled(False)
         else:

@@ -43,8 +43,8 @@ def create_merger_folder():
 def merge_pdf():
     pdf = merger.Merge_Pdf_and_GetOutline(pdf_data['select_stytle'], pdf_data['input_folder_path'], pdf_data['tmp_file_folder_path'])
     pdf.create_order_dic()
-    pdf.find_special_chapter_file()
-    pdf.find_same_chapter_file()
+    pdf.find_special_chapter_file()     #需先找特殊檔案，因為找到特殊檔案後會先pop出來
+    pdf.find_same_chapter_file()        #在找共通檔案
     pdf.order_same_chpater()
     pdf.find_special_chapter_page()
     pdf.add_same_and_special_chapter()
@@ -56,16 +56,16 @@ def merge_pdf():
     print(pdf.special_chapter_dic)
     print(pdf.to_word_outline)
     merge_pdf_path = pdf.output_merge_pdf_path
-    word_outline_data = pdf.to_word_outline
-    return merge_pdf_path, word_outline_data
+    outline_data = pdf.to_word_outline
+    return merge_pdf_path, outline_data
 
-def get_outline_pdf(word_outline_data):
-    word_outline_data['number'] = pdf_data['number']
-    word_outline_data['address'] = pdf_data['address']
-    word_outline_data['name'] = pdf_data['name']
+def get_outline_pdf(outline_data):
+    outline_data['number'] = pdf_data['number']
+    outline_data['address'] = pdf_data['address']
+    outline_data['name'] = pdf_data['name']
     if pdf_data['select_stytle'] == '外審版':
-        word_outline_data['outline_title'] = special_pdf_data['Audit_selection']
-    outline_doc_path = word_pdf.write_outline_word(pdf_data['select_stytle'], pdf_data['tmp_file_folder_path'], 'Outline', word_outline_data)
+        outline_data['outline_title'] = special_pdf_data['Audit_selection']
+    outline_doc_path = word_pdf.write_outline_word(pdf_data['select_stytle'], pdf_data['tmp_file_folder_path'], 'Outline', outline_data)
     outline_pdf_path = word_pdf.turn_word_to_pdf(outline_doc_path)
 
     return outline_pdf_path
@@ -80,11 +80,11 @@ def main(basic_data, special_data):
         create_merger_folder()
     
         send_msg_to_UI('生成合併pdf檔...')
-        merge_pdf_path, word_outline_data = merge_pdf()
+        merge_pdf_path, outline_data = merge_pdf()
         time.sleep(1)
 
         send_msg_to_UI('封面pdf檔...')
-        outline_pdf_path = get_outline_pdf(word_outline_data)
+        outline_pdf_path = get_outline_pdf(outline_data)
         time.sleep(1)
         
         send_msg_to_UI('生成最終檔案...')
