@@ -192,9 +192,9 @@ class Merge_Pdf_and_GetOutline():
         self.special_chapter_dic[1][0] = {'title' : Audit_ver_Chapter_1_inner_title[1]['title'], 'page' : None}
         origin_title = Audit_ver_Chapter_1_inner_title[1]['inner_title']
         now_pages = 1
-        for file_list_num in range(len(special_chapter_file_list)):
-            PdfReader = PdfFileReader(special_chapter_file_list[file_list_num])
-            merger.append(special_chapter_file_list[file_list_num])
+        for file_list_num, file_path in enumerate(special_chapter_file_list):
+            PdfReader = PdfFileReader(file_path)
+            merger.append(file_path)
             page = PdfReader.getNumPages()
             title = f'{str(file_list_num + 1)}.  {origin_title}{Chapter_number[file_list_num + 1]}'
             self.special_chapter_dic[1][file_list_num + 1] = {'title' : title, 'page' : now_pages}
