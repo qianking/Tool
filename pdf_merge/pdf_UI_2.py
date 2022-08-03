@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader 
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QColor
 
 VERSION = '1.0.0'
 
@@ -179,6 +179,7 @@ class MainWindow(object):
         self.status.setReadOnly(True)
         self.status.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.status.setFont(QFont('Times New Roman', 12))
+        self.reset_status()
 
     
     def btm_connect(self):
@@ -239,6 +240,17 @@ class MainWindow(object):
         self.start_merge.start()
 #endregion
     
+    def reset_status(self):
+        self.status.clear()
+
+        txt = '>>>>>>>請先確認選擇合併版本再開始<<<<<<<<'
+        fft1 = self.status.currentCharFormat()
+        fft1.setForeground(QColor('#da8318'))
+        fft1.setFontWeight(QFont.Bold)
+        self.status.setCurrentCharFormat(fft1)
+        self.status.appendPlainText(txt)
+        
+
     def send_to_status(self, txt):
         fft1 = self.status.currentCharFormat()
         if "WORNING" in txt or "ERROR" in txt:
