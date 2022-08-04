@@ -83,7 +83,7 @@ class MainWindow(object):
         self.tab_2_title_1 = self._window.tab_2_title_1
         self.tab_2_title_2 = self._window.tab_2_title_2
         tab_2 = [self.tab_2_title_1, self.tab_2_title_2]
-        tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 第一大章節的檔案名稱請包含「」']
+        tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 第一大章節的檔案名稱請包含「外審意見回覆_n」(n為編號)']
         for i in range(len(tab_2_txt)):
             tab_2[i].setText(tab_2_txt[i])
         
