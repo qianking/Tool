@@ -72,8 +72,23 @@ class MainWindow(object):
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
         tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「資料結構」的字串']
-        for i in range(len(tab_1_txt)):
-            tab_1[i].setText(tab_1_txt[i])
+        for i, tab in enumerate(tab_1):
+            tab.setText(tab_1_txt[i])
+        
+        self.buid_single = self._window.single
+        self.buid_muilti = self._window.muilti
+        self.build_num_title = self._window.build_num
+        self.build_No_title = self._window.build_No
+        build_title = [self.buid_single, self.buid_muilti, self.build_num_title, self.build_No_title]
+        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :']
+        for i, build in enumerate(build_title):
+            build.setFont(QFont('Times New Roman', 12))
+            build.setText(build_title_txt[i])
+        self.build_num_title.setAlignment(Qt.AlignRight)
+        self.build_No_title.setAlignment(Qt.AlignRight)
+
+        self.build_num_input = self._window.build_num_input
+        self.build_No_input = self._window.build_No_input
 
 
     def set_Audit_tab(self):
@@ -94,9 +109,9 @@ class MainWindow(object):
         self.audit_selection_group = self._window.buttonGroup
         self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3, self.audit_selection_4]
         self.select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '        會後意見回覆']
-        for i in range(len(self.select_txt)):
-            self.selection_btm[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
-            self.selection_btm[i].setText(self.select_txt[i].strip())   
+        for i, selection in enumerate(self.selection_btm):
+            selection.setFont(QFont('Times New Roman', 12, QFont.Bold))
+            selection.setText(self.select_txt[i].strip())   
 
 
     def set_ps_in_tab(self):
@@ -104,9 +119,9 @@ class MainWindow(object):
         self.tab_2_title_3 = self._window.tab_2_title_3
         ps = [self.tab_1_title_3, self.tab_2_title_3]
         ps_text = 'p.s. 本工具不會生成頁碼，請手動加入'
-        for i in ps:
-            i.setStyleSheet("color: #FF0000")
-            i.setText(ps_text)
+        for p in ps:
+            p.setStyleSheet("color: #FF0000")
+            p.setText(ps_text)
 
 
     def set_config_btm(self):
@@ -154,9 +169,9 @@ class MainWindow(object):
                     '建築師 : ',
                     '檔名 : ',
                     '.pdf (選填，預設檔名為 Vooo_結構計算書(全))']
-        for i in range(len(label_list)):
-            label_list[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
-            label_list[i].setText(label_txt[i])
+        for i, label in enumerate(label_list):
+            label.setFont(QFont('Times New Roman', 12, QFont.Bold))
+            label.setText(label_txt[i])
         self.label_V.setFont(QFont('Times New Roman', 12))
         self.label_V.setText('V')
         self.groupbox.setFont(QFont('Times New Roman', 10))
