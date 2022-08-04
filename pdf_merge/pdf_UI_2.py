@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader 
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QColor
 
 VERSION = '1.0.0'
 
@@ -71,7 +71,7 @@ class MainWindow(object):
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
-        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「資料結構」']
+        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「資料結構」的字串']
         for i in range(len(tab_1_txt)):
             tab_1[i].setText(tab_1_txt[i])
 
@@ -93,10 +93,10 @@ class MainWindow(object):
         self.audit_selection_4 = self._window.radioButton_4
         self.audit_selection_group = self._window.buttonGroup
         self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3, self.audit_selection_4]
-        select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '會後意見回覆']
-        for i in range(len(select_txt)):
+        self.select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '        會後意見回覆']
+        for i in range(len(self.select_txt)):
             self.selection_btm[i].setFont(QFont('Times New Roman', 12, QFont.Bold))
-            self.selection_btm[i].setText(select_txt[i])   
+            self.selection_btm[i].setText(self.select_txt[i].strip())   
 
 
     def set_ps_in_tab(self):
@@ -178,6 +178,7 @@ class MainWindow(object):
         self.status.setReadOnly(True)
         self.status.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.status.setFont(QFont('Times New Roman', 12))
+        self.reset_status()
 
     
     def btm_connect(self):
@@ -190,6 +191,7 @@ class MainWindow(object):
         self.import_folder.clicked.connect(self.open_folder)
         self.import_folder.clicked.connect(self.check_file)
         self.import_folder.clicked.connect(self.get_information)
+
 
     def set_start_btm(self):
         self.start.clicked.connect(self.get_information)
@@ -222,7 +224,7 @@ class MainWindow(object):
                 QMessageBox.warning(self._window, 'Warning', '請選擇外審版本', QMessageBox.Ok)
             else:
                 radio_index = -(self.audit_selection_group.checkedId() + 2)
-                self.Audit_selection = self.selection_btm[radio_index].text()
+                self.Audit_selection = self.select_txt[radio_index]
     
     def start_merge_thread(self):
         self.set_all_enable(False)
@@ -237,12 +239,25 @@ class MainWindow(object):
         self.start_merge.start()
 #endregion
     
+    def reset_status(self):
+        self.status.clear()
+
+        txt = '>>>>>>>請先確認選擇合併版本再開始<<<<<<<<'
+        fft1 = self.status.currentCharFormat()
+        fft1.setForeground(QColor('#da8318'))
+        fft1.setFontWeight(QFont.Bold)
+        self.status.setCurrentCharFormat(fft1)
+        self.status.appendPlainText(txt)
+        
+
     def send_to_status(self, txt):
         fft1 = self.status.currentCharFormat()
         if "WORNING" in txt or "ERROR" in txt:
             fft1.setForeground(Qt.red)
             
-        else:  
+        elif '合併完成' in txt: 
+            fft1.setForeground(Qt.blue)
+        else:
             fft1.setForeground(Qt.black)
         self.status.setCurrentCharFormat(fft1)
         self.status.appendPlainText(txt)
@@ -254,9 +269,8 @@ class MainWindow(object):
         self.address_input.setEnabled(bool)
         self.name_input.setEnabled(bool)
         self.file_name_input.setEnabled(bool)
-        for i in range(self.tabwidget.count()):
-            self.tabwidget.setTabEnabled(i, bool)
-        
+        for btm in self.selection_btm:
+            btm.setEnabled(bool)
 
     def set_enable(self, txt):
         if "WORNING" in txt or "ERROR" in txt:

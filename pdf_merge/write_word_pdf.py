@@ -3,9 +3,10 @@ import datetime
 import os
 import comtypes.client
 
-Audit_outline_template_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)\cover\Audit_outline_template.docx'
-Stamp_outline_template_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)\cover\Stamp_outline_template.docx'
-cover_template_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)\cover\cover_template.docx'
+root_path = r'C:\Users\andy_chien\Downloads\整合PDF(all)0802\cover'
+Audit_outline_template_path = os.path.join(root_path, 'Audit_outline_template.docx')
+Stamp_outline_template_path = os.path.join(root_path, 'Stamp_outline_template.docx')
+cover_template_path = os.path.join(root_path, 'cover_template.docx')
 #doc_output_path = r'C:\封面\test_1.docx'
 context = {
         'title_special': [

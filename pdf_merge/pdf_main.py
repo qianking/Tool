@@ -27,7 +27,7 @@ def get_variable_form_UI(basic_data, special_data):
     pdf_data['input_folder_path'] = basic_data[4]
     pdf_data['file_name'] = basic_data[5]
     special_pdf_data = special_data
-    if len(special_data) != 0:
+    if 'self' in special_data:
         self = special_data['self']
         status = special_data['status']
 
@@ -50,11 +50,11 @@ def merge_pdf():
     pdf.add_same_and_special_chapter()
     time.sleep(1)
     pdf.merge_all_pdf()
-    print(pdf.all_chapter_dic)
+    print('all_chapter_dic:', pdf.all_chapter_dic)
     pdf.transfer_to_word_stytle() 
-    print(pdf.same_chapter_dic)
-    print(pdf.special_chapter_dic)
-    print(pdf.to_word_outline)
+    print('same_chapter_dic:', pdf.same_chapter_dic)
+    print('special_chapter_file_path:', pdf.special_chapter_file_path)
+    print('to_word_outline:', pdf.to_word_outline)
     merge_pdf_path = pdf.output_merge_pdf_path
     outline_data = pdf.to_word_outline
     return merge_pdf_path, outline_data
@@ -78,12 +78,12 @@ def main(basic_data, special_data):
         
         send_msg_to_UI('合併開始...')
         create_merger_folder()
-    
+
         send_msg_to_UI('生成合併pdf檔...')
         merge_pdf_path, outline_data = merge_pdf()
         time.sleep(1)
 
-        send_msg_to_UI('封面pdf檔...')
+        send_msg_to_UI('生成封面pdf檔...')
         outline_pdf_path = get_outline_pdf(outline_data)
         time.sleep(1)
         
@@ -107,4 +107,4 @@ def main(basic_data, special_data):
 
 
 if "__main__" == __name__:
-    main(('核章版',554, '台中市西屯區福德段273、274地號集合住宅新建工程', '李明哲建築師事務所', r'C:\Users\andy_chien\Downloads\整合PDF(all)\整合前', 'test'), {})
+    main(('外審版', 554, '台中市西屯區福德段273、274地號集合住宅新建工程', '李明哲建築師事務所', r'C:\Users\andy_chien\Downloads\整合PDF(all)0802\整合前\外審版', 'test'), {'Audit_selection':'第二次外審結構計算書'})
