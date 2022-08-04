@@ -83,7 +83,7 @@ class MainWindow(object):
         self.tab_2_title_1 = self._window.tab_2_title_1
         self.tab_2_title_2 = self._window.tab_2_title_2
         tab_2 = [self.tab_2_title_1, self.tab_2_title_2]
-        tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '1. 第一大章節的檔案名稱請包含「」']
+        tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 第一大章節的檔案名稱請包含「」']
         for i in range(len(tab_2_txt)):
             tab_2[i].setText(tab_2_txt[i])
         
@@ -102,8 +102,7 @@ class MainWindow(object):
     def set_ps_in_tab(self):
         self.tab_1_title_3 = self._window.tab_1_title_3
         self.tab_2_title_3 = self._window.tab_2_title_3
-        self.tab_3_title_3 = self._window.tab_3_title_3
-        ps = [self.tab_1_title_3, self.tab_2_title_3, self.tab_3_title_3]
+        ps = [self.tab_1_title_3, self.tab_2_title_3]
         ps_text = 'p.s. 本工具不會生成頁碼，請手動加入'
         for i in ps:
             i.setStyleSheet("color: #FF0000")
@@ -125,8 +124,8 @@ class MainWindow(object):
         """ '''
         self.config_1_btm = self._window.config_1_btm
         self.config_2_btm = self._window.config_2_btm
-        self.config_3_btm = self._window.config_3_btm
-        config_btm_list = [self.config_1_btm, self.config_2_btm, self.config_3_btm]
+        
+        config_btm_list = [self.config_1_btm, self.config_2_btm]
         for btm in config_btm_list:
             btm.setText('Config')
         self.config_1_btm.clicked.connect(self.open_config_1_file)
