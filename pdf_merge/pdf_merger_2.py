@@ -22,8 +22,8 @@ All_same_chapter = \
 #核章版
 Stamp_ver_Chapter_1_2_data = \
 {0: {'file_name': '結構資料'},
-1:{'title': '結構設計概要說明', 'inner_title' : ['1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心']},
-2: {'title': '地震力與風力計算', 'inner_title' :['2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算']}}
+1:{'title': '結構設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
+2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}}
 
 #外審版
 Audit_ver_Chapter_1_inner_title = \
@@ -34,17 +34,15 @@ Audit_ver_Chapter_1_inner_title = \
 Chapter_number = \
 {1: '一', 2:'二', 3:'三', 4:'四', 5:'五', 6:'六'}
 
-stytle = '外審版'
+#stytle = '外審版'
 
-#stytle =['核章版': Stamp, '外審版': Audit]
+#stytle =['核章版': Stamp_single、Stamp_multi, '外審版': Audit]
 
 
 class Merge_Pdf_and_GetOutline():
-    def __init__(self, stytle, input_pdf_folder_path, output_path):
-        self.stytle = stytle
-        self.input_pdf_folder_path = input_pdf_folder_path
-        self.output_path = output_path
-        self.file_list = glob(f"{self.input_pdf_folder_path}\*.pdf")
+    def __init__(self, pdf_data):
+        self.pdf_data = pdf_data
+        self.file_list = glob(f"{self.pdf_data['input_folder_path']}\*.pdf")
         self.debug_file = deepcopy(self.file_list)
         self.special_chapter_file_path = ''
         self.same_chapter_flag = None
@@ -80,14 +78,14 @@ class Merge_Pdf_and_GetOutline():
                 for name in file_name_list['inner_title_and_file_name']:
                     if name in pdf_name:
                         name_index = file_name_list['inner_title_and_file_name'].index(name)
-                        pdf_path = os.path.join(self.input_pdf_folder_path, pdf_name)
+                        pdf_path = os.path.join(self.pdf_data['input_folder_path'], pdf_name)
                         self.same_chapter_dic[chapter][name_index+1] = {'title': name, 'pdf_path': pdf_path}
                         self.same_chapter_dic[chapter][0] = {'title': file_name_list['title']}
                         return pdf
             else:
                 name = file_name_list['title']
                 if name in pdf_name:
-                    pdf_path = os.path.join(self.input_pdf_folder_path, pdf_name)
+                    pdf_path = os.path.join(self.pdf_data['input_folder_path'], pdf_name)
                     self.same_chapter_dic[chapter][1] = {'title': None, 'pdf_path': pdf_path}
                     self.same_chapter_dic[chapter][0] = {'title': name}
                     return pdf
@@ -123,33 +121,59 @@ class Merge_Pdf_and_GetOutline():
                 self.same_chapter_dic.pop(capter)
 
     def find_special_chapter_file(self):
-        if self.stytle == '核章版':
+        if 'Stamp' in self.pdf_data['select_stytle']:
             file_name = Stamp_ver_Chapter_1_2_data[0]['file_name']
-        if self.stytle == '外審版':
+        if 'Audit' in self.pdf_data['select_stytle']:
             file_name = Audit_ver_Chapter_1_inner_title[0]['file_name']
 
         flag = False
-        for pdf in self.file_list:
-            pdf_name = pdf.split('\\')[-1]
+        for pdf_path in self.file_list:
+            pdf_name = pdf_path.split('\\')[-1]
             if  file_name in pdf_name:
-                index = self.debug_file.index(pdf)
+                index = self.debug_file.index(pdf_path)
                 self.debug_file.pop(index)
-                self.special_chapter_dic[1].append(pdf)
+                self.special_chapter_dic[1].append(pdf_path)
                 flag = True
                 continue
         
         if not flag:
-            raise FileNotFoundError(f'WORNING! 找不到{self.stytle}第一章檔案! 請檢查檔案和選擇合併版本並重新選擇資料夾')
-                       
+            raise FileNotFoundError(f"WORNING! 找不到{self.pdf_data['select_stytle']}第一章檔案! 請檢查檔案和選擇合併版本並重新選擇資料夾")
+        
+        if self.pdf_data['select_stytle'] == 'Stamp_multi':
+            if len(self.pdf_data['build_no']) > len(self.special_chapter_dic[1]):
+                raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有檔案缺少或是建築編號多填，請檢查輸入參數或檔案")
+            elif len(self.pdf_data['build_no']) < len(self.special_chapter_dic[1]):
+                raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有建築編號少填，請檢查輸入參數或檔案")
+            else:
+                special_chapter_file_list = []
+                debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])                           #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
+                for i, no in enumerate(self.pdf_data['build_no']):
+                    file_name_pattern = re.compile(fr"({file_name}.*_{no})", re.I)
+                    for pdf_name in self.special_chapter_dic[1]:
+                        find_pattern = file_name_pattern.findall(pdf_name)
+                        if len(find_pattern):
+                            index = debug_special_chapter_file.index(pdf_name)
+                            p = debug_special_chapter_file.pop(index)
+                            special_chapter_file_list.append(p)
+                            break
+
+                if len(debug_special_chapter_file) != 0:
+                    raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有檔案命名有誤或是建築編號填寫錯誤，請檢查輸入參數或檔案") 
+                else:
+                    self.special_chapter_dic[1] = deepcopy(special_chapter_file_list)  
+               
        
     def find_special_chapter_page(self):
-        if self.stytle == '核章版':
-            self.find_Stamp_page()
-        if self.stytle == '外審版':
+        if self.pdf_data['select_stytle'] == 'Stamp_single':
+            self.find_Stamp_single_page()
+        if self.pdf_data['select_stytle'] == 'Stamp_multi':
+            self.find_Stamp_multi_page()
+            self.merge_Stamp_multi_file()
+        if self.pdf_data['select_stytle'] == 'Audit':
             self.find_Audit_page_and_merge()
 
     
-    def find_Stamp_page(self):
+    def find_Stamp_single_page(self):
         self.special_chapter_file_path = deepcopy(self.special_chapter_dic[1][0])
         self.special_chapter_dic.clear()
         for i in range(1, len(Stamp_ver_Chapter_1_2_data)):
@@ -157,8 +181,8 @@ class Merge_Pdf_and_GetOutline():
             self.special_chapter_dic[i][0] = {'title' : Stamp_ver_Chapter_1_2_data[i]['title'], 'page' : None}
             
         title_1_2_list = list(deepcopy(Stamp_ver_Chapter_1_2_data[1]['inner_title']))
-        title_1_2_list.extend(list(deepcopy(Stamp_ver_Chapter_1_2_data[2]['inner_title'])))
-
+        title_1_2_list.extend(list(Stamp_ver_Chapter_1_2_data[2]['inner_title']))
+        debug_title_list = deepcopy(title_1_2_list)
         PdfReader = PdfFileReader(self.special_chapter_file_path)
         total_page = PdfReader.getNumPages()
         self.special_chapter_dic['total_page'] =total_page
@@ -166,22 +190,143 @@ class Merge_Pdf_and_GetOutline():
         for pages in range(total_page):
             Page_n = PdfReader.getPage(pages)
             txt = Page_n.extractText()
-            while len(title_1_2_list) != 0:
-                title = title_1_2_list[0]
-                title_name = title.split('．')[1]
-                pattern = re.compile(fr"(\d).(\d\d*)．({title_name})", re.I)
-                find_pattern = pattern.findall(txt)
-                if len(find_pattern) != 0:
-                    chapter = int(find_pattern[0][0])
-                    name = f"{find_pattern[0][0]}-{find_pattern[0][1]} {find_pattern[0][2]}"
-                    self.special_chapter_dic[chapter][int(find_pattern[0][1])] = {'title': name, 'page': pages + 1}
-                    index_title = title_1_2_list.index(title)
-                    title_1_2_list.pop(index_title)
-                else:
-                    break
+            if len(title_1_2_list) != 0:
+                for title in title_1_2_list:
+                    title_name = title.split('．')[1]
+                    pattern = re.compile(fr"(\d).(\d\d*)．({title_name})", re.I)
+                    find_pattern = pattern.findall(txt)
+                    if len(find_pattern) != 0:
+                        chapter = int(find_pattern[0][0])
+                        name = f"{find_pattern[0][0]}-{find_pattern[0][1]} {find_pattern[0][2]}"
+                        self.special_chapter_dic[chapter][int(find_pattern[0][1])] = {'title': name, 'page': pages + 1}
+                        index_title = debug_title_list.index(title)
+                        debug_title_list.pop(index_title)
+                        continue
+                    if title == title_1_2_list[-1]:
+                        break
+     
+        if len(debug_title_list) != 0:
+            fail_title = '、'.join(debug_title_list)
+            raise NotFoundErr(f'WORNING! {self.special_chapter_file_path}中，章節{fail_title}未被找到，請檢查檔案中標題名稱!')
 
-        if len(title_1_2_list) != 0:
-            raise NotFoundErr(f'WORNING! {self.special_chapter_file_path}中，章節{title_1_2_list[0]}未被找到，請檢查檔案中標題名稱!')
+
+    def find_Stamp_multi_page(self):
+        special_chapter_file_list = deepcopy(self.special_chapter_dic[1])
+        self.special_chapter_dic.clear()
+        build_NO = self.pdf_data['build_no']
+        
+        title_1_2_list = list(deepcopy(Stamp_ver_Chapter_1_2_data[1]['inner_title']))
+        title_1_2_list.extend(list(deepcopy(Stamp_ver_Chapter_1_2_data[2]['inner_title'])))
+
+        same_title_1_2 = set(title_1_2_list[:10])      #1-1 ~ 1-10為所有檔案都有的，拿來做為查看是否有漏掉title用
+        self.special_chapter_dic = {}
+        debug_title_dic = {}
+        
+        for i, pdf in enumerate(special_chapter_file_list):
+            debug_title_list = deepcopy(title_1_2_list)
+
+            PdfReader = PdfFileReader(pdf)
+            total_page = PdfReader.getNumPages()
+            self.special_chapter_dic[build_NO[i]] = {"pdf" : pdf, "total_page" : total_page, 1 : {0:{'title' : Stamp_ver_Chapter_1_2_data[1]['title'], 'page' : None}}, 2 : {0:{'title' : Stamp_ver_Chapter_1_2_data[2]['title'], 'page' : None}}}
+            
+            for pages in range(total_page):
+                Page_n = PdfReader.getPage(pages)
+                txt = Page_n.extractText()
+
+                if len(title_1_2_list) != 0:
+                    for title in title_1_2_list:
+                        title_name = title.split('．')[1]
+                        pattern = re.compile(fr"(\d).(\d\d*)．({title_name})", re.I)
+                        find_pattern = pattern.findall(txt)
+                        if len(find_pattern) != 0:
+                            chapter = int(find_pattern[0][0])
+                            name = f"{find_pattern[0][0]}-{find_pattern[0][1]} {find_pattern[0][2]}"
+                            self.special_chapter_dic[build_NO[i]][chapter][int(find_pattern[0][1])] = {'title': name, 'page': pages + 1}
+                            index_title = debug_title_list.index(title)
+                            debug_title_list.pop(index_title)
+                            continue
+                        if title == title_1_2_list[-1]:
+                            break
+            
+            if set(debug_title_list) & same_title_1_2 == same_title_1_2: 
+                debug_title_list = list(set(debug_title_list) - same_title_1_2)
+            if len(debug_title_list):
+                debug_title_dic[i] = {'pdf' : pdf, 'fail_title_list' : deepcopy(debug_title_list)}
+        
+        if len(debug_title_dic):
+            txt  = ''
+            for i, data in debug_title_dic.items():
+                title_txt = '、'.join(data['fail_title_list'])
+                txt += f"{data['pdf']}中，章節{title_txt}未被找到，\n"
+            raise NotFoundErr(f'WORNING! {txt}，請檢查檔案中標題名稱!')
+    
+    def merge_Stamp_multi_file(self):
+        special_chapter_data = {}
+        have_1_10_file = {}
+        for no, data in self.special_chapter_dic.items():                 #先找到有第1-1~1-10章節的檔案
+            if 1 in data[1]:
+                have_1_10_file[no] = {'pdf' : data['pdf'], 1:{}}        #把有1-1~1-10章節的檔案存起來
+                for i in range(11):
+                    have_1_10_file[no][1][i] = data[1].pop(i)
+                total_page_1_10 = data[1][11]['page']-1
+                have_1_10_file[no]['total_page'] = total_page_1_10
+        if not len(have_1_10_file):
+            raise NotFoundErr(f'WORNING! 並未找到1-1 ~ 1-10章節')
+        if len(have_1_10_file) > 1:
+            debug_list = []
+            for no, data in have_1_10_file.items():
+                debug_list.append(data[1][10]['page'])
+                if len(set(debug_list)) > 1:
+                    raise NotFoundErr(f'WORNING! 有檔案第1-10章節頁數不同')
+        
+        frist = list(have_1_10_file.keys())[0]
+        frist_file = have_1_10_file[frist]['pdf']
+        PdfReader = PdfFileReader(frist_file)
+        first_chapter_file = PdfFileWriter()
+        for pages in range(total_page_1_10):        #先將1-1~1-10提取出來寫入檔案
+            page = PdfReader.getPage(pages)
+            first_chapter_file.addPage(page)
+        special_chapter_data[1] = have_1_10_file[frist][1]
+        special_chapter_data[2] = {}
+        now_page = total_page_1_10
+
+        for no, data in self.special_chapter_dic.items():
+            PdfReader = PdfFileReader(data['pdf'])
+            special_chapter_data[2][no] = {}
+            chapter_list = list(data[1])
+            frist_page_chapter = chapter_list[0]
+            for i in range(data[1][frist_page_chapter]['page']-1, data['total_page']): 
+                page = PdfReader.getPage(i)
+                first_chapter_file.addPage(page)
+    
+            for chapter in range(1, 3):
+                special_chapter_data[2][no][chapter] = {}
+                chapter_list = list(data[chapter])
+                for chap in chapter_list:
+                    tmp_dic = data[chapter][chap]
+                    _page = data[chapter][chapter_list[0]]['page']
+                    if _page == None:
+                        _page = data[chapter][chapter_list[1]]['page']
+                    if _page != 1:
+                        if tmp_dic['page']:
+                            tmp_dic['page'] = tmp_dic['page'] - total_page_1_10 + now_page
+                    else:
+                        tmp_dic['page'] += now_page
+
+                    special_chapter_data[2][no][chapter][chap] = deepcopy(tmp_dic)
+
+            if data[1][11]['page'] != 1:
+                now_page = data['total_page'] - total_page_1_10 + now_page
+            else:
+                now_page += data['total_page']
+        
+
+        self.special_chapter_dic = special_chapter_data
+        self.special_chapter_dic['total_page'] = now_page 
+        self.special_chapter_file_path = os.path.join(self.pdf_data['tmp_file_folder_path'], 'first_chapter_pdf.pdf') 
+
+        with open(self.special_chapter_file_path, 'wb') as f:
+            first_chapter_file.write(f)
 
 
     def find_Audit_page_and_merge(self):
@@ -202,7 +347,7 @@ class Merge_Pdf_and_GetOutline():
 
         self.special_chapter_dic['total_page'] = now_pages - 1
         file_name = 'First_Chapter.pdf'
-        self.special_chapter_file_path = os.path.join(self.output_path, file_name)  
+        self.special_chapter_file_path = os.path.join(self.pdf_data['tmp_file_folder_path'], file_name)  
         merger.write(self.special_chapter_file_path)
         merger.close()
 
@@ -244,7 +389,7 @@ class Merge_Pdf_and_GetOutline():
         tmp_dic = {}
         tmp_dic['chapter'] = chapter
         tmp_dic['title'] = name
-        doc_output_path = word_pdf.write_cover_word(self.output_path, f'cover_{chapter}', tmp_dic)
+        doc_output_path = word_pdf.write_cover_word(self.pdf_data['tmp_file_folder_path'], tmp_dic, f'cover_{chapter}')
         pdf_output_path = word_pdf.turn_word_to_pdf(doc_output_path)
 
         self.delete_file_list.append(doc_output_path)
@@ -255,7 +400,7 @@ class Merge_Pdf_and_GetOutline():
     def get_output_file_path(self):
         now_date = datetime.date.today()
         file_name = f'{now_date}_merge.pdf'
-        self.output_merge_pdf_path = os.path.join(self.output_path, file_name)    
+        self.output_merge_pdf_path = os.path.join(self.pdf_data['tmp_file_folder_path'], file_name)    
 
     def merge_all_pdf(self):
         merger = PdfMerger()
@@ -271,15 +416,16 @@ class Merge_Pdf_and_GetOutline():
 
     
     def transfer_to_word_stytle(self):
-        if self.stytle == '核章版':
-            self.transfer_to_word_stytle_Stamp_chapter()
-        if self.stytle == '外審版':
-            self.transfer_to_word_stytle_Stamp_chapter()
-        
+        if self.pdf_data['select_stytle'] == 'Stamp_single' or self.pdf_data['select_stytle'] == 'Audit':
+            self.transfer_to_word_stytle_Stamp_single_chapter()
+
+        if self.pdf_data['select_stytle'] == 'Stamp_multi':  
+            self.transfer_to_word_stytle_Stamp_multi_chapter()
+
         self.transfer_to_word_stytle_same_chapter()
         
 
-    def transfer_to_word_stytle_Stamp_chapter(self):
+    def transfer_to_word_stytle_Stamp_single_chapter(self):
         temp_list = []
         for chapter in range(1, self.same_chapter_flag):
             temp_dic = {}
@@ -299,6 +445,40 @@ class Merge_Pdf_and_GetOutline():
             temp_list.append(deepcopy(temp_dic))
             self.to_word_outline['title_special'] = deepcopy(temp_list)
         del temp_list[:]
+
+    
+    def transfer_to_word_stytle_Stamp_multi_chapter(self):
+        temp_list = []
+        temp_dic = {}
+        temp_inner_list = []
+        temp_dic['big_title'] = f"{Chapter_number[1]}、{self.all_chapter_dic[1][0]['title']}"
+        for inner_chapter in range(1, len(self.all_chapter_dic[1])):   
+            temp_inner_list.append(deepcopy(self.all_chapter_dic[1][inner_chapter]))
+        temp_dic['inner_title'] = deepcopy(temp_inner_list)
+        temp_list.append(deepcopy(temp_dic))
+        self.to_word_outline['title_special_1'] = deepcopy(temp_list)
+
+        del temp_list[:]
+        del temp_inner_list[:]
+        temp_dic.clear()
+
+        chapter_2 = self.all_chapter_dic[2]
+        for no, data in chapter_2.items():
+            temp_dic['build_titie'] = f"{no}棟"
+            for inner_chapter, inner_data in data[1].items():
+                temp_inner_list.append(deepcopy(inner_data))
+            temp_dic['inner_1_title'] = deepcopy(temp_inner_list)
+            del temp_inner_list[:]
+            for inner_chapter, inner_data in data[2].items():
+                if inner_chapter == 0:
+                    temp_dic['big_title'] = f"{Chapter_number[2]}、{inner_data['title']}"
+                else:
+                    temp_inner_list.append(deepcopy(inner_data))
+            temp_dic['inner_2_title'] = deepcopy(temp_inner_list)
+            temp_list.append(deepcopy(temp_dic))
+            del temp_inner_list[:]
+        self.to_word_outline['title_special_2'] = deepcopy(temp_list)
+     
     
     def transfer_to_word_stytle_same_chapter(self):
         temp_list = []
@@ -322,7 +502,6 @@ class Merge_Pdf_and_GetOutline():
         del temp_list[:]
 
                 
-    
     def delete_file(self):
         for file in self.delete_file_list:
             os.remove(file)

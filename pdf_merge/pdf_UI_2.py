@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader 
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont, QColor, QIntValidator
 
 VERSION = '1.0.0'
 
@@ -17,6 +17,8 @@ class MainWindow(object):
         self._window = None
         self.start_merge = None
         self.input_folder_path = None
+        self.start_flage = True
+        self.pdf_information = {}
         self.setup_ui()
         
     @property
@@ -79,17 +81,34 @@ class MainWindow(object):
         self.buid_muilti = self._window.muilti
         self.build_num_title = self._window.build_num
         self.build_No_title = self._window.build_No
-        build_title = [self.buid_single, self.buid_muilti, self.build_num_title, self.build_No_title]
-        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :']
+        self.tab_1_label = self._window.label_2
+        self.stamp_selection_group = self._window.stamp_selection_group
+        build_title = [self.buid_single, self.buid_muilti, self.build_num_title, self.build_No_title, self.tab_1_label]
+        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :', "(請用「、」號分開，例 : A、B、C...)"]
         for i, build in enumerate(build_title):
             build.setFont(QFont('Times New Roman', 12))
             build.setText(build_title_txt[i])
+        self.buid_single.setChecked(True)
+        self.buid_single.toggled.connect(self.build_onclick_set)
+        self.buid_muilti.toggled.connect(self.build_onclick_set)
         self.build_num_title.setAlignment(Qt.AlignRight)
         self.build_No_title.setAlignment(Qt.AlignRight)
 
         self.build_num_input = self._window.build_num_input
+        self.build_num_input.setValidator(QIntValidator())
         self.build_No_input = self._window.build_No_input
-
+        self.muilti_set = [self.build_num_title, self.build_No_title, self.tab_1_label, self.build_num_input, self.build_No_input]
+        for i, build in enumerate(self.muilti_set):
+            build.setFont(QFont('Times New Roman', 12))
+            build.setEnabled(False)
+    
+    def build_onclick_set(self):
+        if self.buid_muilti.isChecked():
+            for i, build in enumerate(self.muilti_set):
+                build.setEnabled(True)
+        else:
+            for i, build in enumerate(self.muilti_set):
+                build.setEnabled(False)
 
     def set_Audit_tab(self):
         tab_title = '外審版'
@@ -106,12 +125,13 @@ class MainWindow(object):
         self.audit_selection_2 = self._window.radioButton_2
         self.audit_selection_3 = self._window.radioButton_3
         self.audit_selection_4 = self._window.radioButton_4
-        self.audit_selection_group = self._window.buttonGroup
+        self.audit_selection_group = self._window.audit_selection_group
         self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3, self.audit_selection_4]
         self.select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '        會後意見回覆']
         for i, selection in enumerate(self.selection_btm):
             selection.setFont(QFont('Times New Roman', 12, QFont.Bold))
-            selection.setText(self.select_txt[i].strip())   
+            selection.setText(self.select_txt[i].strip())
+        self.audit_selection_1.setChecked(True)   
 
 
     def set_ps_in_tab(self):
@@ -234,24 +254,46 @@ class MainWindow(object):
 #region start 按鈕動作
     def check_available(self):
         self.select_stytle = self.tabwidget.tabText(self.tabwidget.currentIndex())
+        if self.select_stytle == '核章版':
+            if self.buid_single.isChecked():
+                self.pdf_information['select_stytle'] = 'Stamp_single'
+            elif self.buid_muilti.isChecked():
+                self.build_num = self.build_num_input.text()
+                self.build_No = self.build_No_input.text()
+                if self.build_num == "" or self.build_No == "":
+                    self.start_flage = False
+                    QMessageBox.warning(self._window, 'warning', '請填入棟數和編號', QMessageBox.Ok)
+
+                elif self.build_num != "" and self.build_No != "":
+                    self.build_No = [no.strip() for no in self.build_No.split('、')]
+                    if len(self.build_No) != int(self.build_num):
+                        self.start_flage = False
+                        QMessageBox.warning(self._window, 'warning', '填入棟數和編號數目不匹配', QMessageBox.Ok)
+                    else:
+                        self.pdf_information['select_stytle'] = 'Stamp_multi'
+                        self.pdf_information['build_num'] = int(self.build_num)
+                        self.pdf_information['build_no'] = self.build_No
+
         if self.select_stytle == '外審版':
-            if self.audit_selection_group.checkedId() == -1:
-                QMessageBox.warning(self._window, 'Warning', '請選擇外審版本', QMessageBox.Ok)
-            else:
-                radio_index = -(self.audit_selection_group.checkedId() + 2)
-                self.Audit_selection = self.select_txt[radio_index]
+            radio_index = -(self.audit_selection_group.checkedId() + 2)
+            self.pdf_information['select_stytle'] = 'Audit'
+            self.pdf_information['Audit_selection'] = self.select_txt[radio_index]
+        
     
     def start_merge_thread(self):
-        self.set_all_enable(False)
-        data = self.select_stytle, self.number, self.address, self.name, self.input_folder_path, self.file_name
-        if self.select_stytle == '核章版': 
-            self.start_merge = Merge_PDF_Thread(data)
-        if self.select_stytle == '外審版': 
-            self.start_merge = Merge_PDF_Thread(data, Audit_selection=self.Audit_selection)
-    
-        self.start_merge.status.connect(self.send_to_status)
-        self.start_merge.status.connect(self.set_enable)
-        self.start_merge.start()
+        if self.start_flage:
+            self.pdf_information['input_folder_path'] = self.input_folder_path
+            self.set_all_enable(False)
+            outline_infor_name = ['number', 'address', 'name', 'file_name']
+            outline_information = [self.number, self.address, self.name, self.file_name]
+            outline_information = dict(zip(outline_infor_name, outline_information))
+            self.start_merge = Merge_PDF_Thread(outline_information, self.pdf_information)
+        
+            self.start_merge.status.connect(self.send_to_status)
+            self.start_merge.status.connect(self.set_enable)
+            self.start_merge.start()
+        else:
+            self.start_flage = True
 #endregion
     
     def reset_status(self):
@@ -334,16 +376,16 @@ def open_config_file(path):
         
 class Merge_PDF_Thread(QThread):
     status = Signal(str)
-    def __init__(self, basic_data, **special_data):
+    def __init__(self, ouline_information, pdf_information):
         super(Merge_PDF_Thread, self).__init__()
-        self.basic_data = basic_data
-        self.special_data = special_data
+        self.outline_information = ouline_information
+        self.pdf_information = pdf_information
     
     def run(self):
-        self.special_data['self'] = self
-        self.special_data['status'] = self.status
-        pdf_main.main(self.basic_data,
-                    self.special_data) 
+        self.pdf_information['self'] = self
+        self.pdf_information['status'] = self.status
+        pdf_main.main(self.outline_information,
+                    self.pdf_information) 
 
     def stop(self):
         self.terminate()

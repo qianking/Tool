@@ -225,7 +225,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -317,6 +317,9 @@
               <property name="text">
                <string>R</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">stamp_selection_group</string>
+              </attribute>
              </widget>
             </item>
             <item row="0" column="0">
@@ -324,6 +327,9 @@
               <property name="text">
                <string>Radi</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">stamp_selection_group</string>
+              </attribute>
              </widget>
             </item>
             <item row="1" column="2">
@@ -449,7 +455,7 @@
                <string>RadioButton</string>
               </property>
               <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
+               <string notr="true">audit_selection_group</string>
               </attribute>
              </widget>
             </item>
@@ -459,7 +465,7 @@
                <string>RadioButton</string>
               </property>
               <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
+               <string notr="true">audit_selection_group</string>
               </attribute>
              </widget>
             </item>
@@ -469,7 +475,7 @@
                <string>RadioButton</string>
               </property>
               <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
+               <string notr="true">audit_selection_group</string>
               </attribute>
              </widget>
             </item>
@@ -479,7 +485,7 @@
                <string>RadioButton</string>
               </property>
               <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
+               <string notr="true">audit_selection_group</string>
               </attribute>
              </widget>
             </item>
@@ -541,6 +547,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
+  <buttongroup name="audit_selection_group"/>
+  <buttongroup name="stamp_selection_group"/>
  </buttongroups>
 </ui>
