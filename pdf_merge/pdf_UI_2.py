@@ -73,8 +73,9 @@ class MainWindow(object):
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
-        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「資料結構」的字串']
+        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「資料結構」的字串，多棟版本請加入編號(例: 資料結構_A、資料結構_B...)']
         for i, tab in enumerate(tab_1):
+            tab.setFont(QFont('標楷體', 14))
             tab.setText(tab_1_txt[i])
         
         self.buid_single = self._window.single
@@ -118,8 +119,9 @@ class MainWindow(object):
         self.tab_2_title_2 = self._window.tab_2_title_2
         tab_2 = [self.tab_2_title_1, self.tab_2_title_2]
         tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 第一大章節的檔案名稱請包含「外審意見回覆_n」(n為編號)']
-        for i in range(len(tab_2_txt)):
-            tab_2[i].setText(tab_2_txt[i])
+        for i, tab in enumerate(tab_2):
+            tab.setFont(QFont('標楷體', 14))
+            tab.setText(tab_2_txt[i])
         
         self.audit_selection_1 = self._window.radioButton_1
         self.audit_selection_2 = self._window.radioButton_2
