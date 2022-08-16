@@ -1,9 +1,8 @@
 from docxtpl import DocxTemplate
-import datetime
 import os
 import comtypes.client
 
-root_path = r'E:\python\github\Tool\pdf_merge\整合PDF(all)\cover'
+root_path = r'.\template'
 Audit_outline_template_path = os.path.join(root_path, 'Audit_outline_template.docx')
 Stamp_single_outline_template_path = os.path.join(root_path, 'Stamp_single_outline_template.docx')
 Stamp_multi_outline_template_path = os.path.join(root_path, 'Stamp_multi_outline_template.docx')
@@ -49,7 +48,6 @@ cover_template_path = os.path.join(root_path, 'cover_template.docx')
             {'big_title':'四、開挖設計', 'page': 99, 
                 'inner_title': []}], 
         } """
-
 """context = {'title_special_1' : 
                     [{'big_title':'一、結構設計概要說明',
                         'inner_title': [
@@ -89,7 +87,7 @@ cover_template_path = os.path.join(root_path, 'cover_template.docx')
                             {'title': '1-5 主要材料強度', 'page': 3}]}],
                     
                     }"""
-content = {'title_special_1': [
+""" content = {'title_special_1': [
                 {'big_title': '一、結構設計概要說明', 
                         'inner_title': [
                             {'title': '1-1 建築概要', 'page': 1}, 
@@ -195,7 +193,7 @@ content = {'title_special_1': [
                             {'title': '1.  第一次意見回覆', 'page': 229}]}, 
                 {'big_title': '六、設計分析報表', 'page': 241, 
                         'inner_title': [
-                            {'title': '1.  大梁、柱、牆', 'page': 242}]}]}
+                            {'title': '1.  大梁、柱、牆', 'page': 242}]}]} """
                  
 
 template = {'Stamp_single': Stamp_single_outline_template_path,
@@ -236,4 +234,5 @@ def turn_word_to_pdf(input_word_path):
 
 
 if "__main__" == __name__:
-    write_outline_word('Stamp_multi', r'E:\python\github\Tool\pdf_merge\整合PDF(all)', content)
+    pass
+    #write_outline_word('Stamp_multi', r'E:\python\github\Tool\pdf_merge\整合PDF(all)', content)

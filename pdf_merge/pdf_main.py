@@ -1,10 +1,18 @@
 import os
-import pdf_merger_2 as merger
+import sys
+import pdf_merger as merger
 import write_word_pdf as word_pdf
-from glob import glob
 import datetime
-import comtypes.client
 import time
+import traceback
+
+"""
+1.需要修改目錄頁滿了會生成空白一頁的問題
+2.檢查檔案存在(Template)
+3.
+
+
+"""
 
 outline_information = {}
 pdf_information = {}
@@ -71,6 +79,7 @@ def get_outline_pdf(outline_data):
 def main(basic_data, special_data):
     try:
         start_time = time.time()
+        
         get_variable_form_UI(basic_data, special_data)
         
         send_msg_to_UI('合併開始...')
@@ -87,12 +96,24 @@ def main(basic_data, special_data):
         send_msg_to_UI('生成最終檔案...')
         final_path = merger.Merge_Final_PDF(outline_pdf_path, merge_pdf_path, outline_information['number'], outline_information['file_name'])
          
-    except Exception as ex:
+    except FileNotFoundError as ex:
         print(ex)
         msg = str(ex)
         if 'WORNING' not in msg:
             msg = f'ERROR! 錯誤 : {msg}'
         send_msg_to_UI(msg)
+        return 0
+
+    except Exception as ex:
+        error_class = ex.__class__.__name__ #取得錯誤類型
+        detail = ex.args[0] #取得詳細內容
+        cl, exc, tb = sys.exc_info() #取得Call Stack
+        lastCallStack = traceback.extract_tb(tb)[-1] #取得Call Stack的最後一筆資料
+        fileName = lastCallStack[0] #取得發生的檔案名稱
+        lineNum = lastCallStack[1] #取得發生的行號
+        funcName = lastCallStack[2]#取得發生的函數名稱
+        errMsg = f"{[error_class]}\n\"{fileName}\", line {lineNum}, in {funcName}\n{detail}"
+        send_msg_to_UI(errMsg)
         return 0
 
     else:
@@ -104,5 +125,7 @@ def main(basic_data, special_data):
 
 
 if "__main__" == __name__:
-    pdf_information = {'select_stytle': 'Stamp_multi', 'build_num': 4, 'build_no': ['1', '2', '3', '4'], 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多', 'self': '<__main__.Merge_PDF_Thread(0x2784804e4c0) at 0x000002783D58B100>', 'status': '<PySide6.QtCore.SignalInstance status(QString) at 0x000002783D581AB0>', 'tmp_file_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多\\2022-08-14_merger'}
-    merge_pdf()
+    basic_data = {'number': '554', 'address': '台中市西屯區福德段273、274地號集合住宅新建工程', 'name': '李明哲建築師事務所', 'file_name': None} 
+    special_data = {'select_stytle': 'Stamp_single', 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版', 'self': None, 'status': None}
+    #pdf_information = {'select_stytle': 'Stamp_multi', 'build_num': 4, 'build_no': ['1', '2', '3', '4'], 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多', 'self': '<__main__.Merge_PDF_Thread(0x2784804e4c0) at 0x000002783D58B100>', 'status': '<PySide6.QtCore.SignalInstance status(QString) at 0x000002783D581AB0>', 'tmp_file_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多\\2022-08-14_merger'}
+    main(basic_data, special_data)

@@ -7,14 +7,21 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader 
-from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit
+from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow
 from PySide6.QtGui import QFont, QColor, QIntValidator
+from pdf_UI_file import Ui_MainWindow
 
 VERSION = '1.0.0'
 
-class MainWindow(object):
+class MainWindow(QMainWindow):
     def __init__(self, parent=None):
-        self._window = None
+        super(MainWindow, self).__init__()
+        # region .py版本
+        self._window = Ui_MainWindow()
+        self._window.setupUi(self)
+        # endregion
+
+        #self._window = None               #.ui版本
         self.start_merge = None
         self.input_folder_path = None
         self.start_flage = True
@@ -26,11 +33,13 @@ class MainWindow(object):
         return self._window
 
     def setup_ui(self):
-        loader = QUiLoader()
+        # region .ui版本
+        """ loader = QUiLoader()
         file = QFile('./pdf_UI_2.ui')
         file.open(QFile.ReadOnly)
         self._window = loader.load(file)
-        file.close()
+        file.close() """
+        #endregion 
         self.set_window_title()
         self.set_tab_tabwidget()
         self.set_Audit_tab()
@@ -49,8 +58,8 @@ class MainWindow(object):
         
 #region 設定基本UI
     def set_window_title(self):
-        self._window.setWindowTitle(f'PDF合併工具 V {VERSION}')
-
+        #self._window.setWindowTitle(f'PDF合併工具 V {VERSION}')    #.ui版本
+        self.setWindowTitle(f'PDF合併工具 V {VERSION}')             #.py版本
 
     def set_tab_tabwidget(self):
         self.tabwidget = self._window.tabWidget
@@ -170,10 +179,10 @@ class MainWindow(object):
         #self.start_btm.setStyleSheet(button_style)
     
     def open_config_1_file(self):
-        open_config_file(".\data\核章版檔名.txt")
+        open_config_file(r".\template\file_name_data\核章版檔名.txt")
     
     def open_config_2_file(self):
-        open_config_file(".\data\外審版檔名.txt")
+        open_config_file(r".\template\file_name_data\外審版檔名.txt")
 
     
     def set_cover_label_text(self):
@@ -238,7 +247,7 @@ class MainWindow(object):
 #region import 按鈕動作
     def open_folder(self):
         self.status.clear()
-        self.input_folder_path = QFileDialog.getExistingDirectory(self._window, 'choose folder', 'F:/')
+        self.input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/')
         self.input_folder_path = self.input_folder_path.replace("/", "\\")
         self.send_to_status(f"選擇資料夾: {self.input_folder_path}")
         
@@ -311,7 +320,7 @@ class MainWindow(object):
 
     def send_to_status(self, txt):
         fft1 = self.status.currentCharFormat()
-        if "WORNING" in txt or "ERROR" in txt:
+        if "WORNING" in txt or "Error" in txt:
             fft1.setForeground(Qt.red)
             
         elif '合併完成' in txt: 
@@ -332,7 +341,7 @@ class MainWindow(object):
             btm.setEnabled(bool)
 
     def set_enable(self, txt):
-        if "WORNING" in txt or "ERROR" in txt:
+        if "WORNING" in txt or "Error" in txt:
             self.set_all_enable(True)
             if self.start_merge != None:
                 self.start_merge.stop()
@@ -403,7 +412,8 @@ if '__main__' == __name__:
         app = QApplication(sys.argv)
 
     mainwindow = MainWindow()
-    mainwindow.window.show()
+    #mainwindow.window.show()  #.ui版本
+    mainwindow.show()          #.py版本
 
     sys.exit(app.exec())
 
