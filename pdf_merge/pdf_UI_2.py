@@ -1,5 +1,6 @@
+from genericpath import isfile
 import sys
-import re
+import os
 from glob import glob
 import subprocess
 import pdf_main
@@ -11,17 +12,19 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainText
 from PySide6.QtGui import QFont, QColor, QIntValidator
 from pdf_UI_file import Ui_MainWindow
 
+UI_file_format = 'py'
 VERSION = '1.0.0'
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
-        # region .py版本
-        self._window = Ui_MainWindow()
-        self._window.setupUi(self)
-        # endregion
-
-        #self._window = None               #.ui版本
+        if UI_file_format == 'py':
+            self._window = Ui_MainWindow()
+            self._window.setupUi(self)
+        elif UI_file_format == 'ui':
+            self._window = None               
         self.start_merge = None
         self.input_folder_path = None
         self.start_flage = True
@@ -33,13 +36,12 @@ class MainWindow(QMainWindow):
         return self._window
 
     def setup_ui(self):
-        # region .ui版本
-        """ loader = QUiLoader()
-        file = QFile('./pdf_UI_2.ui')
-        file.open(QFile.ReadOnly)
-        self._window = loader.load(file)
-        file.close() """
-        #endregion 
+        if UI_file_format == 'ui':
+            loader = QUiLoader()
+            file = QFile('./pdf_UI_2.ui')
+            file.open(QFile.ReadOnly)
+            self._window = loader.load(file)
+            file.close()
         self.set_window_title()
         self.set_tab_tabwidget()
         self.set_Audit_tab()
@@ -58,8 +60,10 @@ class MainWindow(QMainWindow):
         
 #region 設定基本UI
     def set_window_title(self):
-        #self._window.setWindowTitle(f'PDF合併工具 V {VERSION}')    #.ui版本
-        self.setWindowTitle(f'PDF合併工具 V {VERSION}')             #.py版本
+        if UI_file_format == 'ui':
+            self._window.setWindowTitle(f'PDF合併工具 V {VERSION}')    #.ui版本
+        else:
+            self.setWindowTitle(f'PDF合併工具 V {VERSION}')             #.py版本
 
     def set_tab_tabwidget(self):
         self.tabwidget = self._window.tabWidget
@@ -402,7 +406,6 @@ class Merge_PDF_Thread(QThread):
         self.terminate()
 
 
-
 if '__main__' == __name__:
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
     qt_app = QtWidgets.QApplication(sys.argv)
@@ -412,8 +415,10 @@ if '__main__' == __name__:
         app = QApplication(sys.argv)
 
     mainwindow = MainWindow()
-    #mainwindow.window.show()  #.ui版本
-    mainwindow.show()          #.py版本
+    if UI_file_format == 'ui':
+        mainwindow.window.show()  #.ui版本
+    else:
+        mainwindow.show()          #.py版本
 
     sys.exit(app.exec())
 

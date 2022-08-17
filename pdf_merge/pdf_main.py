@@ -2,15 +2,13 @@ import os
 import sys
 import pdf_merger as merger
 import write_word_pdf as word_pdf
+from PyPDF2 import PdfFileReader, PdfFileWriter
 import datetime
 import time
 import traceback
 
 """
-1.需要修改目錄頁滿了會生成空白一頁的問題
-2.檢查檔案存在(Template)
-3.
-
+檢查檔案存在(Template)
 
 """
 
@@ -72,8 +70,22 @@ def get_outline_pdf(outline_data):
         outline_data['outline_title'] = pdf_information['Audit_selection']
     outline_doc_path = word_pdf.write_outline_word(pdf_information['select_stytle'], pdf_information['tmp_file_folder_path'], outline_data)
     outline_pdf_path = word_pdf.turn_word_to_pdf(outline_doc_path)
-
+    delete_blank_page(outline_pdf_path)
     return outline_pdf_path
+
+def delete_blank_page(path):
+    PdfReader = PdfFileReader(path)
+    total_page = PdfReader.getNumPages()
+    first_chapter_file = PdfFileWriter()
+    for i in range(total_page):
+        Page_n = PdfReader.getPage(i)
+        txt = Page_n.extractText()
+        txt = txt.strip()
+        if txt != '':  
+            first_chapter_file.addPage(Page_n)
+    with open(path, 'wb') as f:
+        first_chapter_file.write(f)
+        
 
 
 def main(basic_data, special_data):
