@@ -1,6 +1,5 @@
 from genericpath import isfile
 import sys
-import os
 from glob import glob
 import subprocess
 import pdf_main
