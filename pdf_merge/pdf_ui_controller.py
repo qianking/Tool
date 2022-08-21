@@ -9,7 +9,7 @@ from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader 
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow
 from PySide6.QtGui import QFont, QColor, QIntValidator
-from pdf_UI_file import Ui_MainWindow
+from pdf_ui import Ui_MainWindow
 
 UI_file_format = 'py'
 VERSION = '1.0.0'
@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
-        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「資料結構」的字串，多棟版本請加入編號(例: 資料結構_A、資料結構_B...)']
+        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「地震風力」的字串，多棟版本請加入編號(例: A&地震風力、B&地震風力...)']
         for i, tab in enumerate(tab_1):
             tab.setFont(QFont('標楷體', 14))
             tab.setText(tab_1_txt[i])
@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
         self.tab_1_label = self._window.label_2
         self.stamp_selection_group = self._window.stamp_selection_group
         build_title = [self.buid_single, self.buid_muilti, self.build_num_title, self.build_No_title, self.tab_1_label]
-        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :', "(請用「、」號分開，例 : A、B、C...)"]
+        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :', "(請用「,」號分開，例 : A、B、C...)"]
         for i, build in enumerate(build_title):
             build.setFont(QFont('Times New Roman', 12))
             build.setText(build_title_txt[i])
@@ -138,10 +138,9 @@ class MainWindow(QMainWindow):
         self.audit_selection_1 = self._window.radioButton_1
         self.audit_selection_2 = self._window.radioButton_2
         self.audit_selection_3 = self._window.radioButton_3
-        self.audit_selection_4 = self._window.radioButton_4
         self.audit_selection_group = self._window.audit_selection_group
-        self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3, self.audit_selection_4]
-        self.select_txt = ['第一次外審結構計算書', '第二次外審結構計算書', '第三次外審結構計算書', '        會後意見回覆']
+        self.selection_btm = [self.audit_selection_1, self.audit_selection_2, self.audit_selection_3]
+        self.select_txt = ['第二次外審結構計算書', '第三次外審結構計算書', '        會後意見回覆']
         for i, selection in enumerate(self.selection_btm):
             selection.setFont(QFont('Times New Roman', 12, QFont.Bold))
             selection.setText(self.select_txt[i].strip())
@@ -195,7 +194,7 @@ class MainWindow(QMainWindow):
         self.name_label = self._window.name
         self.file_name = self._window.file_name
         self.label = self._window.label
-        self.label_V = self._window.label_V
+        
 
         label_list = [self.number_label, self.address_label, self.name_label, self.file_name, self.label]
         label_txt = ['案號 : ',
@@ -206,8 +205,6 @@ class MainWindow(QMainWindow):
         for i, label in enumerate(label_list):
             label.setFont(QFont('Times New Roman', 12, QFont.Bold))
             label.setText(label_txt[i])
-        self.label_V.setFont(QFont('Times New Roman', 12))
-        self.label_V.setText('V')
         self.groupbox.setFont(QFont('Times New Roman', 10))
         self.groupbox.setTitle('封面資訊')
 #endregion
@@ -220,6 +217,7 @@ class MainWindow(QMainWindow):
         input_list = [self.number_input, self.address_input, self.name_input, self.file_name_input]
         for i in input_list:
             i.setFont(QFont('Times New Roman', 12))
+        self.number_input.setText('V')
 
 
     def txt_plain_connect(self):
@@ -250,7 +248,7 @@ class MainWindow(QMainWindow):
 #region import 按鈕動作
     def open_folder(self):
         self.status.clear()
-        self.input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/')
+        self.input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/Job')
         self.input_folder_path = self.input_folder_path.replace("/", "\\")
         self.send_to_status(f"選擇資料夾: {self.input_folder_path}")
         
@@ -279,7 +277,7 @@ class MainWindow(QMainWindow):
                     QMessageBox.warning(self._window, 'warning', '請填入棟數和編號', QMessageBox.Ok)
 
                 elif self.build_num != "" and self.build_No != "":
-                    self.build_No = [no.strip() for no in self.build_No.split('、')]
+                    self.build_No = [no.strip() for no in self.build_No.split(',')]
                     if len(self.build_No) != int(self.build_num):
                         self.start_flage = False
                         QMessageBox.warning(self._window, 'warning', '填入棟數和編號數目不匹配', QMessageBox.Ok)

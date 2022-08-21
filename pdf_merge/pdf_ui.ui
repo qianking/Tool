@@ -31,7 +31,13 @@
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="1" colspan="3">
-          <widget class="QLineEdit" name="address_line"/>
+          <widget class="QLineEdit" name="address_line">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+          </widget>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="number">
@@ -60,7 +66,13 @@
           </widget>
          </item>
          <item row="2" column="1" colspan="3">
-          <widget class="QLineEdit" name="name_line"/>
+          <widget class="QLineEdit" name="name_line">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="name">
@@ -88,19 +100,12 @@
            </property>
           </spacer>
          </item>
-         <item row="0" column="2">
+         <item row="0" column="1">
           <widget class="QLineEdit" name="number_line">
            <property name="font">
             <font>
              <pointsize>12</pointsize>
             </font>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_V">
-           <property name="text">
-            <string>TextLabel</string>
            </property>
           </widget>
          </item>
@@ -131,6 +136,11 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
         </property>
        </widget>
       </item>
@@ -436,29 +446,6 @@
           </item>
           <item row="1" column="0" colspan="2">
            <layout class="QGridLayout" name="gridLayout_5">
-            <item row="0" column="0" colspan="5">
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>538</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="radioButton_1">
-              <property name="text">
-               <string>RadioButton</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">audit_selection_group</string>
-              </attribute>
-             </widget>
-            </item>
             <item row="1" column="1">
              <widget class="QRadioButton" name="radioButton_2">
               <property name="text">
@@ -480,7 +467,20 @@
              </widget>
             </item>
             <item row="1" column="3">
-             <widget class="QRadioButton" name="radioButton_4">
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>78</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0">
+             <widget class="QRadioButton" name="radioButton_1">
               <property name="text">
                <string>RadioButton</string>
               </property>
@@ -489,14 +489,14 @@
               </attribute>
              </widget>
             </item>
-            <item row="1" column="4">
-             <spacer name="horizontalSpacer_8">
+            <item row="0" column="0" colspan="4">
+             <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>78</width>
+                <width>538</width>
                 <height>20</height>
                </size>
               </property>
@@ -547,7 +547,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="audit_selection_group"/>
   <buttongroup name="stamp_selection_group"/>
+  <buttongroup name="audit_selection_group"/>
  </buttongroups>
 </ui>

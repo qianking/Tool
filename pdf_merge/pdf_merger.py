@@ -10,18 +10,35 @@ import write_word_pdf as word_pdf
 """
 如果要使用本檔案，需先去 python\lib\site-packages\PyPDF2\_camp.py 檔案中的第287行 註解掉這行
 """
-
+#共通有的章節
 All_same_chapter = \
-{1: {'title': '結構設計檢核', 'inner_title_and_file_name' : ['軟層檢核', '剪力牆設計', '一樓樓版剪力傳遞', '梁上柱檢核', '梁柱韌性與扭力檢核', '極限層剪力檢核', 'SRC梁檢核', 'SRC柱檢核', '上浮力檢核', '地下室外牆設計', '無梁版檢核', '基礎設計']},
-2: {'title': '開挖設計', 'inner_title_and_file_name' : None}, #開挖設計這章沒小章節，所以頁數不用+1
-3: {'title': '結構外審意見回覆', 'inner_title_and_file_name' : ['第一次意見回覆','第二次意見回覆', '第三次意見回覆', '會後意見回覆']},
-4: {'title': '設計分析報表', 'inner_title_and_file_name' : ['大梁、柱、牆', '小梁、版']}}
-
+{1: {'file_name':'結構設計檢核', 'title': '結構設計檢核', 'inner_title_and_file_name' : 
+                [{'file_name':('軟層',), 'title':'軟層檢核'}, 
+                {'file_name':('剪力牆設計',), 'title':'剪力牆設計'}, 
+                {'file_name':('一樓樓版剪力傳遞',), 'title':'一樓樓版剪力傳遞'}, 
+                {'file_name':('梁上柱',), 'title':'梁上柱檢核'}, 
+                {'file_name':('韌性與扭力',), 'title':'梁柱韌性與扭力檢核'}, 
+                {'file_name':('極限層剪力','弱層',), 'title':'極限層剪力檢核'}, 
+                {'file_name':('SRC梁',), 'title':'SRC梁檢核'}, 
+                {'file_name':('SRC柱',), 'title':'SRC柱檢核'}, 
+                {'file_name':('上浮力',), 'title':'上浮力檢核'}, 
+                {'file_name':('地下室外牆設計',), 'title':'地下室外牆設計'}, 
+                {'file_name':('無梁版',), 'title':'無梁版檢核'}, 
+                {'file_name':('基礎設計',), 'title':'基礎設計'}]},
+2: {'file_name':'開挖計算書', 'title': '開挖設計', 'inner_title_and_file_name' : None}, #開挖設計這章沒小章節，所以頁數不用+1
+3: {'file_name':'結構外審意見回覆', 'title': '結構外審意見回覆', 'inner_title_and_file_name' : 
+                [{'file_name':('第一次意見回覆',), 'title':'第一次意見回覆'},
+                {'file_name':('第二次意見回覆',), 'title':'第二次意見回覆'}, 
+                {'file_name':('第三次意見回覆',), 'title':'第三次意見回覆'}, 
+                {'file_name':('會後意見回覆',), 'title':'會後意見回覆'},]},
+4: {'file_name':'設計分析報表','title': '設計分析報表', 'inner_title_and_file_name' : 
+                [{'file_name':('大梁、柱、牆',), 'title':'大梁、柱、牆'}, 
+                {'file_name':('小梁、版',), 'title':'小梁、版'},]}}
 
 #核章版
 Stamp_ver_Chapter_1_2_data = \
-{0: {'file_name': '結構資料'},
-1:{'title': '結構設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
+{0: {'file_name': '地震風力'},
+1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
 2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}}
 
 #外審版
@@ -69,24 +86,25 @@ class Merge_Pdf_and_GetOutline():
         if len(self.debug_file)!= 0:
             bug_file = '、'.join(self.debug_file)
             raise FileNotFoundError(f'WORNING! 有檔案未被合併 : {bug_file}，請檢查檔案並重新選擇資料夾!')
+            
 
     def find_the_same_chapter(self, pdf):
-        pdf_name = pdf.split('\\')[-1]
+        pdf_name = pdf.split('\\')[-1]   #得到pdf名子
         for chapter, file_name_list in All_same_chapter.items():
-            if file_name_list['inner_title_and_file_name']:
-                for name in file_name_list['inner_title_and_file_name']:
-                    if name in pdf_name:
-                        name_index = file_name_list['inner_title_and_file_name'].index(name)
-                        pdf_path = os.path.join(self.pdf_data['input_folder_path'], pdf_name)
-                        self.same_chapter_dic[chapter][name_index+1] = {'title': name, 'pdf_path': pdf_path}
-                        self.same_chapter_dic[chapter][0] = {'title': file_name_list['title']}
-                        return pdf
-            else:
-                name = file_name_list['title']
-                if name in pdf_name:
+            if file_name_list['inner_title_and_file_name']:     #如果該章節檔案名稱不是使用該章節的title名稱命名
+                for i, file_data in enumerate(file_name_list['inner_title_and_file_name']):
+                    for name in file_data['file_name']:
+                        if name in pdf_name:
+                            pdf_path = os.path.join(self.pdf_data['input_folder_path'], pdf_name)
+                            self.same_chapter_dic[chapter][i+1] = {'title': file_data['title'], 'pdf_path': pdf_path}
+                            self.same_chapter_dic[chapter][0] = {'title': file_name_list['title']}
+                            return pdf
+            else:                                                   #如果該章節檔案名稱是使用該章節的title名稱命名
+                file_name = file_name_list['file_name']  
+                if file_name in pdf_name:
                     pdf_path = os.path.join(self.pdf_data['input_folder_path'], pdf_name)
                     self.same_chapter_dic[chapter][1] = {'title': None, 'pdf_path': pdf_path}
-                    self.same_chapter_dic[chapter][0] = {'title': name}
+                    self.same_chapter_dic[chapter][0] = {'title': file_name_list['title']}
                     return pdf
 
     def order_same_chpater(self):
@@ -147,7 +165,7 @@ class Merge_Pdf_and_GetOutline():
                 special_chapter_file_list = []
                 debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])                           #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
                 for i, no in enumerate(self.pdf_data['build_no']):
-                    file_name_pattern = re.compile(fr"({file_name}.*_{no})", re.I)
+                    file_name_pattern = re.compile(fr"({no}&{file_name})", re.I)
                     for pdf_name in self.special_chapter_dic[1]:
                         find_pattern = file_name_pattern.findall(pdf_name)
                         if len(find_pattern):
@@ -170,6 +188,8 @@ class Merge_Pdf_and_GetOutline():
             self.merge_Stamp_multi_file()
         if self.pdf_data['select_stytle'] == 'Audit':
             self.find_Audit_page_and_merge()
+
+        self.delete_file_list.append(self.special_chapter_file_path)
 
     
     def find_Stamp_single_page(self):
@@ -260,6 +280,7 @@ class Merge_Pdf_and_GetOutline():
             raise NotFoundErr(f'WORNING! {txt}，請檢查檔案中標題名稱!')
     
     def merge_Stamp_multi_file(self):
+        #print('\nspecial_chapter_dic', self.special_chapter_dic)
         special_chapter_data = {}
         have_1_10_file = {}
         for no, data in self.special_chapter_dic.items():                 #先找到有第1-1~1-10章節的檔案
@@ -277,7 +298,8 @@ class Merge_Pdf_and_GetOutline():
                 debug_list.append(data[1][10]['page'])
                 if len(set(debug_list)) > 1:
                     raise NotFoundErr(f'WORNING! 有檔案第1-10章節頁數不同')
-        
+
+        #print('\nhave_1_10_file', have_1_10_file)
         frist = list(have_1_10_file.keys())[0]
         frist_file = have_1_10_file[frist]['pdf']
         PdfReader = PdfFileReader(frist_file)
@@ -292,25 +314,28 @@ class Merge_Pdf_and_GetOutline():
         for no, data in self.special_chapter_dic.items():
             PdfReader = PdfFileReader(data['pdf'])
             special_chapter_data[2][no] = {}
-            chapter_list = list(data[1])
+            if 0 in data[1]:
+                del data[1][0]
+            chapter_list = list(data[1]) 
             frist_page_chapter = chapter_list[0]
-            for i in range(data[1][frist_page_chapter]['page']-1, data['total_page']): 
+            pdf_fisrt_page = data[1][frist_page_chapter]['page']
+            for i in range(pdf_fisrt_page-1, data['total_page']): #將1-10之後的章節全合併起來
                 page = PdfReader.getPage(i)
                 first_chapter_file.addPage(page)
-    
+                
+
             for chapter in range(1, 3):
                 special_chapter_data[2][no][chapter] = {}
                 chapter_list = list(data[chapter])
                 for chap in chapter_list:
-                    tmp_dic = data[chapter][chap]
-                    _page = data[chapter][chapter_list[0]]['page']
-                    if _page == None:
-                        _page = data[chapter][chapter_list[1]]['page']
-                    if _page != 1:
-                        if tmp_dic['page']:
-                            tmp_dic['page'] = tmp_dic['page'] - total_page_1_10 + now_page
-                    else:
-                        tmp_dic['page'] += now_page
+                    tmp_dic = deepcopy(data[chapter][chap])
+                    
+                    if tmp_dic['page']:                           #如果為封面頁，代表那頁沒頁碼，如果不是封面，那代表有頁碼
+                        if pdf_fisrt_page != 1:
+                            if tmp_dic['page']:
+                                tmp_dic['page'] = tmp_dic['page'] - total_page_1_10 + now_page
+                        elif pdf_fisrt_page == 1:
+                            tmp_dic['page'] += now_page
 
                     special_chapter_data[2][no][chapter][chap] = deepcopy(tmp_dic)
 
@@ -411,8 +436,7 @@ class Merge_Pdf_and_GetOutline():
         self.get_output_file_path()
         merger.write(self.output_merge_pdf_path)
         merger.close()
-        self.delete_file()
-
+        self.delete_file_list.append(self.output_merge_pdf_path)
     
     def transfer_to_word_stytle(self):
         if self.pdf_data['select_stytle'] == 'Stamp_single' or self.pdf_data['select_stytle'] == 'Audit':
@@ -499,11 +523,6 @@ class Merge_Pdf_and_GetOutline():
             temp_list.append(deepcopy(temp_dic))
             self.to_word_outline['title_same'] = deepcopy(temp_list)
         del temp_list[:]
-
-                
-    def delete_file(self):
-        for file in self.delete_file_list:
-            os.remove(file)
 
 
 def Merge_Final_PDF(Outline_pdf_path, Merged_pdf_path, number, final_file_name):
