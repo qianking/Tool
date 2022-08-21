@@ -143,17 +143,29 @@ class Merge_Pdf_and_GetOutline():
         if 'Audit' in self.pdf_data['select_stytle']:
             file_name = Audit_ver_Chapter_1_inner_title[0]['file_name']
 
-        flag = False
+        find_file_flag = False
+        file_NO_way_flag = False
+
+        file_NO_pattern = re.compile(r"^\d[1,2]_\d\d", re.I)
         for pdf_path in self.file_list:
             pdf_name = pdf_path.split('\\')[-1]
-            if  file_name in pdf_name:
+            find_pattern = file_NO_pattern.findall(pdf_name)
+            if len(find_pattern):
+                self.special_chapter_dic[1].append(pdf_path)
                 index = self.debug_file.index(pdf_path)
                 self.debug_file.pop(index)
-                self.special_chapter_dic[1].append(pdf_path)
-                flag = True
-                continue
+                file_NO_way_flag = True
+                find_file_flag = True
+
+            else:
+                if file_name in pdf_name:
+                    index = self.debug_file.index(pdf_path)
+                    self.debug_file.pop(index)
+                    self.special_chapter_dic[1].append(pdf_path)
+                    find_file_flag = True
+                    continue
         
-        if not flag:
+        if not find_file_flag:
             raise FileNotFoundError(f"WORNING! 找不到{self.pdf_data['select_stytle']}第一章檔案! 請檢查檔案和選擇合併版本並重新選擇資料夾")
         
         if self.pdf_data['select_stytle'] == 'Stamp_multi':
@@ -163,21 +175,22 @@ class Merge_Pdf_and_GetOutline():
                 raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有建築編號少填，請檢查輸入參數或檔案")
             else:
                 special_chapter_file_list = []
-                debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])                           #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
-                for i, no in enumerate(self.pdf_data['build_no']):
-                    file_name_pattern = re.compile(fr"({no}&{file_name})", re.I)
-                    for pdf_name in self.special_chapter_dic[1]:
-                        find_pattern = file_name_pattern.findall(pdf_name)
-                        if len(find_pattern):
-                            index = debug_special_chapter_file.index(pdf_name)
-                            p = debug_special_chapter_file.pop(index)
-                            special_chapter_file_list.append(p)
-                            break
+                if not file_NO_way_flag:
+                    debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])                           #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
+                    for i, no in enumerate(self.pdf_data['build_no']):
+                        file_name_pattern = re.compile(fr"({no}&{file_name})", re.I)
+                        for pdf_name in self.special_chapter_dic[1]:
+                            find_pattern = file_name_pattern.findall(pdf_name)
+                            if len(find_pattern):
+                                index = debug_special_chapter_file.index(pdf_name)
+                                p = debug_special_chapter_file.pop(index)
+                                special_chapter_file_list.append(p)
+                                break
 
-                if len(debug_special_chapter_file) != 0:
-                    raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有檔案命名有誤或是建築編號填寫錯誤，請檢查輸入參數或檔案") 
-                else:
-                    self.special_chapter_dic[1] = deepcopy(special_chapter_file_list)  
+                    if len(debug_special_chapter_file) != 0:
+                        raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有檔案命名有誤或是建築編號填寫錯誤，請檢查輸入參數或檔案") 
+                    else:
+                        self.special_chapter_dic[1] = deepcopy(special_chapter_file_list)  
                
        
     def find_special_chapter_page(self):

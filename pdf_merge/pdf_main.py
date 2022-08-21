@@ -119,7 +119,7 @@ def main(basic_data, special_data):
         return 0
 
     except Exception as ex:
-        print(ex)
+        
         error_class = ex.__class__.__name__ #取得錯誤類型
         detail = ex.args[0] #取得詳細內容
         cl, exc, tb = sys.exc_info() #取得Call Stack
@@ -128,6 +128,7 @@ def main(basic_data, special_data):
         lineNum = lastCallStack[1] #取得發生的行號
         funcName = lastCallStack[2]#取得發生的函數名稱
         errMsg = f"{[error_class]}\n\"{fileName}\", line {lineNum}, in {funcName}\n{detail}"
+        print(errMsg)
         send_msg_to_UI(errMsg)
         return 0
 
@@ -141,6 +142,6 @@ def main(basic_data, special_data):
 
 if "__main__" == __name__:
     basic_data = {'number': '555', 'address': '555', 'name': '555', 'file_name': None} 
-    special_data = {'select_stytle': 'Stamp_multi', 'build_num': 2, 'build_no': ['A', 'B'], 'input_folder_path': 'E:\\python\\Tool\\PDF合成\\整合PDF(all)\\整合前\\核章版 多-2', 'self': None, 'status': None}
+    special_data = {'select_stytle': 'Stamp_multi', 'build_num': 2, 'build_no': ['A', 'B'], 'input_folder_path': 'E:\python\\virtualenv\\PDF_Merger\\PDF_merger\\整合PDF(all)\\整合前\\核章版 多-2', 'self': None, 'status': None}
     #pdf_information = {'select_stytle': 'Stamp_multi', 'build_num': 4, 'build_no': ['1', '2', '3', '4'], 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多', 'self': '<__main__.Merge_PDF_Thread(0x2784804e4c0) at 0x000002783D58B100>', 'status': '<PySide6.QtCore.SignalInstance status(QString) at 0x000002783D581AB0>', 'tmp_file_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多\\2022-08-14_merger'}
     main(basic_data, special_data)

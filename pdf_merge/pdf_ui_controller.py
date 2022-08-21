@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
-        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「地震風力」的字串，多棟版本請加入編號(例: A&地震風力、B&地震風力...)']
+        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「地震風力」的字串，多棟版本請加入編號(例: A&地震風力、B&地震風力...)，或在檔名最前面加編號(02_0X)']
         for i, tab in enumerate(tab_1):
             tab.setFont(QFont('標楷體', 14))
             tab.setText(tab_1_txt[i])
