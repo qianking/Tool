@@ -12,7 +12,7 @@ from PySide6.QtGui import QFont, QColor, QIntValidator
 from pdf_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 
 
