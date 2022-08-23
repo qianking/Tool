@@ -103,6 +103,7 @@ def main(basic_data, special_data):
 
         send_msg_to_UI('生成封面pdf檔...')
         outline_pdf_path = get_outline_pdf(outline_data)
+        delete_file_list.append(outline_pdf_path)
         time.sleep(0.5)
         
         send_msg_to_UI('生成最終檔案...')

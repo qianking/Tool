@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
-        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔案名稱請包含「地震風力」的字串，多棟版本請加入編號(例: A&地震風力、B&地震風力...)，或在檔名最前面加編號(02_0X)']
+        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔名最前面加編號(02_0X)，\n   或包含「地震風力」字串(例: A&地震風力、B&地震風力...)']
         for i, tab in enumerate(tab_1):
             tab.setFont(QFont('標楷體', 14))
             tab.setText(tab_1_txt[i])
@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
         self.tab_1_label = self._window.label_2
         self.stamp_selection_group = self._window.stamp_selection_group
         build_title = [self.buid_single, self.buid_muilti, self.build_num_title, self.build_No_title, self.tab_1_label]
-        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :', "(請用「,」號分開，例 : A、B、C...)"]
+        build_title_txt = ['單棟', '多棟', '棟數 :', '編號 :', "(請用「,」號分開，例 : A,B,C...)"]
         for i, build in enumerate(build_title):
             build.setFont(QFont('Times New Roman', 12))
             build.setText(build_title_txt[i])
@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
                     '案名 : ',
                     '建築師 : ',
                     '檔名 : ',
-                    '.pdf (選填，預設檔名為 Vooo_結構計算書(全))']
+                    '.pdf (選填，預設檔名為 Vooo_結構計算書)']
         for i, label in enumerate(label_list):
             label.setFont(QFont('Times New Roman', 12, QFont.Bold))
             label.setText(label_txt[i])
@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
         self.input_folder_path = self.input_folder_path.replace("/", "\\")
         self.send_to_status(f"選擇資料夾: {self.input_folder_path}")
         
-
+        
     def check_file(self):
         file_list = glob(f"{self.input_folder_path}\*.pdf")
         if len(file_list) == 0:

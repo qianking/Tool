@@ -299,33 +299,33 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5 = QGridLayout()
         self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.radioButton_2 = QRadioButton(self.tab_2)
+        self.horizontalSpacer_8 = QSpacerItem(78, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_5.addItem(self.horizontalSpacer_8, 1, 5, 1, 1)
+
+        self.horizontalSpacer_7 = QSpacerItem(538, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_5.addItem(self.horizontalSpacer_7, 0, 0, 1, 6)
+
+        self.radioButton_1 = QRadioButton(self.tab_2)
         self.audit_selection_group = QButtonGroup(MainWindow)
         self.audit_selection_group.setObjectName(u"audit_selection_group")
+        self.audit_selection_group.addButton(self.radioButton_1)
+        self.radioButton_1.setObjectName(u"radioButton_1")
+
+        self.gridLayout_5.addWidget(self.radioButton_1, 1, 2, 1, 1)
+
+        self.radioButton_2 = QRadioButton(self.tab_2)
         self.audit_selection_group.addButton(self.radioButton_2)
         self.radioButton_2.setObjectName(u"radioButton_2")
 
-        self.gridLayout_5.addWidget(self.radioButton_2, 1, 1, 1, 1)
+        self.gridLayout_5.addWidget(self.radioButton_2, 1, 3, 1, 1)
 
         self.radioButton_3 = QRadioButton(self.tab_2)
         self.audit_selection_group.addButton(self.radioButton_3)
         self.radioButton_3.setObjectName(u"radioButton_3")
 
-        self.gridLayout_5.addWidget(self.radioButton_3, 1, 2, 1, 1)
-
-        self.horizontalSpacer_8 = QSpacerItem(78, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_5.addItem(self.horizontalSpacer_8, 1, 3, 1, 1)
-
-        self.radioButton_1 = QRadioButton(self.tab_2)
-        self.audit_selection_group.addButton(self.radioButton_1)
-        self.radioButton_1.setObjectName(u"radioButton_1")
-
-        self.gridLayout_5.addWidget(self.radioButton_1, 1, 0, 1, 1)
-
-        self.horizontalSpacer_7 = QSpacerItem(538, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_5.addItem(self.horizontalSpacer_7, 0, 0, 1, 4)
+        self.gridLayout_5.addWidget(self.radioButton_3, 1, 4, 1, 1)
 
 
         self.gridLayout_6.addLayout(self.gridLayout_5, 1, 0, 1, 2)
@@ -386,9 +386,9 @@ class Ui_MainWindow(object):
         self.tab_2_title_1.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.tab_2_title_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.tab_2_title_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.radioButton_1.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
         self.radioButton_2.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
         self.radioButton_3.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
-        self.radioButton_1.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
         self.config_2_btm.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"Tab 2", None))
     # retranslateUi

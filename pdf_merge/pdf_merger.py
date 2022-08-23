@@ -544,7 +544,7 @@ def Merge_Final_PDF(Outline_pdf_path, Merged_pdf_path, number, final_file_name):
     if final_file_name:
         final_pdf_name = f'{final_file_name}.pdf'
     else:
-        final_pdf_name = f'{number}_結構計算書(全).pdf'
+        final_pdf_name = f'{number}_結構計算書.pdf'
     final_path = os.path.join(final_pdf_path, final_pdf_name)
     merger = PdfMerger(strict = False)
     merger.append(Outline_pdf_path)
