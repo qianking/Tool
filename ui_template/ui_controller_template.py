@@ -38,12 +38,13 @@ class MainWindow(QMainWindow):
             self._window = loader.load(file)
             file.close()
         self.set_window_title()
-        self._window.installEventFilter(self)
+        if self.UI_file_format == 'ui':
+            self._window.installEventFilter(self)
 
 
-    #監看是否有關掉視窗的事件觸發
-    def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent) -> bool:
-        if watched is self._window and event.type() == QtCore.QEvent.Close:
+    #監看是否有關掉視窗的事件觸發 .ui版本
+    def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
+        if (watched is self._window) and (event.type() == QtCore.QEvent.Close):
             reply = QMessageBox.question(self, 'Warning', 'sure?', QMessageBox.Ok | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Ok:
                 event.accept()
@@ -51,6 +52,16 @@ class MainWindow(QMainWindow):
                 event.ignore()
                 return True
         return super().eventFilter(watched, event)
+
+    #監看是否有關掉視窗的事件觸發 .py版本
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Warning', 'sure?', QMessageBox.Ok | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Ok:
+            event.accept()
+        else:
+            event.ignore()
+            return True
+        return super().closeEvent(event)
 
     
     def set_window_title(self):
