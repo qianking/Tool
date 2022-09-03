@@ -3,11 +3,11 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QFile, QThread, Signal
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow
-import transfer as transfer
-from ui import Ui_MainWindow
+import BC_transfer as transfer
+from BC_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '0.01'
+VERSION = '1.01'
 
 
 class MainWindow(QMainWindow):
@@ -39,9 +39,9 @@ class MainWindow(QMainWindow):
     
     def set_window_title(self):
         if UI_file_format == 'ui':
-            self._window.setWindowTitle(f'數值轉換 V {VERSION}')    #.ui版本
+            self._window.setWindowTitle(f'BCForce V {VERSION}')    #.ui版本
         else:
-            self.setWindowTitle(f'數值轉換 V {VERSION}')             #.py版本
+            self.setWindowTitle(f'BCForce V {VERSION}')             #.py版本
     
     def Input_btm(self):
         self.Input = self._window.input_btm
@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         self.show_information.clear()
         self.File_path, filetype = QFileDialog.getOpenFileName(self, 'Open folder', 'F:/', "txt (*txt)")
         print(self.File_path)
+        self.File_path = self.File_path.replace('/', '\\')
         self.show_filename()
         self.transfer_thread()
     

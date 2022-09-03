@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui.ui'
+## Form generated from reading UI file 'BC_ui.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.3.1
 ##
@@ -35,8 +35,9 @@ class Ui_MainWindow(object):
         self.input_btm = QPushButton(self.centralwidget)
         self.input_btm.setObjectName(u"input_btm")
         font = QFont()
-        font.setFamilies([u"Adobe Arabic"])
-        font.setPointSize(16)
+        font.setFamilies([u"Calibri"])
+        font.setPointSize(14)
+        font.setBold(False)
         self.input_btm.setFont(font)
 
         self.horizontalLayout.addWidget(self.input_btm)
@@ -48,6 +49,10 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
         self.lineEdit.setSizePolicy(sizePolicy)
+        font1 = QFont()
+        font1.setFamilies([u"Calibri"])
+        font1.setPointSize(12)
+        self.lineEdit.setFont(font1)
 
         self.horizontalLayout.addWidget(self.lineEdit)
 
@@ -56,6 +61,7 @@ class Ui_MainWindow(object):
 
         self.plainTextEdit = QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setObjectName(u"plainTextEdit")
+        self.plainTextEdit.setFont(font1)
 
         self.verticalLayout.addWidget(self.plainTextEdit)
 
