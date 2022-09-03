@@ -12,7 +12,7 @@ from PySide6.QtGui import QFont, QColor, QIntValidator
 from pdf_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '1.0.1'
+VERSION = '0.03'
 
 
 
@@ -247,6 +247,9 @@ class MainWindow(QMainWindow):
 
 #region import 按鈕動作
     def open_folder(self):
+        radio_index = -(self.audit_selection_group.checkedId() + 2)
+        print('radio_index', radio_index)
+        print('self.select_txt[radio_index]', self.select_txt[radio_index])
         self.status.clear()
         self.input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/Job')
         self.input_folder_path = self.input_folder_path.replace("/", "\\")
