@@ -20,7 +20,6 @@ def get_story_data(input_path):
     print(story_data_list)
 
     
-
     return story_data_list
 
 def transfer_fhdd(story_data_list):
