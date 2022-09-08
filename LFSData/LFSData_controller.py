@@ -1,11 +1,11 @@
 import sys
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QRegularExpression
 from PySide6.QtCore import QFile, QThread, Signal, Qt, QRunnable, QThreadPool, QObject
 from PySide6.QtUiTools import QUiLoader 
-from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow
+from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow, QLineEdit
 from PySide6.QtWidgets import QTableWidgetItem, QHeaderView
-from PySide6.QtGui import QFont, QColor, QIntValidator
+from PySide6.QtGui import QFont, QColor, QIntValidator, QRegularExpressionValidator
 from lfsdata_ui import Ui_MainWindow
 
 VERSION = '0.01'
@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         self.set_status_plain()
         self.set_table_title()
         self.set_table()
-        self.set_table_default()
+        #self.set_table_default()
         self.set_num_label()
         self.set_floor_label()
         
@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
     def set_table(self):
         self.table_1 = self._window.table_1
         self.table_2 = self._window.table_2
-        table_title = [["樓層","fc'"], ["樓層","樑深"]]
+        table_title = [["樓層","fc'"], ["樓層 (F)","樑深"]]
         table_list = [self.table_1, self.table_2]
 
         for i, table in enumerate(table_list):
@@ -89,12 +89,18 @@ class MainWindow(QMainWindow):
     def table_setting(self, table, title):
         table.setColumnCount(2) #設置行數
         table.setRowCount(20)  #設置列數
+        #table.setValidator(QIntValidator())
         for i in range(20):
             for j in range(2):
                 item = QTableWidgetItem()
                 item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                 table.setItem(i, j, item)
                 table.openPersistentEditor(item)
+                ceil = QLineEdit()
+                validator = QRegularExpressionValidator(QRegularExpression("\d+"), ceil) #設置只能輸入數字
+                ceil.setValidator(validator)
+                table.setCellWidget(i, j, ceil)
+
         table.setHorizontalHeaderLabels([title[0], title[1]])
         font = QFont('標楷體', 12, QFont.Bold)
         table.horizontalHeader().setFont(font)
@@ -109,11 +115,11 @@ class MainWindow(QMainWindow):
         #self.fc_table.verticalScrollBar().setVisible(False)
         #self.fc_table.horizontalScrollBar().setVisible(False)
     
-    def set_table_default(self):
+    ''' def set_table_default(self):
         for i in range(20):
             item = QTableWidgetItem('F')
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            self.table_2.setItem(i, 0, item)
+            self.table_2.setItem(i, 0, item) '''
     
     def set_num_label(self):
         self.num_label = self._window.num_label
