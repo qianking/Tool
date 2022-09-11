@@ -11,13 +11,12 @@ import LFS_Main_Flow
 
 VERSION = '0.01'
 
-
-
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
         super(MainWindow, self).__init__()
         self.UI_file_format = UI_file_format
         self.data = dict()
+        self.start_flag = False
 
         if UI_file_format == 'py':
             self._window = Ui_MainWindow()
@@ -41,24 +40,22 @@ class MainWindow(QMainWindow):
             self._window = loader.load(file)
             file.close()
         self.set_window_title()
-        
         self.set_hint_label()
-
         self.set_import_btm()
+        self.set_clear_btm()
         self.import_btm_connect()
         self.set_status_plain()
         self.set_table_title()
         self.set_table()
-        #self.set_table_default()
         self.set_num_label()
         self.set_floor_label()
          
 
     def set_window_title(self):
         if UI_file_format == 'ui':
-            self._window.setWindowTitle(f'LFSD V {VERSION}')    #.ui版本
+            self._window.setWindowTitle(f'LFSD V{VERSION}')    #.ui版本
         else:
-            self.setWindowTitle(f'LFSD V {VERSION}')            #.py版本
+            self.setWindowTitle(f'LFSD V{VERSION}')            #.py版本
     
     def set_hint_label(self):
         self.hint_label_1 = self._window.label
@@ -156,12 +153,18 @@ class MainWindow(QMainWindow):
         self.import_btm.setText('Import')
         self.import_btm.setFont(QFont('Times New Roman', 12))
     
+    def set_clear_btm(self):
+        self.clear_btm = self._window.clear_btm
+        self.clear_btm.setText('Clear all')
+        self.clear_btm.setFont(QFont('Times New Roman', 12))
+        self.clear_btm.setFixedWidth(100)
+        self.clear_btm.clicked.connect(self.reset_status_palin) 
+    
     def set_status_plain(self):
         self.status = self._window.status
         self.status.setReadOnly(True)
         self.status.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.status.setFont(QFont('Times New Roman', 13))
-        self.reset_status_palin()
 
     def import_btm_connect(self):
         self.import_btm.clicked.connect(self.select_folder)
@@ -177,19 +180,31 @@ class MainWindow(QMainWindow):
         self.send_to_status(f"選擇資料夾: {input_folder_path}")
 
     def reset_status_palin(self):
+        self.set_table()
         self.status.clear()
-    
+        self.num_show.setText('')
+        self.floor_show.setText('')
+
     def send_to_status(self, txt):
         fft1 = self.status.currentCharFormat()
         if "WORNING" in txt or "Error" in txt:
             fft1.setForeground(Qt.red)
-            
-        elif '合併完成' in txt: 
+            self.status.setCurrentCharFormat(fft1)
+            self.status.insertPlainText(f"{txt}\n")
+        
+        elif '轉換完成' in txt: 
             fft1.setForeground(Qt.blue)
-        else:
+            self.status.setCurrentCharFormat(fft1)
+            self.status.insertPlainText(f"{txt}\n")
+
+        elif ': ' in txt:
+            txt_list = txt.split(': ')
+            fft1.setForeground(Qt.darkGreen)
+            self.status.setCurrentCharFormat(fft1)
+            self.status.insertPlainText(f"{txt_list[0]}: ")
             fft1.setForeground(Qt.black)
-        self.status.setCurrentCharFormat(fft1)
-        self.status.appendPlainText(txt)
+            self.status.setCurrentCharFormat(fft1)
+            self.status.insertPlainText(f"{txt_list[1]}\n")
     
     def get_data(self):
         tmp_table_1 = self.get_table_data(self.table_1)
@@ -217,9 +232,7 @@ class MainWindow(QMainWindow):
         self.start_thread.signals.status.connect(self.send_to_status)
         self.start_thread.signals.data_send.connect(self.set_num_floor_show)
         self.threadpool.start(self.start_thread)
-
-
-
+        self.start_flag = True
 
 
 class thread_signal(QObject):
@@ -239,7 +252,7 @@ class start_process(QRunnable):
 
 
 if '__main__' == __name__:
-    UI_file_format = 'ui'
+    UI_file_format = 'py'
     
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
     qt_app = QtWidgets.QApplication(sys.argv)

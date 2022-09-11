@@ -3,7 +3,7 @@ import sys
 import numpy as np
 
 input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\02_RCD\INPUT_RCD.txt'
-output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\02_RCD\V600RCD.txt'
+output_folder = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\OUTPUT_TEST'
 
 def transfer_rcd(input_path, output_folder, num):
 
@@ -48,7 +48,8 @@ def transfer_rcd(input_path, output_folder, num):
 
     output_path = fr"{output_folder}\{num}RCD.txt"
     with open(output_path, 'w+') as f:
-        f.write(full_output_data)   
+        f.write(full_output_data) 
+    return output_path 
 
 def read_output(output_path): #驗證用
     with open(output_path, 'r') as f:

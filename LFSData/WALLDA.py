@@ -72,7 +72,9 @@ def transfer_wallda(input_path, output_folder):
         output_path = fr"{output_folder}\WALLDA.txt"
         #output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\03_WALLDA\WALLDA_Test.txt'
         with open(output_path, 'w+') as f:
-            f.write(full_output_data)   
+            f.write(full_output_data) 
+            
+    return output_path  
         
 
 if __name__ == "__main__":

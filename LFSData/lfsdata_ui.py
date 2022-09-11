@@ -17,14 +17,14 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QHeaderView,
     QLabel, QLineEdit, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
-    QTableWidget, QTableWidgetItem, QTextEdit, QWidget)
+    QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QStatusBar, QTableWidget, QTableWidgetItem, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(839, 392)
+        MainWindow.resize(1103, 392)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout_4 = QGridLayout(self.centralwidget)
@@ -38,25 +38,36 @@ class Ui_MainWindow(object):
 
         self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
+        self.table_1 = QTableWidget(self.centralwidget)
+        self.table_1.setObjectName(u"table_1")
+
+        self.gridLayout.addWidget(self.table_1, 2, 0, 1, 1)
+
         self.label_1 = QLabel(self.centralwidget)
         self.label_1.setObjectName(u"label_1")
 
-        self.gridLayout.addWidget(self.label_1, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_1, 1, 0, 1, 1)
 
         self.label_2 = QLabel(self.centralwidget)
         self.label_2.setObjectName(u"label_2")
 
-        self.gridLayout.addWidget(self.label_2, 0, 1, 1, 1)
-
-        self.table_1 = QTableWidget(self.centralwidget)
-        self.table_1.setObjectName(u"table_1")
-
-        self.gridLayout.addWidget(self.table_1, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_2, 1, 1, 1, 1)
 
         self.table_2 = QTableWidget(self.centralwidget)
         self.table_2.setObjectName(u"table_2")
 
-        self.gridLayout.addWidget(self.table_2, 1, 1, 1, 1)
+        self.gridLayout.addWidget(self.table_2, 2, 1, 1, 1)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_2, 0, 0, 1, 1)
+
+        self.clear_btm = QPushButton(self.centralwidget)
+        self.clear_btm.setObjectName(u"clear_btm")
+        self.clear_btm.setLayoutDirection(Qt.RightToLeft)
+        self.clear_btm.setIconSize(QSize(12, 16))
+
+        self.gridLayout.addWidget(self.clear_btm, 0, 1, 1, 1)
 
 
         self.gridLayout_2.addLayout(self.gridLayout, 1, 0, 1, 1)
@@ -66,36 +77,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label_3 = QLabel(self.centralwidget)
-        self.label_3.setObjectName(u"label_3")
-
-        self.horizontalLayout_3.addWidget(self.label_3)
-
-        self.import_btm = QPushButton(self.centralwidget)
-        self.import_btm.setObjectName(u"import_btm")
-
-        self.horizontalLayout_3.addWidget(self.import_btm)
-
-
-        self.gridLayout_3.addLayout(self.horizontalLayout_3, 0, 0, 1, 2)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.num_label = QLabel(self.centralwidget)
-        self.num_label.setObjectName(u"num_label")
-
-        self.horizontalLayout.addWidget(self.num_label)
-
-        self.num_show = QLineEdit(self.centralwidget)
-        self.num_show.setObjectName(u"num_show")
-
-        self.horizontalLayout.addWidget(self.num_show)
-
-
-        self.gridLayout_3.addLayout(self.horizontalLayout, 1, 0, 1, 1)
-
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.floor_label = QLabel(self.centralwidget)
@@ -109,16 +90,51 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.floor_show)
 
 
-        self.gridLayout_3.addLayout(self.horizontalLayout_2, 1, 1, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout_2, 4, 1, 1, 1)
+
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.label_3 = QLabel(self.centralwidget)
+        self.label_3.setObjectName(u"label_3")
+
+        self.horizontalLayout_3.addWidget(self.label_3)
+
+        self.import_btm = QPushButton(self.centralwidget)
+        self.import_btm.setObjectName(u"import_btm")
+
+        self.horizontalLayout_3.addWidget(self.import_btm)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout_3, 2, 0, 1, 2)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.num_label = QLabel(self.centralwidget)
+        self.num_label.setObjectName(u"num_label")
+        self.num_label.setLayoutDirection(Qt.LeftToRight)
+
+        self.horizontalLayout.addWidget(self.num_label)
+
+        self.num_show = QLineEdit(self.centralwidget)
+        self.num_show.setObjectName(u"num_show")
+
+        self.horizontalLayout.addWidget(self.num_show)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+
+        self.status = QPlainTextEdit(self.centralwidget)
+        self.status.setObjectName(u"status")
+
+        self.gridLayout_3.addWidget(self.status, 6, 0, 1, 2)
 
         self.horizontalSpacer = QSpacerItem(228, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_3.addItem(self.horizontalSpacer, 2, 0, 1, 2)
+        self.gridLayout_3.addItem(self.horizontalSpacer, 0, 0, 1, 2)
 
-        self.status = QTextEdit(self.centralwidget)
-        self.status.setObjectName(u"status")
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_3.addWidget(self.status, 3, 0, 1, 2)
+        self.gridLayout_3.addItem(self.horizontalSpacer_3, 1, 0, 1, 2)
 
 
         self.gridLayout_4.addLayout(self.gridLayout_3, 0, 1, 1, 1)
@@ -126,7 +142,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 839, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1103, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -142,9 +158,10 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_1.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.clear_btm.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.floor_label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.import_btm.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.num_label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.floor_label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
     # retranslateUi
 

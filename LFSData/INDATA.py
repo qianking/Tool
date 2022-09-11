@@ -3,6 +3,7 @@ import sys
 import re
 
 input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\INPUT\V600INPUT.txt'
+output_folder = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\OUTPUT_TEST'
 
 NUM = 'V600'
 FC = {1:490, 8:420, 17:350, 23:280}
@@ -13,11 +14,12 @@ def get_story_data(input_path):
         data = f.read()
     #print(repr(data))
 
-    data_list = [i.strip() for i in data.split('\n \n') if i !='']
-    story_data_index = data_list.index('S T O R Y   D A T A')
-    #story_title = data_list[story_data_index+1]
+    data_list = [i for i in data.split('\n \n') if i !='']
+    for i, dd in enumerate(data_list):
+        if 'S T O R Y   D A T A' in dd:
+            story_data_index = i
 
-    story_data_list = [i.strip() for i in data_list[story_data_index+2].split('\n') if i !='']
+    story_data_list = [i for i in data_list[story_data_index+2].split('\n') if i !='']
     #print(story_data_list)
 
     return story_data_list
@@ -25,23 +27,23 @@ def get_story_data(input_path):
 def transfer_fhdd(story_data_list, output_folder):
     full_output_data = ''
     for index, story_data in enumerate(story_data_list):
-        if story_data.startswith('R1F'):
+        if story_data.strip().startswith('R1F'):
             start_index = index
-        if story_data.startswith('1F'):
+        if story_data.strip().startswith('1F'):
             end_index = index+1
-    total_len = end_index- start_index
+    total_len = end_index - start_index
     total_data = story_data_list[start_index:end_index]
-    total_data_str ='\n '.join(total_data)
-    full_output_data += f"{total_len}\n "
+    total_data_str ='\n'.join(total_data)
+    full_output_data += f"{total_len}\n"
     full_output_data += total_data_str
 
-    output_path = fr'{output_folder}\FHDD.txt'
-    with open(output_path, 'w+') as f:
+    output_fhdd_path = fr'{output_folder}\FHDD.txt'
+    with open(output_fhdd_path, 'w+') as f:
         f.write(full_output_data)
 
-    return total_data, total_len
+    return total_data, total_len, output_fhdd_path
 
-def transfer_indata(total_data, output_folder, NUM, FC, HNDL):
+def transfer_indatabc(total_data, output_folder, NUM, FC, HNDL):
     floor_data = []
     for story_data in total_data:
         data = [i.strip() for i in story_data.split(' ') if i !='']
@@ -114,8 +116,8 @@ def transfer_indata(total_data, output_folder, NUM, FC, HNDL):
     full_output_data += tmp_hndl
    
 
-    output_path = fr'{output_folder}\INDATA.txt'
-    with open(output_path, 'w+') as f:
+    output_A_path = fr'{output_folder}\INDATA.txt'
+    with open(output_A_path, 'w+') as f:
         f.write(full_output_data)
 
     full_output_data = ''
@@ -125,8 +127,8 @@ def transfer_indata(total_data, output_folder, NUM, FC, HNDL):
     full_output_data += tmp_fc
     full_output_data += tmp_2
     full_output_data += tmp_hndl
-    output_path = fr'{output_folder}\INDATB.txt'
-    with open(output_path, 'w+') as f:
+    output_B_path = fr'{output_folder}\INDATB.txt'
+    with open(output_B_path, 'w+') as f:
         f.write(full_output_data)
 
 
@@ -136,18 +138,64 @@ def transfer_indata(total_data, output_folder, NUM, FC, HNDL):
     full_output_data = ''
     full_output_data += tmp_title
     full_output_data += tmp_floor_numC
-    output_path = fr'{output_folder}\INDATC.txt'
-    with open(output_path, 'w+') as f:
+    output_C_path = fr'{output_folder}\INDATC.txt'
+    with open(output_C_path, 'w+') as f:
         f.write(full_output_data)
+    
+    return output_A_path, output_B_path, output_C_path
+
+
+def transfer_point3(input_path, output_folder):
+    with open(input_path, 'r') as f:
+        data = f.read()
+
+    full_output_data = ''
+
+    data_list = [i for i in data.split('\n \n') if i !='']
+
+    for i, dd in enumerate(data_list):
+        if 'P O I N T   C O O R D I N A T E S' in dd:
+            point_coordinate_index = i
+        if 'C O L U M N   C O N N E C T I V I T Y   D A T A' in dd:
+            column_data_index = i
+        if 'B E A M   C O N N E C T I V I T Y   D A T A' in dd:
+            beam_data_index = i
+    
+    point_coordinate = data_list[point_coordinate_index+1: point_coordinate_index+3]
+    point_coordinate = '\n \n'.join(point_coordinate)
+    point_coordinate = point_coordinate.strip('\n')
+    #print(point_coordinate)
+
+    column_data = data_list[column_data_index+2]
+
+    beam_data = data_list[beam_data_index+1: beam_data_index+3]
+    beam_data = '\n \n'.join(beam_data)
+    beam_data = beam_data.strip('\n')
+    #print(repr(beam_data))
+    
+    full_output_data += f'{point_coordinate}\n'
+    full_output_data += '9999\n'
+    full_output_data += 'COL\n'
+    full_output_data += f'{column_data}\n'
+    full_output_data += '9999\n'
+    full_output_data += f'{beam_data}\n'
+    full_output_data += '9999'
+    
+    output_point_path = fr"{output_folder}\POINT3.txt"
+    with open(output_point_path, 'w+') as f:
+        f.write(full_output_data)
+    
+    return output_point_path
 
     
 def tranfer(input_path, output_folder, NUM, FC, HNDL):
     story_data_list = get_story_data(input_path)
-    total_data, total_floor = transfer_fhdd(story_data_list, output_folder)
-    transfer_indata(total_data, output_folder, NUM, FC, HNDL)
-
-    return total_floor
+    total_data, total_floor, output_fhdd = transfer_fhdd(story_data_list, output_folder)
+    output_A_path, output_B_path, output_C_path = transfer_indatabc(total_data, output_folder, NUM, FC, HNDL)
+    output_point_path = transfer_point3(input_path, output_folder)
+    output_list = [output_fhdd, output_A_path, output_B_path, output_C_path, output_point_path] 
+    return total_floor, output_list
 
 
 if __name__ == "__main__":
-    tranfer(input_path)
+    tranfer(input_path, output_folder, NUM, FC, HNDL)
