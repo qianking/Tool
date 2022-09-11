@@ -2,9 +2,9 @@ import os
 import sys
 import numpy as np
 
-input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\01_REBAR\INPUT_REBAR.txt'
+#input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\01_REBAR\INPUT_REBAR.txt'
 
-def transfer_rebar(input_path):
+def transfer_rebar(input_path, output_folder, num):
 
     with open(input_path, 'r') as f:
         data = f.read()
@@ -51,7 +51,7 @@ def transfer_rebar(input_path):
 
         full_output_data += output_data 
 
-    output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\01_REBAR\V601REBAR.txt'
+    output_path = fr"{output_folder}\{num}REBAR.txt"
     with open(output_path, 'w+') as f:
         f.write(full_output_data)   
 

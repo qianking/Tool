@@ -1,5 +1,6 @@
 import os 
 import sys
+import re
 
 input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\INPUT\V600INPUT.txt'
 
@@ -14,15 +15,14 @@ def get_story_data(input_path):
 
     data_list = [i.strip() for i in data.split('\n \n') if i !='']
     story_data_index = data_list.index('S T O R Y   D A T A')
-    story_title = data_list[story_data_index+1]
+    #story_title = data_list[story_data_index+1]
 
     story_data_list = [i.strip() for i in data_list[story_data_index+2].split('\n') if i !='']
-    print(story_data_list)
+    #print(story_data_list)
 
-    
     return story_data_list
 
-def transfer_fhdd(story_data_list):
+def transfer_fhdd(story_data_list, output_folder):
     full_output_data = ''
     for index, story_data in enumerate(story_data_list):
         if story_data.startswith('R1F'):
@@ -35,13 +35,13 @@ def transfer_fhdd(story_data_list):
     full_output_data += f"{total_len}\n "
     full_output_data += total_data_str
 
-    output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\OUTPUT_TEST\FHDD.txt'
+    output_path = fr'{output_folder}\FHDD.txt'
     with open(output_path, 'w+') as f:
         f.write(full_output_data)
 
-    return total_data 
+    return total_data, total_len
 
-def transfer_indata(total_data):
+def transfer_indata(total_data, output_folder, NUM, FC, HNDL):
     floor_data = []
     for story_data in total_data:
         data = [i.strip() for i in story_data.split(' ') if i !='']
@@ -50,11 +50,11 @@ def transfer_indata(total_data):
     full_output_data = ''
     tab_times = '\t'*11 + '\n'
 
-    full_output_data = (f"{NUM}.DAI{tab_times}"
-                        f"#       MATERIALNUMBER{tab_times}"
-                        f"2{tab_times}"
-                        f"#       FLOOR   NUMBER{tab_times}"
-                        f"{len(floor_data)}{tab_times}")
+    tmp_title = (f"{NUM}.DAI{tab_times}"
+                f"#       MATERIALNUMBER{tab_times}"
+                f"2{tab_times}"
+                f"#       FLOOR   NUMBER{tab_times}"
+                f"{len(floor_data)}{tab_times}")
     
     tmp_1 = (f"Es(t/cm^2){tab_times}"
           f"2100{tab_times}"
@@ -74,17 +74,27 @@ def transfer_indata(total_data):
             f"WALL    BEAM{tab_times}"
             f"0{tab_times}"
             f"HNDL{tab_times}")
-        
-    
 
     tmp_floor_num = ''
+    tmp_floor_numB = ''
+    tmp_floor_numC = ''
     tmp_fc = ''
     tmp_hndl = ''
     now_fc = 0
     now_hndl = 0
+    indataB_pattern = re.compile(r"^(\d)([A-Z])", re.I)
 
     for i, floor in enumerate(floor_data[::-1], 1):
-        tmp_floor_num = f"{floor}{' '*(8-len(floor))}0{tab_times}{tmp_floor_num}"  
+        tmp_floor_num = f"{floor}{' '*(8-len(floor))}0{tab_times}{tmp_floor_num}" 
+
+        find = indataB_pattern.findall(floor)
+        if len(find):
+            floor_B = f"{find[0][0]} {find[0][1]}"
+            tmp_floor_numB = f"{floor_B}{' '*(8-len(floor_B))}0{tab_times}{tmp_floor_numB}" 
+        else:
+            tmp_floor_numB = f"{floor}{' '*(8-len(floor))}0{tab_times}{tmp_floor_numB}"
+
+        tmp_floor_numC = f"{floor}{' '*(8-len(floor))}8{tab_times}{tmp_floor_numC}"  
 
         if FC.get(i):
             now_fc = FC.get(i)
@@ -94,6 +104,9 @@ def transfer_indata(total_data):
             now_hndl = HNDL.get(floor)
         tmp_hndl = f"{floor}{' '*(8-len(floor))}{now_hndl}{tab_times}{tmp_hndl}"
     
+    #print(tmp_floor_numB)
+
+    full_output_data += tmp_title
     full_output_data += tmp_floor_num
     full_output_data += tmp_1 
     full_output_data += tmp_fc
@@ -101,24 +114,39 @@ def transfer_indata(total_data):
     full_output_data += tmp_hndl
    
 
-    output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\OUTPUT_TEST\INDATA.txt'
+    output_path = fr'{output_folder}\INDATA.txt'
     with open(output_path, 'w+') as f:
         f.write(full_output_data)
-    
+
+    full_output_data = ''
+    full_output_data += tmp_title
+    full_output_data += tmp_floor_numB
+    full_output_data += tmp_1 
+    full_output_data += tmp_fc
+    full_output_data += tmp_2
+    full_output_data += tmp_hndl
+    output_path = fr'{output_folder}\INDATB.txt'
+    with open(output_path, 'w+') as f:
+        f.write(full_output_data)
+
+
+    tmp_title = (f"{NUM}.DAI{tab_times}"
+                f"#       FLOOR   NUMBER{tab_times}"
+                f"{len(floor_data)}{tab_times}")
+    full_output_data = ''
+    full_output_data += tmp_title
+    full_output_data += tmp_floor_numC
+    output_path = fr'{output_folder}\INDATC.txt'
+    with open(output_path, 'w+') as f:
+        f.write(full_output_data)
 
     
-    
-
-
-
-
-
-
-
-def tranfer(input_path):
+def tranfer(input_path, output_folder, NUM, FC, HNDL):
     story_data_list = get_story_data(input_path)
-    total_data = transfer_fhdd(story_data_list)
-    transfer_indata(total_data)
+    total_data, total_floor = transfer_fhdd(story_data_list, output_folder)
+    transfer_indata(total_data, output_folder, NUM, FC, HNDL)
+
+    return total_floor
 
 
 if __name__ == "__main__":

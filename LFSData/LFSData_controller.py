@@ -7,13 +7,18 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainText
 from PySide6.QtWidgets import QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QFont, QColor, QIntValidator, QRegularExpressionValidator
 from lfsdata_ui import Ui_MainWindow
+import LFS_Main_Flow
 
 VERSION = '0.01'
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
         super(MainWindow, self).__init__()
         self.UI_file_format = UI_file_format
+        self.data = dict()
+
         if UI_file_format == 'py':
             self._window = Ui_MainWindow()
             self._window.setupUi(self)
@@ -47,8 +52,7 @@ class MainWindow(QMainWindow):
         #self.set_table_default()
         self.set_num_label()
         self.set_floor_label()
-        
-        
+         
 
     def set_window_title(self):
         if UI_file_format == 'ui':
@@ -89,7 +93,6 @@ class MainWindow(QMainWindow):
     def table_setting(self, table, title):
         table.setColumnCount(2) #設置行數
         table.setRowCount(20)  #設置列數
-        #table.setValidator(QIntValidator())
         for i in range(20):
             for j in range(2):
                 item = QTableWidgetItem()
@@ -97,7 +100,7 @@ class MainWindow(QMainWindow):
                 table.setItem(i, j, item)
                 table.openPersistentEditor(item)
                 ceil = QLineEdit()
-                validator = QRegularExpressionValidator(QRegularExpression("\d+"), ceil) #設置只能輸入數字
+                validator = QRegularExpressionValidator(QRegularExpression("\d+[.]?\d+"), ceil) #設置只能輸入數字
                 ceil.setValidator(validator)
                 table.setCellWidget(i, j, ceil)
 
@@ -142,9 +145,11 @@ class MainWindow(QMainWindow):
         self.floor_show.setFont(QFont('Times New Roman', 13))
     
     def set_num_floor_show(self, data):
-        show_list = [self.num_show, self.floor_show]
-        for ind, num in data.items():
-            show_list[ind].setText(num)
+        for type, da in data.items():
+            if type == 'num':
+                self.num_show.setText(da)
+            if type == 'floor_num':
+                self.floor_show.setText(da)
 
     def set_import_btm(self):
         self.import_btm = self._window.import_btm
@@ -161,13 +166,15 @@ class MainWindow(QMainWindow):
     def import_btm_connect(self):
         self.import_btm.clicked.connect(self.select_folder)
         self.import_btm.clicked.connect(self.get_data)
+        self.import_btm.clicked.connect(self.start_thread)
 
     def select_folder(self):
         self.status.clear()
-        self.input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/Job')
-        self.input_folder_path = self.input_folder_path.replace("/", "\\")
-        print(self.input_folder_path)
-        self.send_to_status(f"選擇資料夾: {self.input_folder_path}")
+        input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/Job')
+        input_folder_path = input_folder_path.replace("/", "\\")
+        print(input_folder_path)
+        self.data['input_path'] = input_folder_path
+        self.send_to_status(f"選擇資料夾: {input_folder_path}")
 
     def reset_status_palin(self):
         self.status.clear()
@@ -186,26 +193,27 @@ class MainWindow(QMainWindow):
     
     def get_data(self):
         tmp_table_1 = self.get_table_data(self.table_1)
-        table_1_data = {i[0] : i[1] for i in tmp_table_1}
+        table_1_data = {int(i[0]) : int(i[1]) for i in tmp_table_1}
         tmp_table_2 = self.get_table_data(self.table_2)
-        table_2_data = {i[0][:-1] : i[1] for i in tmp_table_2}
-        print(table_2_data)
+        table_2_data = {int(i[0]) : float(i[1]) for i in tmp_table_2}
+        self.data['FC'] = table_1_data
+        self.data['HNDL'] = table_2_data
 
     def get_table_data(self, table):
         all_data = list()
         for row in range(table.rowCount()):
             tmp_list = list()
             for col in range(table.columnCount()):
-                if table.item(row, col).text() == '' or table.item(row, col).text() == 'F':
+                if table.cellWidget(row, col).text() == '':
                     continue
-                tmp_list.append(table.item(row, col).text())
+                tmp_list.append(table.cellWidget(row, col).text())
             if tmp_list:
                 all_data.append(tmp_list)
 
         return all_data
 
     def start_thread(self):
-        self.start_thread = start_process()
+        self.start_thread = start_process(self.data)
         self.start_thread.signals.status.connect(self.send_to_status)
         self.start_thread.signals.data_send.connect(self.set_num_floor_show)
         self.threadpool.start(self.start_thread)
@@ -219,12 +227,13 @@ class thread_signal(QObject):
     data_send = Signal(dict)
 
 class start_process(QRunnable):
-    def __init__(self):
+    def __init__(self, data):
         super(start_process, self).__init__()  
         self.signals = thread_signal()
+        self.data = data
         
     def run(self):
-        pass
+        LFS_Main_Flow.main_flow(self.data, self.signals)
 
 
 

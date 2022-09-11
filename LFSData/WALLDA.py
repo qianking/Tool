@@ -4,7 +4,8 @@ import numpy as np
 import re
 
 input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\03_WALLDA\INPUT_WALLDA.txt'
-def transfer_rcd(input_path):
+
+def transfer_wallda(input_path, output_folder):
 
     with open(input_path, 'r') as f:
         data = f.read()
@@ -68,11 +69,11 @@ def transfer_rcd(input_path):
     
         full_output_data += output_data
 
-
-        output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\03_WALLDA\WALLDA_Test.txt'
+        output_path = fr"{output_folder}\WALLDA.txt"
+        #output_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\03_WALLDA\WALLDA_Test.txt'
         with open(output_path, 'w+') as f:
             f.write(full_output_data)   
         
 
 if __name__ == "__main__":
-    transfer_rcd(input_path)
+    transfer_wallda(input_path, output_folder)

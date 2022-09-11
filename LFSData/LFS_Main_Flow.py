@@ -1,65 +1,111 @@
 import os 
 import sys
 import re
+import shutil
 from glob import glob
+import REBAR
+import RCD
+import WALLDA
+import INDATA
 
-path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\INPUT'
-num = None
+input_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\INPUT'
+output_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\OUTPUT_TEST'
+FC = {1:490, 8:420, 17:350, 23:280}
+HNDL = {'1F': 0.8, '3F': 0.9, '15F': 0.8}
 
-find_file_name = ('INPUT_RCD', 'INPUT_REBAR', 'INPUT_WALLDA', f'{num}INPUT_WALLDA', f'{num}INPUT', f'{num}SHEAR')
+ui_signal = None
 
-def send_to_ui(txt):
-    pass
+def send_to_ui_data_send(dic):
+    ui_signal.data_send.emit(dic)
 
-def main_flow(path):
-    file_list = glob(f"{path}\*.txt")
+def send_to_ui_status(txt):
+    ui_signal.status.emit(txt)
 
-    file_name_list = get_number_from_file(file_list)
+def data_from_ui(data, signals):
+    global ui_signal
+    global FC
+    global HNDL
+    
+    ui_signal = signals
+    FC = data['FC'] 
+    FC = dict(sorted(FC.items()))
+    tmp = data['HNDL'] 
+    tmp = dict(sorted(tmp.items()))
+    for floor, num in tmp.items():
+        floor = f"{floor}F"
+        HNDL[floor] = num
+    print(HNDL)
+    return data['input_path']
+
+    
+def main_flow(data, signals=None):
+    input_path = data_from_ui(data, signals)
+    file_list = glob(f"{input_path}\*.txt")
+    file_name = {file.split('\\')[-1].split('.')[0]: file for file in file_list}
+    num = get_number_from_file(file_name)
     if not num:
-        send_to_ui(f'找不到案號檔案')
+        send_to_ui_status(f'找不到案號檔案')
         return 0
 
-    loose_file = check_file_exist(file_name_list)
+    loose_file = check_file_exist(file_name, num)
     if loose_file:
-        send_to_ui(f'找不到檔案{loose_file}')
+        send_to_ui_status(f'找不到檔案{loose_file}')
         return 0
     
-    print('ok')
+    output_folder = create_output_path(input_path)
+    copy_file(file_list, output_folder)
+
+    total_floor = calculate_start(file_name, output_folder, num)
+    send_to_ui_data_send({'num':num, 'floor_num':str(total_floor)})
+    send_to_ui_status('完成')
     
 
-    
-    
-    
-
-
-
-
-
-
-
-def check_file_exist(file_name_list):
+def check_file_exist(file_name, num):
+    find_file_name = ('INPUT_RCD', 'INPUT_REBAR', 'INPUT_WALLDA', f'{num}INPUT', f'{num}SHEAR')
     loose_file = list()
-    for file_name in file_name_list:
-        if file_name not in find_file_name:
-            loose_file.append(file_name)
-    print(loose_file)
+    for file in find_file_name:
+        if file not in file_name:
+            loose_file.append(file)
+
     if len(loose_file):
         return loose_file
     return 0
 
-def get_number_from_file(file_list):
-    global num
-    file_name_list = [file.split('\\')[-1].split('.')[0] for file in file_list]
+def get_number_from_file(file_name):
     pattern = re.compile(r"(^[A-Z]\d\d\d)", re.I)
-    for file_name in file_name_list:
+    for file_name in file_name.keys():
         find =pattern.findall(file_name)
         if len(find):
-            print(find)
             num = find[0]
             break
     if num:  
-        return file_name_list
+        return num
     return 0
 
+def create_output_path(input_path):
+    path = '\\'.join(input_path.split('\\')[:-1])
+    output_folder = fr"{path}\OUTPUT_TEST"
+    os.makedirs(output_folder, exist_ok=True)
+    return output_folder
+
+def copy_file(file_list, output_folder):
+    for file in file_list:
+        shutil.copy(file, output_folder)
+
+
+def calculate_start(file_name, output_folder, num):
+    for name, path in file_name.items():
+        if name == 'INPUT_REBAR':
+            REBAR.transfer_rebar(path, output_folder, num)
+        if name == 'INPUT_RCD':
+            RCD.transfer_rcd(path, output_folder, num)
+        if name == 'INPUT_WALLDA':
+            WALLDA.transfer_wallda(path, output_folder)
+        if name == f'{num}INPUT':
+            total_floor = INDATA.tranfer(path, output_folder, num, FC, HNDL)
+            print('total_floor:', total_floor)
+    return total_floor
+        
+
 if "__main__" == __name__:
-    main_flow(path)
+    main_flow(input_path)
