@@ -103,7 +103,7 @@ def get_number_from_file(file_name):
 
 def create_output_path(input_path):
     path = '\\'.join(input_path.split('\\')[:-1])
-    output_folder = fr"{path}\OUTPUT_TEST"
+    output_folder = fr"{path}\OUTPUT"
     os.makedirs(output_folder, exist_ok=True)
     return output_folder
 
