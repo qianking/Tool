@@ -25,7 +25,8 @@ All_same_chapter = \
                 {'file_name':('地下室外牆設計',), 'title':'地下室外牆設計'}, 
                 {'file_name':('無梁版',), 'title':'無梁版檢核'}, 
                 {'file_name':('基礎設計',), 'title':'基礎設計'},
-                {'file_name':('逆打基樁',), 'title':'逆打基樁檢核'}]},
+                {'file_name':('逆打基樁',), 'title':'逆打基樁檢核'},
+                {'file_name':('逆打鋼柱',), 'title':'逆打鋼柱檢核'}]},
 2: {'file_name':'開挖計算書', 'title': '開挖設計', 'inner_title_and_file_name' : None}, #開挖設計這章沒小章節，所以頁數不用+1
 3: {'file_name':'結構外審意見回覆', 'title': '結構外審意見回覆', 'inner_title_and_file_name' : 
                 [{'file_name':('第一次意見回覆',), 'title':'第一次意見回覆'},

@@ -247,9 +247,9 @@ class MainWindow(QMainWindow):
 
 #region import 按鈕動作
     def open_folder(self):
-        radio_index = -(self.audit_selection_group.checkedId() + 2)
+        """ radio_index = -(self.audit_selection_group.checkedId() + 2)
         print('radio_index', radio_index)
-        print('self.select_txt[radio_index]', self.select_txt[radio_index])
+        print('self.select_txt[radio_index]', self.select_txt[radio_index]) """
         self.status.clear()
         self.input_folder_path = QFileDialog.getExistingDirectory(self, 'choose folder', 'F:/Job')
         self.input_folder_path = self.input_folder_path.replace("/", "\\")
