@@ -1,6 +1,6 @@
 import sys
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QFile, QThread, Signal
+from PySide6.QtCore import QFile, QThread, Signal, Qt
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow
 import BC_transfer as transfer
@@ -70,7 +70,14 @@ class MainWindow(QMainWindow):
         self.show_information = self._window.plainTextEdit
     
     def show_status(self, txt):
-        self.show_information.appendPlainText(txt)
+        fft1 = self.show_information.currentCharFormat()
+        if "WORNING" in txt or "Error" in txt:
+            fft1.setForeground(Qt.red)
+        else:
+            fft1.setForeground(Qt.black)
+
+        self.show_information.setCurrentCharFormat(fft1)
+        self.show_information.insertPlainText(f"{txt}\n")
 
 
 class Numerical_extraction_thread(QThread):
