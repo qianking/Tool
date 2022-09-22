@@ -1,3 +1,4 @@
+from distutils.command.config import config
 from genericpath import isfile
 import sys
 from glob import glob
@@ -12,9 +13,9 @@ from PySide6.QtGui import QFont, QColor, QIntValidator
 from pdf_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '0.03'
+VERSION = '0.04'
 
-
+config_path = r".\config.ini"
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -181,10 +182,10 @@ class MainWindow(QMainWindow):
         #self.start_btm.setStyleSheet(button_style)
     
     def open_config_1_file(self):
-        open_config_file(r".\template\file_name_data\核章版檔名.txt")
+        open_config_file(config_path)
     
     def open_config_2_file(self):
-        open_config_file(r".\template\file_name_data\外審版檔名.txt")
+        open_config_file(config_path)
 
     
     def set_cover_label_text(self):
@@ -395,12 +396,13 @@ class Merge_PDF_Thread(QThread):
         super(Merge_PDF_Thread, self).__init__()
         self.outline_information = ouline_information
         self.pdf_information = pdf_information
+        self.config = config_path
     
     def run(self):
         self.pdf_information['self'] = self
         self.pdf_information['status'] = self.status
         pdf_main.main(self.outline_information,
-                    self.pdf_information) 
+                    self.pdf_information, self.config) 
 
     def stop(self):
         self.terminate()

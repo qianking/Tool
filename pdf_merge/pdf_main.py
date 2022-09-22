@@ -6,6 +6,7 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 import datetime
 import time
 import traceback
+import config_load
 
 """
 檢查檔案存在(Template)
@@ -18,15 +19,19 @@ pdf_information = {}
 self = None
 status = None
 
+config_path = r".\config.ini"
+
 def send_msg_to_UI(msg):
     if self:
         self.status.emit(msg)
 
-def get_variable_form_UI(outline_infor, pdf_infor):
+def get_variable_form_UI(outline_infor, pdf_infor, config):
     global self
     global status
     global pdf_information
     global outline_information
+    global config_path
+
     print(outline_infor, pdf_infor)
     outline_information = outline_infor
     
@@ -35,6 +40,7 @@ def get_variable_form_UI(outline_infor, pdf_infor):
     self = pdf_infor.get('self')
     status = pdf_infor.get('status')
 
+    config_path = config
 
 def get_merger_folder():
     #now_date = datetime.date.today()
@@ -96,6 +102,9 @@ def main(basic_data, special_data):
         start_time = time.time()
         
         get_variable_form_UI(basic_data, special_data)
+
+        All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title = config_load.load_ini(config_path)
+        merger.get_title_data(All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title)
         
         send_msg_to_UI('合併開始...')
 
@@ -145,6 +154,6 @@ def main(basic_data, special_data):
 
 if "__main__" == __name__:
     basic_data = {'number': 'V555', 'address': '555', 'name': '555', 'file_name': None}
-    special_data = {'select_stytle': 'Stamp_single', 'input_folder_path': 'C:\\Users\\andy_chien\\Downloads\\整合PDF(all)\\整合前', 'self': None, 'status': None}
+    special_data = {'select_stytle': 'Stamp_single', 'input_folder_path': 'E:\\python\\virtualenv\\Tool\\PDF_merger\\整合PDF(all)\\整合前\\核章版', 'self': None, 'status': None}
     #pdf_information = {'select_stytle': 'Stamp_multi', 'build_num': 4, 'build_no': ['1', '2', '3', '4'], 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多', 'self': '<__main__.Merge_PDF_Thread(0x2784804e4c0) at 0x000002783D58B100>', 'status': '<PySide6.QtCore.SignalInstance status(QString) at 0x000002783D581AB0>', 'tmp_file_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多\\2022-08-14_merger'}
     main(basic_data, special_data)

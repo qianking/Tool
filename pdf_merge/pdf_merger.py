@@ -11,7 +11,7 @@ import write_word_pdf as word_pdf
 如果要使用本檔案，需先去 python\lib\site-packages\PyPDF2\_camp.py 檔案中的第287行 註解掉這行
 """
 #共通有的章節
-All_Same_Chapter = {
+""" All_Same_Chapter = {
         3: {'title': '結構設計檢核', 'inner_title_and_file_name':
                 ['軟層檢核', 
                 '剪力牆設計', 
@@ -35,20 +35,16 @@ All_Same_Chapter = {
                 '會後意見回覆']},
         6: {'title': '設計分析報表', 'inner_title_and_file_name':
                 ['大梁、柱、牆',
-                '小梁、版']}  
-    }
+                '小梁、版']}} """
 
+All_Same_Chapter = {}
 
 #核章版
-''' Stamp_ver_Chapter_1_2_data = \
-{0: {'file_name': '地震風力'},
-1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
-2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}} '''
-
 Stamp_ver_Chapter_1_2_data = {
     1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
     2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}
 }
+
 
 #外審版
 Audit_ver_Chapter_1_inner_title = \
@@ -62,6 +58,16 @@ Chapter_number = \
 
 #stytle =['核章版': Stamp_single、Stamp_multi, '外審版': Audit]
 
+def get_title_data(Same_Chapter, Stamp_Chapter, Audit_Chapter):
+    global All_Same_Chapter
+    global Stamp_ver_Chapter_1_2_data
+    global Audit_ver_Chapter_1_inner_title
+    All_Same_Chapter = Same_Chapter
+    for i, data in Stamp_ver_Chapter_1_2_data.items():
+        data['title'] = Stamp_Chapter[i]['title']
+    for i, data in Audit_ver_Chapter_1_inner_title.items():
+        data['title'] = Audit_Chapter[i]['title']
+
 
 class Merge_Pdf_and_GetOutline():
     def __init__(self, pdf_data):
@@ -73,6 +79,9 @@ class Merge_Pdf_and_GetOutline():
         self.delete_file_list = []
         self.all_chapter_dic = {}
         self.to_word_outline = {}
+        print(All_Same_Chapter)
+        print(Stamp_ver_Chapter_1_2_data)
+        print(Audit_ver_Chapter_1_inner_title)
         
 
     def create_order_dic(self):
@@ -193,7 +202,7 @@ class Merge_Pdf_and_GetOutline():
                     for pdf_path in self.special_chapter_dic[1]:
                         find_pattern = file_name_pattern.findall(pdf_path.split('\\')[-1])
                         if len(find_pattern):
-                            index = debug_special_chapter_file.index(pdf_name)
+                            index = debug_special_chapter_file.index(pdf_path)
                             p = debug_special_chapter_file.pop(index)
                             Stamp_multi_chapter_file_list.append(p)
                             break
