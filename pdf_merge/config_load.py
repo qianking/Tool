@@ -23,14 +23,23 @@ def load_ini(config_path):
                 tmp_chapter_data = [i.strip() for i in j.split('\n') if i.strip() != '']
                 chapter = tmp_chapter_data[0].split('=')[1].strip()
                 tmp_chapter_data.pop(0)
-                title = tmp_chapter_data[1].split('=')[1].strip()
-                tmp_chapter_data.pop(1)    
+                title = tmp_chapter_data[0].split('=')[1].strip()
+                tmp_chapter_data.pop(0)   
+                All_Same_Chapter[chapter] = {'title': title}
+                tmp_list = list() 
                 for i, num in enumerate(tmp_chapter_data, 1):
-                    pass
-
-
-
+                    if i != int(num.split('=')[0].strip()):
+                        print('config錯誤')
+                        return 0
+                    else:
+                        tmp_list.append(num.split('=')[1].strip())
+                if not len(tmp_list):
+                    tmp_list = None
+                All_Same_Chapter[chapter]['inner_title_and_file_name'] = deepcopy(tmp_list)
     
+
+    print(All_Same_Chapter)
+
     return data
 
 
