@@ -11,42 +11,48 @@ import write_word_pdf as word_pdf
 如果要使用本檔案，需先去 python\lib\site-packages\PyPDF2\_camp.py 檔案中的第287行 註解掉這行
 """
 #共通有的章節
-All_same_chapter = \
-{1: {'file_name':'結構設計檢核', 'title': '結構設計檢核', 'inner_title_and_file_name' : 
-                [{'file_name':('軟層',), 'title':'軟層檢核'}, 
-                {'file_name':('剪力牆設計',), 'title':'剪力牆設計'}, 
-                {'file_name':('一樓樓版剪力傳遞',), 'title':'一樓樓版剪力傳遞'}, 
-                {'file_name':('梁上柱',), 'title':'梁上柱檢核'}, 
-                {'file_name':('韌性與扭力',), 'title':'梁柱韌性與扭力檢核'}, 
-                {'file_name':('極限層剪力','弱層',), 'title':'極限層剪力檢核'}, 
-                {'file_name':('SRC梁',), 'title':'SRC梁檢核'}, 
-                {'file_name':('SRC柱',), 'title':'SRC柱檢核'}, 
-                {'file_name':('上浮力',), 'title':'上浮力檢核'}, 
-                {'file_name':('地下室外牆設計',), 'title':'地下室外牆設計'}, 
-                {'file_name':('無梁版',), 'title':'無梁版檢核'}, 
-                {'file_name':('基礎設計',), 'title':'基礎設計'},
-                {'file_name':('逆打基樁',), 'title':'逆打基樁檢核'},
-                {'file_name':('逆打鋼柱',), 'title':'逆打鋼柱檢核'}]},
-2: {'file_name':'開挖計算書', 'title': '開挖設計', 'inner_title_and_file_name' : None}, #開挖設計這章沒小章節，所以頁數不用+1
-3: {'file_name':'結構外審意見回覆', 'title': '結構外審意見回覆', 'inner_title_and_file_name' : 
-                [{'file_name':('第一次意見回覆',), 'title':'第一次意見回覆'},
-                {'file_name':('第二次意見回覆',), 'title':'第二次意見回覆'}, 
-                {'file_name':('第三次意見回覆',), 'title':'第三次意見回覆'}, 
-                {'file_name':('會後意見回覆',), 'title':'會後意見回覆'},]},
-4: {'file_name':'設計分析報表','title': '設計分析報表', 'inner_title_and_file_name' : 
-                [{'file_name':('大梁、柱、牆',), 'title':'大梁、柱、牆'}, 
-                {'file_name':('小梁、版',), 'title':'小梁、版'},]}}
+All_Same_Chapter = {
+        3: {'title': '結構設計檢核', 'inner_title_and_file_name':
+                ['軟層檢核', 
+                '剪力牆設計', 
+                '一樓樓版剪力傳遞', 
+                '梁上柱檢核', 
+                '梁柱韌性與扭力檢核', 
+                '極限層剪力檢核', 
+                'SRC梁檢核', 
+                'SRC柱檢核', 
+                '上浮力檢核', 
+                '地下室外牆設計', 
+                '無梁版檢核', 
+                '基礎設計',
+                '逆打基樁檢核',
+                '逆打鋼柱檢核']},
+        4: {'title': '開挖設計', 'inner_title_and_file_name': None},
+        5: {'title': '結構外審意見回覆', 'inner_title_and_file_name':
+                ['第一次意見回覆',
+                '第二次意見回覆',
+                '第三次意見回覆',
+                '會後意見回覆']},
+        6: {'title': '設計分析報表', 'inner_title_and_file_name':
+                ['大梁、柱、牆',
+                '小梁、版']}  
+    }
+
 
 #核章版
-Stamp_ver_Chapter_1_2_data = \
+''' Stamp_ver_Chapter_1_2_data = \
 {0: {'file_name': '地震風力'},
 1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
-2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}}
+2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}} '''
+
+Stamp_ver_Chapter_1_2_data = {
+    1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
+    2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}
+}
 
 #外審版
 Audit_ver_Chapter_1_inner_title = \
-{0: {'file_name': '外審意見回覆'}, 
-1:{'title': '外審意見回覆', 'inner_title' :'附件'}}
+{1:{'title': '外審意見回覆', 'inner_title' :'附件'}}
 
 
 Chapter_number = \
@@ -72,8 +78,8 @@ class Merge_Pdf_and_GetOutline():
     def create_order_dic(self):
         self.same_chapter_dic = {}
         len_order = len(Chapter_number)
-        for i in range(1, len_order+1):
-            self.same_chapter_dic[i] = {}
+        for chapter in range(1, len_order+1):
+            self.same_chapter_dic[chapter] = {}
 
         self.special_chapter_dic = {1:[]}
 
@@ -88,9 +94,25 @@ class Merge_Pdf_and_GetOutline():
         if len(self.debug_file)!= 0:
             bug_file = '、'.join(self.debug_file)
             raise FileNotFoundError(f'WORNING! 有檔案未被合併 : {bug_file}，請檢查檔案並重新選擇資料夾!')
-            
+
 
     def find_the_same_chapter(self, pdf):
+        pdf_name = pdf.split('\\')[-1]   #得到pdf名子
+        for chapter, chapter_data in All_Same_Chapter.items():
+                file_NO_pattern = re.compile(fr"^\d[{chapter}]_(\d\d)", re.I)
+                find = file_NO_pattern.findall(pdf_name)
+                if len(find):
+                    index_inner = int(find[0])
+                    if chapter_data['inner_title_and_file_name']:
+                        self.same_chapter_dic[chapter][index_inner] = {'title': chapter_data['inner_title_and_file_name'][index_inner-1], 'pdf_path': pdf}
+                    else:
+                        self.same_chapter_dic[chapter][index_inner] = {'title': None, 'pdf_path': pdf}
+
+                    self.same_chapter_dic[chapter][0] = {'title': chapter_data['title']}
+                    return pdf    
+            
+
+    ''' def find_the_same_chapter(self, pdf):
         pdf_name = pdf.split('\\')[-1]   #得到pdf名子
         for chapter, file_name_list in All_same_chapter.items():
             if file_name_list['inner_title_and_file_name']:     #如果該章節檔案名稱不是使用該章節的title名稱命名
@@ -107,7 +129,7 @@ class Merge_Pdf_and_GetOutline():
                     pdf_path = os.path.join(self.pdf_data['input_folder_path'], pdf_name)
                     self.same_chapter_dic[chapter][1] = {'title': None, 'pdf_path': pdf_path}
                     self.same_chapter_dic[chapter][0] = {'title': file_name_list['title']}
-                    return pdf
+                    return pdf '''
 
     def order_same_chpater(self):
         count_ch = 1
@@ -140,33 +162,17 @@ class Merge_Pdf_and_GetOutline():
                 self.same_chapter_dic.pop(capter)
 
     def find_special_chapter_file(self):
-        if 'Stamp' in self.pdf_data['select_stytle']:
-            file_name = Stamp_ver_Chapter_1_2_data[0]['file_name']
-        if 'Audit' in self.pdf_data['select_stytle']:
-            file_name = Audit_ver_Chapter_1_inner_title[0]['file_name']
-
         find_file_flag = False
-        file_NO_way_flag = False
-
-        file_NO_pattern = re.compile(r"^\d[1,2]_\d\d", re.I)
+        file_NO_special_pattern = re.compile(r"^\d[1,2]_\d\d", re.I)
         for pdf_path in self.file_list:
             pdf_name = pdf_path.split('\\')[-1]
-            find_pattern = file_NO_pattern.findall(pdf_name)
+            find_pattern = file_NO_special_pattern.findall(pdf_name)
             if len(find_pattern):
                 self.special_chapter_dic[1].append(pdf_path)
                 index = self.debug_file.index(pdf_path)
                 self.debug_file.pop(index)
-                file_NO_way_flag = True
                 find_file_flag = True
 
-            else:
-                if file_name in pdf_name:
-                    index = self.debug_file.index(pdf_path)
-                    self.debug_file.pop(index)
-                    self.special_chapter_dic[1].append(pdf_path)
-                    find_file_flag = True
-                    continue
-        
         if not find_file_flag:
             raise FileNotFoundError(f"WORNING! 找不到{self.pdf_data['select_stytle']}第一章檔案! 請檢查檔案和選擇合併版本並重新選擇資料夾")
         
@@ -176,23 +182,26 @@ class Merge_Pdf_and_GetOutline():
             elif len(self.pdf_data['build_no']) < len(self.special_chapter_dic[1]):
                 raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有建築編號少填，請檢查輸入參數或檔案")
             else:
-                special_chapter_file_list = []
-                if not file_NO_way_flag:
-                    debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])                           #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
-                    for i, no in enumerate(self.pdf_data['build_no']):
-                        file_name_pattern = re.compile(fr"({no}&{file_name})", re.I)
-                        for pdf_name in self.special_chapter_dic[1]:
-                            find_pattern = file_name_pattern.findall(pdf_name)
-                            if len(find_pattern):
-                                index = debug_special_chapter_file.index(pdf_name)
-                                p = debug_special_chapter_file.pop(index)
-                                special_chapter_file_list.append(p)
-                                break
-
-                    if len(debug_special_chapter_file) != 0:
-                        raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有檔案命名有誤或是建築編號填寫錯誤，請檢查輸入參數或檔案") 
+                Stamp_multi_chapter_file_list = []
+                debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])      #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
+                for no in range(1, (len(self.pdf_data['build_no']))+1):
+                    if no < 10:
+                        no = str(f'0{no}')
                     else:
-                        self.special_chapter_dic[1] = deepcopy(special_chapter_file_list)  
+                        no = str(no)
+                    file_name_pattern = re.compile(fr"^\d[2]_{no}", re.I)
+                    for pdf_path in self.special_chapter_dic[1]:
+                        find_pattern = file_name_pattern.findall(pdf_path.split('\\')[-1])
+                        if len(find_pattern):
+                            index = debug_special_chapter_file.index(pdf_name)
+                            p = debug_special_chapter_file.pop(index)
+                            Stamp_multi_chapter_file_list.append(p)
+                            break
+
+                if len(debug_special_chapter_file) != 0:
+                    raise FileNotFoundError(f"WORNING! 核章版多棟版本第一章有檔案命名有誤或是建築編號填寫錯誤，請檢查輸入參數或檔案") 
+                else:
+                    self.special_chapter_dic[1] = deepcopy(Stamp_multi_chapter_file_list)  
                
        
     def find_special_chapter_page(self):
@@ -210,7 +219,7 @@ class Merge_Pdf_and_GetOutline():
     def find_Stamp_single_page(self):
         self.special_chapter_file_path = deepcopy(self.special_chapter_dic[1][0])
         self.special_chapter_dic.clear()
-        for i in range(1, len(Stamp_ver_Chapter_1_2_data)):
+        for i in range(1, len(Stamp_ver_Chapter_1_2_data)+1):
             self.special_chapter_dic[i] = {}
             self.special_chapter_dic[i][0] = {'title' : Stamp_ver_Chapter_1_2_data[i]['title'], 'page' : None}
             

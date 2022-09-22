@@ -90,6 +90,8 @@ def delete_file(delete_list):
          os.remove(file)
 
 def main(basic_data, special_data):
+    print(basic_data)
+    print(special_data)
     try:
         start_time = time.time()
         
@@ -142,7 +144,7 @@ def main(basic_data, special_data):
 
 
 if "__main__" == __name__:
-    basic_data = {'number': '555', 'address': '555', 'name': '555', 'file_name': None} 
-    special_data = {'select_stytle': 'Stamp_multi', 'build_num': 2, 'build_no': ['A', 'B'], 'input_folder_path': 'E:\python\\virtualenv\\PDF_Merger\\PDF_merger\\整合PDF(all)\\整合前\\核章版 多-2', 'self': None, 'status': None}
+    basic_data = {'number': 'V555', 'address': '555', 'name': '555', 'file_name': None}
+    special_data = {'select_stytle': 'Stamp_single', 'input_folder_path': 'C:\\Users\\andy_chien\\Downloads\\整合PDF(all)\\整合前', 'self': None, 'status': None}
     #pdf_information = {'select_stytle': 'Stamp_multi', 'build_num': 4, 'build_no': ['1', '2', '3', '4'], 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多', 'self': '<__main__.Merge_PDF_Thread(0x2784804e4c0) at 0x000002783D58B100>', 'status': '<PySide6.QtCore.SignalInstance status(QString) at 0x000002783D581AB0>', 'tmp_file_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多\\2022-08-14_merger'}
     main(basic_data, special_data)
