@@ -296,9 +296,10 @@ def transfer_beam_data(data_list, unit_flag):
                     START_index = LOC_list.index(num) 
                     break
 
-            for num in LOC_list[::-1]:
+            for i, num in enumerate(LOC_list[::-1]):
                 if END_num >= num:
-                    END_index = LOC_list.index(num)
+                    END_index = i
+                    END_index = len(LOC_list) - END_index - 1 
                     break
 
             #print('START_index = ', START_index)

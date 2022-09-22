@@ -7,7 +7,7 @@ import BC_transfer as transfer
 from BC_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '0.03'
+VERSION = '1.03'
 
 
 class MainWindow(QMainWindow):
