@@ -7,6 +7,7 @@ import datetime
 import time
 import traceback
 import config_load
+import addpagenumber
 
 """
 檢查檔案存在(Template)
@@ -95,13 +96,13 @@ def delete_file(delete_list):
     for file in delete_list:
          os.remove(file)
 
-def main(basic_data, special_data):
+def main(basic_data, special_data, config):
     print(basic_data)
     print(special_data)
     try:
         start_time = time.time()
         
-        get_variable_form_UI(basic_data, special_data)
+        get_variable_form_UI(basic_data, special_data, config)
 
         All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title = config_load.load_ini(config_path)
         merger.get_title_data(All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title)
@@ -112,13 +113,17 @@ def main(basic_data, special_data):
         merge_pdf_path, outline_data, delete_file_list = merge_pdf()
         time.sleep(0.5)
 
+        send_msg_to_UI('生成頁碼...')
+        page_number_file = addpagenumber.add_page_number(merge_pdf_path)
+        delete_file_list.append(page_number_file)
+
         send_msg_to_UI('生成封面pdf檔...')
         outline_pdf_path = get_outline_pdf(outline_data)
         delete_file_list.append(outline_pdf_path)
         time.sleep(0.5)
         
         send_msg_to_UI('生成最終檔案...')
-        final_path = merger.Merge_Final_PDF(outline_pdf_path, merge_pdf_path, outline_information['number'], outline_information['file_name'])
+        final_path = merger.Merge_Final_PDF(outline_pdf_path, page_number_file, outline_information['number'], outline_information['file_name'])
 
         delete_file(delete_file_list)
          

@@ -469,7 +469,6 @@ class Merge_Pdf_and_GetOutline():
         self.get_output_file_path()
         merger.write(self.output_merge_pdf_path)
         merger.close()
-        self.delete_file_list.append(self.output_merge_pdf_path)
     
     def transfer_to_word_stytle(self):
         if self.pdf_data['select_stytle'] == 'Stamp_single' or self.pdf_data['select_stytle'] == 'Audit':
