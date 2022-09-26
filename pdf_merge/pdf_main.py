@@ -113,9 +113,9 @@ def main(basic_data, special_data, config):
         merge_pdf_path, outline_data, delete_file_list = merge_pdf()
         time.sleep(0.5)
 
-        send_msg_to_UI('生成頁碼...')
-        page_number_file = addpagenumber.add_page_number(merge_pdf_path)
-        delete_file_list.append(page_number_file)
+        #send_msg_to_UI('生成頁碼...')
+        #page_number_file = addpagenumber.add_page_number(merge_pdf_path)
+        #delete_file_list.append(page_number_file)
 
         send_msg_to_UI('生成封面pdf檔...')
         outline_pdf_path = get_outline_pdf(outline_data)
@@ -123,7 +123,7 @@ def main(basic_data, special_data, config):
         time.sleep(0.5)
         
         send_msg_to_UI('生成最終檔案...')
-        final_path = merger.Merge_Final_PDF(outline_pdf_path, page_number_file, outline_information['number'], outline_information['file_name'])
+        final_path = merger.Merge_Final_PDF(outline_pdf_path, merge_pdf_path, outline_information['number'], outline_information['file_name'])
 
         delete_file(delete_file_list)
          
