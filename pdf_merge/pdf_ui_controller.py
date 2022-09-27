@@ -87,9 +87,9 @@ class MainWindow(QMainWindow):
         self.tab_1_title_1 = self._window.tab_1_title_1
         self.tab_1_title_2 = self._window.tab_1_title_2
         tab_1 = [self.tab_1_title_1, self.tab_1_title_2]
-        tab_1_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 前兩大章節的檔名最前面加編號(02_0X)，\n   或包含「地震風力」字串(例: A&地震風力、B&地震風力...)']
+        tab_1_txt = ['1.本工具可使用config動態加入章節，詳情請按右下角config按鈕', '2. 前兩大章節的檔名最前面加編號 02_0X filename.pdf 來進行命名']
         for i, tab in enumerate(tab_1):
-            tab.setFont(QFont('標楷體', 14))
+            tab.setFont(QFont('Times New Roman', 14))
             tab.setText(tab_1_txt[i])
         
         self.buid_single = self._window.single
@@ -132,9 +132,9 @@ class MainWindow(QMainWindow):
         self.tab_2_title_1 = self._window.tab_2_title_1
         self.tab_2_title_2 = self._window.tab_2_title_2
         tab_2 = [self.tab_2_title_1, self.tab_2_title_2]
-        tab_2_txt = ['1. 所有欲合成的pdf檔名需包含目錄章節名稱，詳情請案右下角config按鈕查看', '2. 第一大章節的檔案名稱請包含「外審意見回覆_n」(n為編號)']
+        tab_2_txt = ['1.本工具可使用config動態加入章節，詳情請按右下角config按鈕', '2. 第一大章節的檔案名稱請使用 01_01 filename.pdf 來進行命名']
         for i, tab in enumerate(tab_2):
-            tab.setFont(QFont('標楷體', 14))
+            tab.setFont(QFont('Times New Roman', 14))
             tab.setText(tab_2_txt[i])
         
         self.audit_selection_1 = self._window.radioButton_1
@@ -150,13 +150,10 @@ class MainWindow(QMainWindow):
 
 
     def set_ps_in_tab(self):
-        self.tab_1_title_3 = self._window.tab_1_title_3
         self.tab_2_title_3 = self._window.tab_2_title_3
-        ps = [self.tab_1_title_3, self.tab_2_title_3]
-        ps_text = 'p.s. 本工具不會生成頁碼，請手動加入'
-        for p in ps:
-            p.setStyleSheet("color: #FF0000")
-            p.setText(ps_text)
+        ps_text = ' (p.s. 本工具生成的頁碼並不支援adobe的頁碼連動功能)'
+        self.tab_2_title_3.setStyleSheet("color: #FF0000")
+        self.tab_2_title_3.setText(ps_text)
 
 
     def set_config_btm(self):
@@ -313,7 +310,7 @@ class MainWindow(QMainWindow):
     def reset_status(self):
         self.status.clear()
 
-        txt = '>>>>>>>請先確認選擇合併版本再開始<<<<<<<<'
+        txt = '>>>>>>>請先確認選擇合併版本再開始<<<<<<<<\n 將會生成: 合併後不包括目錄的PDF檔、目錄word檔以及合併後的最終檔案'
         fft1 = self.status.currentCharFormat()
         fft1.setForeground(QColor('#da8318'))
         fft1.setFontWeight(QFont.Bold)

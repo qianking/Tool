@@ -34,20 +34,162 @@ class Ui_MainWindow(object):
         self.gridLayout_10.setObjectName(u"gridLayout_10")
         self.horizontalSpacer_3 = QSpacerItem(598, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_10.addItem(self.horizontalSpacer_3, 0, 1, 1, 1)
+        self.gridLayout_10.addItem(self.horizontalSpacer_3, 0, 2, 1, 1)
 
         self.config_btm = QPushButton(self.centralwidget)
         self.config_btm.setObjectName(u"config_btm")
 
-        self.gridLayout_10.addWidget(self.config_btm, 0, 3, 1, 1)
+        self.gridLayout_10.addWidget(self.config_btm, 0, 4, 1, 1)
 
         self.pagenum = QRadioButton(self.centralwidget)
         self.pagenum.setObjectName(u"pagenum")
 
         self.gridLayout_10.addWidget(self.pagenum, 0, 0, 1, 1)
 
+        self.tab_2_title_3 = QLabel(self.centralwidget)
+        self.tab_2_title_3.setObjectName(u"tab_2_title_3")
+        font = QFont()
+        font.setFamilies([u"\u6a19\u6977\u9ad4"])
+        font.setPointSize(12)
+        self.tab_2_title_3.setFont(font)
+
+        self.gridLayout_10.addWidget(self.tab_2_title_3, 0, 1, 1, 1)
+
 
         self.gridLayout_11.addLayout(self.gridLayout_10, 1, 0, 1, 1)
+
+        self.line_2 = QFrame(self.centralwidget)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_11.addWidget(self.line_2, 2, 0, 1, 1)
+
+        self.line = QFrame(self.centralwidget)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_11.addWidget(self.line, 5, 0, 1, 1)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.file_name = QLabel(self.centralwidget)
+        self.file_name.setObjectName(u"file_name")
+        self.file_name.setFont(font)
+
+        self.horizontalLayout.addWidget(self.file_name)
+
+        self.file_name_line = QLineEdit(self.centralwidget)
+        self.file_name_line.setObjectName(u"file_name_line")
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.file_name_line.sizePolicy().hasHeightForWidth())
+        self.file_name_line.setSizePolicy(sizePolicy)
+        font1 = QFont()
+        font1.setPointSize(12)
+        self.file_name_line.setFont(font1)
+
+        self.horizontalLayout.addWidget(self.file_name_line)
+
+        self.label = QLabel(self.centralwidget)
+        self.label.setObjectName(u"label")
+        self.label.setFont(font1)
+
+        self.horizontalLayout.addWidget(self.label)
+
+
+        self.gridLayout_11.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+
+        self.groupBox = QGroupBox(self.centralwidget)
+        self.groupBox.setObjectName(u"groupBox")
+        self.gridLayout_3 = QGridLayout(self.groupBox)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout = QGridLayout()
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.name_line = QLineEdit(self.groupBox)
+        self.name_line.setObjectName(u"name_line")
+        self.name_line.setFont(font1)
+
+        self.gridLayout.addWidget(self.name_line, 2, 1, 1, 3)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_2, 0, 3, 1, 1)
+
+        self.address_line = QLineEdit(self.groupBox)
+        self.address_line.setObjectName(u"address_line")
+        self.address_line.setFont(font1)
+
+        self.gridLayout.addWidget(self.address_line, 1, 1, 1, 3)
+
+        self.number = QLabel(self.groupBox)
+        self.number.setObjectName(u"number")
+        self.number.setFont(font)
+
+        self.gridLayout.addWidget(self.number, 0, 0, 1, 1)
+
+        self.address = QLabel(self.groupBox)
+        self.address.setObjectName(u"address")
+        self.address.setFont(font)
+
+        self.gridLayout.addWidget(self.address, 1, 0, 1, 1)
+
+        self.name = QLabel(self.groupBox)
+        self.name.setObjectName(u"name")
+        self.name.setFont(font)
+
+        self.gridLayout.addWidget(self.name, 2, 0, 1, 1)
+
+        self.number_line = QLineEdit(self.groupBox)
+        self.number_line.setObjectName(u"number_line")
+        self.number_line.setFont(font1)
+
+        self.gridLayout.addWidget(self.number_line, 0, 1, 1, 1)
+
+
+        self.gridLayout_3.addLayout(self.gridLayout, 0, 0, 1, 1)
+
+
+        self.gridLayout_11.addWidget(self.groupBox, 3, 0, 1, 1)
+
+        self.gridLayout_9 = QGridLayout()
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.import_btm = QPushButton(self.centralwidget)
+        self.import_btm.setObjectName(u"import_btm")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.import_btm.sizePolicy().hasHeightForWidth())
+        self.import_btm.setSizePolicy(sizePolicy1)
+        font2 = QFont()
+        font2.setFamilies([u"Arial"])
+        font2.setPointSize(12)
+        self.import_btm.setFont(font2)
+        self.import_btm.setMouseTracking(False)
+
+        self.gridLayout_9.addWidget(self.import_btm, 0, 1, 1, 1)
+
+        self.start_btm = QPushButton(self.centralwidget)
+        self.start_btm.setObjectName(u"start_btm")
+        sizePolicy1.setHeightForWidth(self.start_btm.sizePolicy().hasHeightForWidth())
+        self.start_btm.setSizePolicy(sizePolicy1)
+        self.start_btm.setFont(font2)
+
+        self.gridLayout_9.addWidget(self.start_btm, 0, 2, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(458, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_9.addItem(self.horizontalSpacer, 0, 0, 1, 1)
+
+        self.status_txt = QPlainTextEdit(self.centralwidget)
+        self.status_txt.setObjectName(u"status_txt")
+
+        self.gridLayout_9.addWidget(self.status_txt, 1, 0, 1, 3)
+
+
+        self.gridLayout_11.addLayout(self.gridLayout_9, 6, 0, 1, 1)
 
         self.tabWidget = QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(u"tabWidget")
@@ -63,9 +205,6 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.tab_1_title_1 = QLabel(self.tab_1)
         self.tab_1_title_1.setObjectName(u"tab_1_title_1")
-        font = QFont()
-        font.setFamilies([u"\u6a19\u6977\u9ad4"])
-        font.setPointSize(12)
         self.tab_1_title_1.setFont(font)
 
         self.verticalLayout.addWidget(self.tab_1_title_1)
@@ -76,12 +215,6 @@ class Ui_MainWindow(object):
         self.tab_1_title_2.setTextFormat(Qt.AutoText)
 
         self.verticalLayout.addWidget(self.tab_1_title_2)
-
-        self.tab_1_title_3 = QLabel(self.tab_1)
-        self.tab_1_title_3.setObjectName(u"tab_1_title_3")
-        self.tab_1_title_3.setFont(font)
-
-        self.verticalLayout.addWidget(self.tab_1_title_3)
 
 
         self.gridLayout_4.addLayout(self.verticalLayout, 0, 0, 1, 2)
@@ -123,11 +256,11 @@ class Ui_MainWindow(object):
 
         self.build_num_input = QLineEdit(self.tab_1)
         self.build_num_input.setObjectName(u"build_num_input")
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.build_num_input.sizePolicy().hasHeightForWidth())
-        self.build_num_input.setSizePolicy(sizePolicy)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.build_num_input.sizePolicy().hasHeightForWidth())
+        self.build_num_input.setSizePolicy(sizePolicy2)
         self.build_num_input.setMinimumSize(QSize(133, 21))
 
         self.gridLayout_2.addWidget(self.build_num_input, 1, 2, 1, 1)
@@ -164,12 +297,6 @@ class Ui_MainWindow(object):
         self.tab_2_title_2.setTextFormat(Qt.AutoText)
 
         self.verticalLayout_2.addWidget(self.tab_2_title_2)
-
-        self.tab_2_title_3 = QLabel(self.tab_2)
-        self.tab_2_title_3.setObjectName(u"tab_2_title_3")
-        self.tab_2_title_3.setFont(font)
-
-        self.verticalLayout_2.addWidget(self.tab_2_title_3)
 
 
         self.gridLayout_6.addLayout(self.verticalLayout_2, 0, 0, 1, 3)
@@ -214,139 +341,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_11.addWidget(self.tabWidget, 0, 0, 1, 1)
 
-        self.line_2 = QFrame(self.centralwidget)
-        self.line_2.setObjectName(u"line_2")
-        self.line_2.setFrameShape(QFrame.HLine)
-        self.line_2.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_11.addWidget(self.line_2, 2, 0, 1, 1)
-
-        self.line = QFrame(self.centralwidget)
-        self.line.setObjectName(u"line")
-        self.line.setFrameShape(QFrame.HLine)
-        self.line.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_11.addWidget(self.line, 5, 0, 1, 1)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.file_name = QLabel(self.centralwidget)
-        self.file_name.setObjectName(u"file_name")
-        self.file_name.setFont(font)
-
-        self.horizontalLayout.addWidget(self.file_name)
-
-        self.file_name_line = QLineEdit(self.centralwidget)
-        self.file_name_line.setObjectName(u"file_name_line")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.file_name_line.sizePolicy().hasHeightForWidth())
-        self.file_name_line.setSizePolicy(sizePolicy1)
-        font1 = QFont()
-        font1.setPointSize(12)
-        self.file_name_line.setFont(font1)
-
-        self.horizontalLayout.addWidget(self.file_name_line)
-
-        self.label = QLabel(self.centralwidget)
-        self.label.setObjectName(u"label")
-        self.label.setFont(font1)
-
-        self.horizontalLayout.addWidget(self.label)
-
-
-        self.gridLayout_11.addLayout(self.horizontalLayout, 4, 0, 1, 1)
-
-        self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setObjectName(u"groupBox")
-        self.gridLayout_3 = QGridLayout(self.groupBox)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.gridLayout = QGridLayout()
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.address_line = QLineEdit(self.groupBox)
-        self.address_line.setObjectName(u"address_line")
-        self.address_line.setFont(font1)
-
-        self.gridLayout.addWidget(self.address_line, 1, 1, 1, 3)
-
-        self.number = QLabel(self.groupBox)
-        self.number.setObjectName(u"number")
-        self.number.setFont(font)
-
-        self.gridLayout.addWidget(self.number, 0, 0, 1, 1)
-
-        self.address = QLabel(self.groupBox)
-        self.address.setObjectName(u"address")
-        self.address.setFont(font)
-
-        self.gridLayout.addWidget(self.address, 1, 0, 1, 1)
-
-        self.name_line = QLineEdit(self.groupBox)
-        self.name_line.setObjectName(u"name_line")
-        self.name_line.setFont(font1)
-
-        self.gridLayout.addWidget(self.name_line, 2, 1, 1, 3)
-
-        self.name = QLabel(self.groupBox)
-        self.name.setObjectName(u"name")
-        self.name.setFont(font)
-
-        self.gridLayout.addWidget(self.name, 2, 0, 1, 1)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer_2, 0, 3, 1, 1)
-
-        self.number_line = QLineEdit(self.groupBox)
-        self.number_line.setObjectName(u"number_line")
-        self.number_line.setFont(font1)
-
-        self.gridLayout.addWidget(self.number_line, 0, 1, 1, 1)
-
-
-        self.gridLayout_3.addLayout(self.gridLayout, 0, 0, 1, 1)
-
-
-        self.gridLayout_11.addWidget(self.groupBox, 3, 0, 1, 1)
-
-        self.gridLayout_9 = QGridLayout()
-        self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.import_btm = QPushButton(self.centralwidget)
-        self.import_btm.setObjectName(u"import_btm")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.import_btm.sizePolicy().hasHeightForWidth())
-        self.import_btm.setSizePolicy(sizePolicy2)
-        font2 = QFont()
-        font2.setFamilies([u"Arial"])
-        font2.setPointSize(12)
-        self.import_btm.setFont(font2)
-        self.import_btm.setMouseTracking(False)
-
-        self.gridLayout_9.addWidget(self.import_btm, 0, 1, 1, 1)
-
-        self.start_btm = QPushButton(self.centralwidget)
-        self.start_btm.setObjectName(u"start_btm")
-        sizePolicy2.setHeightForWidth(self.start_btm.sizePolicy().hasHeightForWidth())
-        self.start_btm.setSizePolicy(sizePolicy2)
-        self.start_btm.setFont(font2)
-
-        self.gridLayout_9.addWidget(self.start_btm, 0, 2, 1, 1)
-
-        self.horizontalSpacer = QSpacerItem(458, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_9.addItem(self.horizontalSpacer, 0, 0, 1, 1)
-
-        self.status_txt = QPlainTextEdit(self.centralwidget)
-        self.status_txt.setObjectName(u"status_txt")
-
-        self.gridLayout_9.addWidget(self.status_txt, 1, 0, 1, 3)
-
-
-        self.gridLayout_11.addLayout(self.gridLayout_9, 6, 0, 1, 1)
-
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -358,7 +352,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -368,22 +362,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.config_btm.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.pagenum.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
-        self.tab_1_title_1.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.tab_1_title_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.tab_1_title_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.build_num.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.muilti.setText(QCoreApplication.translate("MainWindow", u"R", None))
-        self.single.setText(QCoreApplication.translate("MainWindow", u"Radi", None))
-        self.build_No.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), QCoreApplication.translate("MainWindow", u"Tab 1", None))
-        self.tab_2_title_1.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.tab_2_title_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.tab_2_title_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.radioButton_1.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
-        self.radioButton_2.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
-        self.radioButton_3.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"Tab 2", None))
         self.file_name.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"GroupBox", None))
@@ -392,5 +371,19 @@ class Ui_MainWindow(object):
         self.name.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.import_btm.setText(QCoreApplication.translate("MainWindow", u"Import", None))
         self.start_btm.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.tab_1_title_1.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.tab_1_title_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.build_num.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.muilti.setText(QCoreApplication.translate("MainWindow", u"R", None))
+        self.single.setText(QCoreApplication.translate("MainWindow", u"Radi", None))
+        self.build_No.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), QCoreApplication.translate("MainWindow", u"Tab 1", None))
+        self.tab_2_title_1.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.tab_2_title_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.radioButton_1.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
+        self.radioButton_2.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
+        self.radioButton_3.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"Tab 2", None))
     # retranslateUi
 
