@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         self.set_ps_in_tab()
         self.set_cover_label_text()
         self.set_config_btm()
+        self.set_page_num_radio()
         self.line_edit_connect()
         self.txt_plain_connect()
         self.btm_connect()
@@ -145,7 +146,7 @@ class MainWindow(QMainWindow):
         for i, selection in enumerate(self.selection_btm):
             selection.setFont(QFont('Times New Roman', 12, QFont.Bold))
             selection.setText(self.select_txt[i].strip())
-        self.audit_selection_1.setChecked(True)   
+        self.audit_selection_1.setChecked(True)  
 
 
     def set_ps_in_tab(self):
@@ -171,22 +172,18 @@ class MainWindow(QMainWindow):
             
         }
         """ '''
-        self.config_1_btm = self._window.config_1_btm
-        self.config_2_btm = self._window.config_2_btm
-        
-        config_btm_list = [self.config_1_btm, self.config_2_btm]
-        for btm in config_btm_list:
-            btm.setText('Config')
-        self.config_1_btm.clicked.connect(self.open_config_1_file)
-        self.config_2_btm.clicked.connect(self.open_config_2_file) 
-        #self.start_btm.setStyleSheet(button_style)
+        self.config_btm = self._window.config_btm
+        self.config_btm.setText('Config')
+        self.config_btm.setFont(QFont('Times New Roman', 12))
+        self.config_btm.clicked.connect(self.open_config_file) 
     
-    def open_config_1_file(self):
+    def open_config_file(self):
         open_config_file(config_path)
     
-    def open_config_2_file(self):
-        open_config_file(config_path)
-
+    def set_page_num_radio(self):
+        self.page_num = self._window.pagenum
+        self.page_num.setText('頁碼')
+        self.page_num.setFont(QFont('標楷體', 13))
     
     def set_cover_label_text(self):
         self.groupbox = self._window.groupBox
@@ -299,6 +296,7 @@ class MainWindow(QMainWindow):
     def start_merge_thread(self):
         if self.start_flage:
             self.pdf_information['input_folder_path'] = self.input_folder_path
+            self.pdf_information['page_num'] = self.page_num.isChecked()
             self.set_all_enable(False)
             outline_infor_name = ['number', 'address', 'name', 'file_name']
             outline_information = [self.number, self.address, self.name, self.file_name]
