@@ -123,6 +123,8 @@ def main(basic_data, special_data, config):
             except Exception as ex:
                 send_msg_to_UI(f'頁碼生成異常，改生成沒頁碼版本，請回饋給開發者\n EXCEPTION: {str(ex)}...')
                 except_outline_file = merge_pdf_path
+        else:
+            except_outline_file = merge_pdf_path
 
 
         send_msg_to_UI('生成封面pdf檔...')
