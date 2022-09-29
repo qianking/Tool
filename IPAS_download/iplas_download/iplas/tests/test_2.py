@@ -4,12 +4,13 @@ import os
 import time
 #from threading import Thread
 
+pp = '55555'
+
+print(pp.split('\n'))
 
 
 
-if __name__ == "__main__":
-    for i in range(6,0,-1):
-        print(i)
+
     
 
 

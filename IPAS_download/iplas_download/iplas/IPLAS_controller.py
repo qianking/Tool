@@ -28,11 +28,13 @@ class MainWindow(QMainWindow):
         elif UI_file_format == 'ui':
             self._window = None
 
+        self._count_timer = QTimer(self)
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
         self.setup_ui()
         self.last_cursor = None
-        self._count_timer = QTimer(self)
+        self.last_info = str()
+        
         self.show_info.mousePressEvent = self.hightlight_selection
         self.show_info.keyPressEvent = self.open_delete_key
         self.show_info.mouseMoveEvent = self.change_mouse_shape
@@ -231,9 +233,7 @@ class MainWindow(QMainWindow):
             download_path = self.folder_path
 #endregion    
 
-
     def setdisable(self, text):
-        print(text)
         if text != 'Select time':
             self.date_start.setEnabled(False)
             self.date_end.setEnabled(False)
@@ -316,60 +316,69 @@ class MainWindow(QMainWindow):
     def change_info_show(self, get):
         self.current = self.show_info.toPlainText()
         self._cursor.clearSelection()
-        self.show_info.moveCursor(QTextCursor.Start)
+        #self.show_info.moveCursor(QTextCursor.Start)
       
-        information_index, info = self.get_real_info(get)
+        information_index, self.info = self.get_real_info(get)
         words = self.current.find(self.information[information_index]) #找到想找的字的第一個字母位置
     
         self._cursor.setPosition(words)  #移動光標到找到的標題
         self._cursor.movePosition(QTextCursor.Down) #移動光標下移一列
         self._cursor.movePosition(QTextCursor.StartOfLine) #移動光標到該列的最一開始
         start = self._cursor.position() #儲存起始位置
-        line_of_info = len(info.split('\n')) #得到需要置換的資訊有幾行
+        line_of_info = len(self.info.split('\n')) #得到需要置換的資訊有幾行
+        #print(self.info)
         for i in range(line_of_info-1):
             self._cursor.movePosition(QTextCursor.Down) 
-        self._cursor.movePosition(QTextCursor.EndOfLine)
+        self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
         end = self._cursor.position() #儲存結束位置
         self._cursor.setPosition(start)
         self._cursor.setPosition(end, QTextCursor.KeepAnchor) #選取需要置換的區域
-        self._cursor.insertText(self.space_2 + info, self.inner_font)
-
-        self.flash_change(info, start)
-        ''' self.timerScreen.setInterval(100000)
-        self.timerScreen.setSingleShot(True)
-        self.timerScreen.timeout.connect(self._cursor.insertText(self.space_2 + info, self.inner_font)) '''
-        
+        self._cursor.insertText(self.space_2 + self.info, self.inner_font)
+        self.changing_flash()
     #endregion
 
-    def flash_change(self, info, start):
+    def changing_flash(self):
+        if self.last_info != self.info:
+            last_info_list = self.last_info.split('\n')
+            print(last_info_list)
+            info_list = self.info.split('\n')
+            print(info_list)
+        for i in range(1):
+            QTimer.singleShot(100 + i * 200, self.light_font)
+            QTimer.singleShot(200 + i * 200, self.normal_font)
+               
+    def light_font(self):
         flash_font = QTextCharFormat()
         flash_font.setForeground(Qt.black)
         flash_font.setFontWeight(QFont.Normal)
-        flash_font.setBackground(Qt.red)
+        flash_font.setBackground(Qt.lightGray)
         flash_font.setFont(QFont('Arial', 11))
+        self.replace_text(flash_font)
+        
+        
+    def normal_font(self):
+        self.replace_text()
+        
 
+    def replace_text(self, flash_font = None):
         self.current = self.show_info.toPlainText()
-        start_of_word = self.current.find(info)
-        self._cursor.setPosition(start_of_word)
-        self._cursor.movePosition(QTextCursor.StartOfLine)
-        self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-        
-        self._count_timer.setInterval(10000) #1000 milliseconds = 1 second
-        self._count_timer.setSingleShot(True)
-        self._count_timer.timeout.connect(self._cursor.insertText(self.space_2 + info, flash_font))
-        
-        ''' self._cursor.setPosition(start_of_word)
-        self._cursor.movePosition(QTextCursor.StartOfLine)
-        self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-        self._cursor.insertText(self.space_2 + info, self.inner_font) '''
-        
-        
-        #print(self._cursor.selectedText())
-        #print(info)
-        #self._cursor.insertText(info, self.inner_font)
-        #QTimer.singleShot(500, lambda:self._cursor.insertText(info, self.inner_font))
-    
+        line_of_info = self.info.split('\n')
+        #print(line_of_info)
+        for i in line_of_info:
+            start_of_word = self.current.find(i.strip())
+            self._cursor.setPosition(start_of_word)
+            self._cursor.movePosition(QTextCursor.StartOfWord)
+            start = self._cursor.position()
+            self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+            end = self._cursor.position() #儲存結束位置
+            self._cursor.setPosition(start)
+            self._cursor.setPosition(end, QTextCursor.KeepAnchor) #選取需要置換的區域
+            if flash_font:
+                self._cursor.insertText(i.strip(), flash_font)
+            else:
+                self._cursor.insertText(i.strip(), self.inner_font)
 
+    
     def hightlight_selection(self, event):
         light_font = QTextCharFormat()
         light_font.setForeground(Qt.black)
