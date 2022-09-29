@@ -1,8 +1,11 @@
 from ast import Global
 import sys
-sys.path.append(r"C:\littleTooldata\IPLAS\program\my lib")
+sys.path.append(r".\my lib")
 import Download_isn
 import write_set_schedular
+from User_login import return_user_data
+import chromedriver_helper
+import file_util
 import os
 import datetime
 import time
@@ -19,9 +22,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from userlogin_UI import return_user_data
-import chromedriver_helper
-import file_util
 import requests
 from requests_ntlm import HttpNtlmAuth
 import glob

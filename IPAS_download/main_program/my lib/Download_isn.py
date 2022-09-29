@@ -1,4 +1,3 @@
-from multiprocessing.connection import wait
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -10,7 +9,6 @@ from selenium.webdriver.common.by import By
 from PySide2.QtWidgets import  QApplication,QMainWindow, QMessageBox, QDialog, QLabel 
 from PySide2.QtGui import QMovie, QFont
 import sys
-sys.path.append(r"C:\littleTooldata\IPLAS\program\my lib")
 import Excel_barchart
 import time
 import re
@@ -19,19 +17,15 @@ import datetime
 from glob import glob
 import shutil
 from copy import deepcopy
-from userlogin_UI import return_user_data
+from User_login import return_user_data
 from zipfile import ZipFile
 import chromedriver_helper
 import file_util
-import argparse
 import requests
 from requests_ntlm import HttpNtlmAuth
 import math
 
-    
-password = return_user_data()
-chromedriver_helper.check_driver_available()
-
+password = ['Andy_Chien', 'Qianking0706-']
 
 local = 'SZ'
 ''' All_project = [
@@ -50,51 +44,24 @@ local = 'SZ'
 IPLAS_defaultset_path = r"C:\littleTooldata\IPLAS\data\default.json"
 IPLAS_download_buffer = r"C:\littleTooldata\IPLAS\Download\buffer"
 
-class Form(QMainWindow):
-    def __init__(self, text, parent=None):
-        super(Form, self).__init__(parent)
-        self.setWindowTitle("info")
-        self.setGeometry(500,500,250,100)
-        self.info = text
-        self.text = QLabel(self)
-        font = QFont("Arial", 14, QFont.Bold)
-        self.text.setFont(font)
-        self.text.setGeometry(20,5,250,100)
-        self.text.setText(self.info)
+Execute_data = {}
 
-def check_internet():
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
-    proxies = {"http":"proxy8.intra:80"}
-    auth = HttpNtlmAuth(password[0], password[1])
-    url = 'http://eip.tw.pegatroncorp.com/'
-    try :
-        resp = requests.get(url = url,headers = headers, proxies=proxies, auth = auth, timeout=300)
-    except Exception:
-        return False
-    else:
-        return True
+''' 去設定參數'''
+def get_variable(**execute_data): 
+    global Execute_data
+    Execute_data = execute_data
 
-def get_args_from_cmd():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-all', type = str, nargs='+')
-    parser.add_argument('-pro', type = str, nargs='+')
-    parser.add_argument('-time', type = str, nargs='+')
-    parser.add_argument('-check', type = str, nargs='+')
-    parser.add_argument('-path', type = str, nargs = 1)
-    return parser
-    
 
-''' 去設定參數,假設參數是從cmd傳進來,那就代表是設定排程用的,那就從傳進來的引數中提取參數
-假設有lwargs有參數傳進來,那就代表是使用者按執行,那就從使用者想要執行的參數來執行'''
-def get_variable(**kwargs): 
-    global All_project
+
+
+    ''' global All_project
     global User_select_project
     global Time_selection_index
     global Time_selection
     global Time_period
     global Input_datetime
     global Check_box_default
-    global File_download_path
+    global File_download_path '''
     
     '''execute_dict = {"All_project" : All_project,
                         "Select_project" : [project, index(project)],
@@ -104,25 +71,9 @@ def get_variable(**kwargs):
                         'Set_schedular_time' : temp_arrang
                         }'''
 
-    #del All_project[:]
+    
     Check_box_default = []
-    #arrengment_args = ['位置檔名', all project]
-    parser = get_args_from_cmd()
-    args = parser.parse_args()
-    if args.all != None:
-        All_project = args.all
-        User_select_project = args.pro[0]
-        Time_selection = args.time[0].replace('_', " ")
-        Time_selection_index = int(args.time[1])
-        Time_period = args.time[2]
-        Time_period = Time_period.replace('_',' ')
-        Time_period = Time_period.replace('+','~')
-
-        Check_box_default_temp = args.check
-        for i in Check_box_default_temp:
-            Check_box_default.append(int(i))
-        File_download_path = args.path[0]
-        #print(All_project,User_select_project, Time_selection, Check_box_default, File_download_path)
+    
         
     if "execute_dict" in kwargs.keys():
         execute_dict = kwargs['execute_dict']
@@ -138,14 +89,13 @@ def get_variable(**kwargs):
         Check_box_default = execute_dict["Check_box_default"]
         File_download_path = execute_dict["Download_path"]
     
-    #print(Time_period)
     return All_project
 
-def print_status_argument(text, **kwargs):
+''' def print_status_argument(text, **kwargs):
     if "self" in kwargs.keys():
         self = kwargs['self']
         status = kwargs['status']
-        self.status.emit(text)
+        self.status.emit(text) '''
 
 def get_chrome_driver():
     global driver
@@ -154,7 +104,7 @@ def get_chrome_driver():
     options = Options()
     options.add_argument("--disable-gpu")
     options.add_argument('--disable-dev-shm-usage')
-    options.add_experimental_option("detach", True)
+    #options.add_experimental_option("detach", True)
     options.add_experimental_option('excludeSwitches', ['enable-logging'])  
     prefs = {"download.default_directory": IPLAS_download_buffer,
             "profile.default_content_setting_values.automatic_downloads": 1}
@@ -164,13 +114,13 @@ def get_chrome_driver():
     wait = WebDriverWait(driver, 180)
     return driver, wait
 
-def run(**kwargs):
+def run(**execute_dict):
     global Download_logger
     now = datetime.datetime.now()
     nowdatetime = now.strftime('%Y-%m-%d_%H-%M')
     
     create_file(IPLAS_download_buffer)
-    All_project = get_variable(**kwargs)
+    All_project = get_variable(**execute_dict)
     driver, wait = get_chrome_driver()
     
     today_excute_download_name = nowdatetime + " " + User_select_project

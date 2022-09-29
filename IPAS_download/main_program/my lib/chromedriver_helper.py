@@ -2,22 +2,22 @@ import os
 import zipfile
 import requests
 from requests_ntlm import HttpNtlmAuth
-import sys
-sys.path.append(r"C:\littleTooldata\IPLAS\program\my lib")
 import file_util
-from userlogin_UI import return_user_data
+from User_login import return_user_data
 import datetime
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-import time
 
 chrome_lastestdriverversion_url = "http://chromedriver.storage.googleapis.com"
-chrome_driver_folder = r"C:\littleTooldata\seleniumdriver\chrome"
-chrome_driver_mapping_file = r"{}\mapping.json".format(chrome_driver_folder)
-chrome_driver_exe = r"{}\chromedriver.exe".format(chrome_driver_folder)
-chrome_driver_zip = r"{}\chromedriver_win32.zip".format(chrome_driver_folder)
-chrome_driver_log = "C://littleTooldata//seleniumdriver//logs"
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+upper_folder_path = '\\'.join(current_path.split('\\')[:-1])
+
+chrome_driver_folder = os.path.join(upper_folder_path, "data")
+chrome_driver_mapping_file = os.path.join(chrome_driver_folder, "mapping.json")
+chrome_driver_exe = os.path.join(chrome_driver_folder, "chromedriver.exe")
+chrome_driver_zip = os.path.join(chrome_driver_folder, "chromedriver_win32.zip")
+chrome_driver_log_folder = os.path.join(upper_folder_path, "logs")
+chrome_driver_log = os.path.join(chrome_driver_log_folder, "chromedriver")
+
 
 #在pega內部使用request設定
 password = return_user_data()
@@ -31,8 +31,7 @@ def date_transfer(date):
     if date is not None:
         day = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         return day
-
-
+        
 def get_now_time():
     now = datetime.datetime.now()
     now = str(now)
@@ -46,7 +45,6 @@ def create_driver_file(driver_folder):
         Chromedriver_logger.info(f"create file: '{driver_folder}'")
         
 
-
 def get_chrome_driver_verion():
     chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
     if not os.path.exists(chrome_path):
@@ -58,7 +56,7 @@ def get_chrome_driver_verion():
 
 def last_driver_ver(chrome_major_ver):
     url = chrome_lastestdriverversion_url + f"/LATEST_RELEASE_{chrome_major_ver}"
-    #print(password[0], password[1])
+    
     try:
         resp = requests.get(url = url,headers = headers, proxies=proxies, auth = auth, timeout=300)
         print(resp.status_code)
@@ -94,58 +92,14 @@ def read_driver_mapping():
 def unzip_driver_to_target_path(from_path,des_path):
     with zipfile.ZipFile (from_path, 'r') as zip:
         zip.extractall(des_path)
-    Chromedriver_logger.info("unzip [{}] -> [{}]".format(from_path, des_path))
+    Chromedriver_logger.info("unzip [{}] -> [{}]".format(from_path, des_path)) 
 
-''' def download_chromedriver():
-    
-    chrome_major_ver = get_chrome_driver_verion()
-    lastest_driver_ver = last_driver_ver(chrome_major_ver)
-    download_driver(lastest_driver_ver, chrome_driver_folder)
-    unzip_driver_to_target_path(chrome_driver_zip, chrome_driver_folder)
-    data = { 
-            chrome_major_ver : {
-                "driver_path" : chrome_driver_exe,
-                "driver_version": lastest_driver_ver,
-            }
-        }
-    file_util.write_json(chrome_driver_mapping_file, data)
-    Chromedriver_logger.info("driver version update success")
-
-def check_chromedriver():
-    
-    if not os.path.exists(chrome_driver_exe):
-        create_driver_file(chrome_driver_folder)
-        Chromedriver_logger.info("not find chrome driver")
-        download_chromedriver()
-        
-    else:
-        try:
-            s = Service(chrome_driver_exe)
-            options = Options()
-            options.add_argument("--disable-gpu")
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_experimental_option("detach", True)
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])  
-            options.add_argument("--headless")
-            driver = webdriver.Chrome(service = s, options = options)
-            driver.minimize_window()
-            driver.get('https://www.google.com.tw/')
-            time.sleep(1)
-            driver.quit()
-            print("fine")
-            
-        except Exception:
-            Chromedriver_logger.info("detect old driver version")
-            download_chromedriver()
-        
-        else:
-            Chromedriver_logger.info("chrome driver already") '''
-            
 
 def check_driver_available():
     last_driver_version = 0
     last_check_time = None
     create_driver_file(chrome_driver_folder)
+    create_driver_file(chrome_driver_log)
     driver_mapping = read_driver_mapping()
     now = get_now_time()
     nowday = date_transfer(now)
