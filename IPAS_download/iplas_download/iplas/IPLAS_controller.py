@@ -32,6 +32,7 @@ class MainWindow(QMainWindow):
         self.threadpool.setMaxThreadCount(1)
         self.setup_ui()
         self.last_cursor = None
+        self._count_timer = QTimer(self)
         self.show_info.mousePressEvent = self.hightlight_selection
         self.show_info.keyPressEvent = self.open_delete_key
         self.show_info.mouseMoveEvent = self.change_mouse_shape
@@ -352,18 +353,15 @@ class MainWindow(QMainWindow):
         self._cursor.setPosition(start_of_word)
         self._cursor.movePosition(QTextCursor.StartOfLine)
         self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-        #self._cursor.insertText(self.space_2 + info, flash_font)
-        #self._cursor.setPosition(start_of_word + len(info), QTextCursor.KeepAnchor)
-        self.timerScreen = QTimer()
-        ''' self.timerScreen.setInterval(10000) #1000 milliseconds = 1 second
-        self.timerScreen.setSingleShot(True)
-        self.timerScreen.timeout.connect(self._cursor.insertText(info, flash_font)) '''
-        QTimer.singleShot(500, lambda:self._cursor.removeSelectedText())
-
-        #QTimer.singleShot(500, lambda:self._cursor.insertText(self.space_2 + info, flash_font))
-
-        self._cursor.clearSelection()
-        self._cursor.setPosition(start_of_word)
+        
+        self._count_timer.setInterval(10000) #1000 milliseconds = 1 second
+        self._count_timer.setSingleShot(True)
+        self._count_timer.timeout.connect(self._cursor.insertText(self.space_2 + info, flash_font))
+        
+        ''' self._cursor.setPosition(start_of_word)
+        self._cursor.movePosition(QTextCursor.StartOfLine)
+        self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+        self._cursor.insertText(self.space_2 + info, self.inner_font) '''
         
         
         #print(self._cursor.selectedText())
