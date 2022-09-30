@@ -66,11 +66,12 @@ class MainWindow(QMainWindow):
         self.set_day_end_time()
         self.set_schedule_group()
         self.set_scheduler_time()
-        self.choose_schedular()
+        #self.choose_schedular()
         self.set_download_path_group()
         self.set_default_path()
         self.set_download_path_btm()
         self.setup_info()
+        self.set_show_current_status()
         
 
 
@@ -99,9 +100,9 @@ class MainWindow(QMainWindow):
     
     def set_window_title(self):
         if UI_file_format == 'ui':
-            self._window.setWindowTitle(f'V {VERSION}')    #.ui版本
+            self._window.setWindowTitle(f'IPLAS Download V{VERSION}')    #.ui版本
         else:
-            self.setWindowTitle(f'V {VERSION}')             #.py版本
+            self.setWindowTitle(f'IPLAS Download V{VERSION}')             #.py版本
 
     def get_now_time(self):     
         self.now = datetime.now()   #2022-05-01 11:22:30.000 type = <class 'datetime.datetime'> 可以做日期相減
@@ -159,7 +160,7 @@ class MainWindow(QMainWindow):
         self.date_start.setFont(QFont('Calibri', 13))
         self.date_start.setDate(QDate.currentDate())
         self.date_start.setCalendarPopup(True)
-        self.date_start.dateChanged.connect(self.change_info_show)
+        self.date_start.dateChanged.connect(self.selecttime_change)
     
     #使用者自己選擇日期時間 -選擇結束日期(連結跳出式月曆)  
     def set_date_end(self):
@@ -169,26 +170,32 @@ class MainWindow(QMainWindow):
         self.date_end.setFont(QFont('Calibri', 13))
         self.date_end.setDate(QDate.currentDate())
         self.date_end.setCalendarPopup(True)
-        self.date_end.dateChanged.connect(self.change_info_show)
+        self.date_end.dateChanged.connect(self.selecttime_change)
     
     #使用者自己選擇日期時間 - 選擇開始時間
     def set_day_start_time(self):
         self.day_start_time = self._window.comboBox_3
         self.day_start_time.setEnabled(False)
         self.day_start_time.addItems(day_time)
+        self.day_start_time.setCurrentIndex(0)
         self.day_start_time.setFont(QFont('Calibri', 13))
-        self.day_start_time.activated.connect(self.change_info_show)
+        self.day_start_time.activated.connect(self.selecttime_change)
 
     #使用者自己選擇日期時間 - 選擇結束時間  
     def set_day_end_time(self):
-        self.day_end_time = self._window.comboBox_4
+        self.day_end_time = self._window.comboBox_5
         self.day_end_time.setEnabled(False)
         self.day_end_time.addItems(day_time)
-        self.default_time = f"{self.now_H}:00"
-        self.day_end_time.setCurrentText(self.default_time)
+        now_hour = f"{self.now_H}:00"
+        index = self.day_end_time.findText(now_hour, Qt.MatchFixedString)
+        if index >= 0:
+            self.day_end_time.setCurrentIndex(index) 
         self.day_end_time.setFont(QFont('Calibri', 13))
-        self.day_end_time.activated.connect(self.change_info_show)
+        self.day_end_time.activated.connect(self.selecttime_change)
 #endregion
+    def selecttime_change(self, txt):
+        txt = 'selecttime_change'
+        self.change_info_show(txt)
     
 #region 設置排程
     def set_schedule_group(self):
@@ -203,12 +210,6 @@ class MainWindow(QMainWindow):
         self.schedular_time.setFont(QFont('Calibri', 13))
         self.schedular_time.setFixedWidth(100)
         self.schedular_time.timeChanged.connect(self.change_info_show)
-    
-    def choose_schedular(self):
-        self.schedular = self._window.comboBox_4
-        #self.schedular.addItems(schedule_set)
-        self.schedular.setCurrentIndex(-1)
-        #self.schedular.currentTextChanged.connect(self.showscheduleselection)
 #endregion
     
 #region 設置下載路徑
@@ -231,6 +232,7 @@ class MainWindow(QMainWindow):
             self._window.lineEdit.setText(self.folder_path)
             self.folder_path = self.folder_path.replace("/", "\\")
             download_path = self.folder_path
+            self._window.lineEdit.setText(self.folder_path)
 #endregion    
 
     def setdisable(self, text):
@@ -252,19 +254,21 @@ class MainWindow(QMainWindow):
         self.show_info = self._window.plainTextEdit
         self.show_info.setMouseTracking(True)
         #self.show_info.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
-        self.show_info.setFixedWidth(400)
+        #self.show_info.setFixedWidth(400)
         self.show_info.setReadOnly(True)
         self._cursor = self.show_info.textCursor()
         self.show_info.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.show_info.clear()
-        self.space_2 = ' '*10
-        self.information =  ['Single Excute Parameter:',
-                        '   Select Project:',
-                        '   Set Time:',
+        self.title_space = ' '*3
+        self.inner_space = ' '*10
+
+        self.information =  ['Excute Parameter:',
+                        'Select Project:',
+                        'Set Time:',
                         '==========================================', 
                         'Scheduler Setting:',
-                        '   Set Task Scheduler Time:',
-                        '   Scheduler Task information:'
+                        'Set Task Scheduler Time:',
+                        'Scheduler Task information:',
                         ]
 
         self.title_font = self.show_info.currentCharFormat()
@@ -286,34 +290,35 @@ class MainWindow(QMainWindow):
         self.show_info.appendPlainText(self.information[0])
 
         self.show_info.setCurrentCharFormat(self.second_title_font)
-        self.show_info.appendPlainText(self.information[1])
+        self.show_info.appendPlainText(self.title_space + self.information[1])
         self.show_info.setCurrentCharFormat(self.inner_font)
-        self.show_info.appendPlainText(self.space_2 + Select_project)
+        self.show_info.appendPlainText(self.inner_space + Select_project)
         self.show_info.setCurrentCharFormat(self.second_title_font)
-        self.show_info.appendPlainText(self.information[2])
+        self.show_info.appendPlainText(self.title_space + self.information[2])
         self.show_info.setCurrentCharFormat(self.inner_font)
         information_index, tempset = self.get_real_info(time_selection[0])
-        self.show_info.appendPlainText(self.space_2 + tempset)
+        self.show_info.appendPlainText(self.inner_space + tempset)
         self.show_info.setCurrentCharFormat(self.inner_font)
         self.show_info.appendPlainText(self.information[3])
 
         self.show_info.setCurrentCharFormat(self.title_font)
         self.show_info.appendPlainText(self.information[4])
         self.show_info.setCurrentCharFormat(self.second_title_font)
-        self.show_info.appendPlainText(self.information[5])
+        self.show_info.appendPlainText(self.title_space + self.information[5])
         self.show_info.setCurrentCharFormat(self.inner_font)
-        self.show_info.appendPlainText(self.space_2 + '09:00')
+        self.show_info.appendPlainText(self.inner_space + '09:00')
         self.show_info.setCurrentCharFormat(self.second_title_font)
-        self.show_info.appendPlainText(self.information[6])
+        self.show_info.appendPlainText(self.title_space + self.information[6])
         
         for i in schedule_set:
             self.show_info.setCurrentCharFormat(self.inner_font)
-            self.show_info.appendPlainText(self.space_2 + i)
+            self.show_info.appendPlainText(self.inner_space + i)
         self.show_info.moveCursor(QTextCursor.Start)
 
 
     #region 當按鈕改變時改變顯示的資訊
     def change_info_show(self, get):
+        #print(get)
         self.current = self.show_info.toPlainText()
         self._cursor.clearSelection()
         #self.show_info.moveCursor(QTextCursor.Start)
@@ -329,23 +334,41 @@ class MainWindow(QMainWindow):
         #print(self.info)
         for i in range(line_of_info-1):
             self._cursor.movePosition(QTextCursor.Down) 
-        self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+        self._cursor.movePosition(QTextCursor.EndOfLine)
         end = self._cursor.position() #儲存結束位置
         self._cursor.setPosition(start)
         self._cursor.setPosition(end, QTextCursor.KeepAnchor) #選取需要置換的區域
-        self._cursor.insertText(self.space_2 + self.info, self.inner_font)
+        self._cursor.insertText(self.inner_space + self.info, self.inner_font)
         self.changing_flash()
     #endregion
 
     def changing_flash(self):
-        if self.last_info != self.info:
-            last_info_list = self.last_info.split('\n')
-            print(last_info_list)
-            info_list = self.info.split('\n')
-            print(info_list)
+        self.compare_different()
+        #print(self.diff_info)
         for i in range(1):
             QTimer.singleShot(100 + i * 200, self.light_font)
             QTimer.singleShot(200 + i * 200, self.normal_font)
+    
+    def compare_different(self):
+        self.diff_info = list()
+        tmp_list = [self.last_info, self.info]
+        last_info_list = list()
+        info_list = list()
+        tmp_2_list = [last_info_list, info_list]
+        if self.last_info != self.info:
+            for num, inf in enumerate(tmp_list):
+                tmp = inf.split('\n')
+                for i in tmp:
+                    tm = [j for j in i.split(' ') if j != '']
+                    tmp_2_list[num].extend(tm)
+                
+        self.last_info = self.info
+        if len(last_info_list) != len(info_list):
+            self.diff_info = self.info.split('\n')
+        else:
+            for num, i in enumerate(info_list):
+                if last_info_list[num] != i:
+                    self.diff_info.append(i)
                
     def light_font(self):
         flash_font = QTextCharFormat()
@@ -359,20 +382,12 @@ class MainWindow(QMainWindow):
     def normal_font(self):
         self.replace_text()
         
-
     def replace_text(self, flash_font = None):
         self.current = self.show_info.toPlainText()
-        line_of_info = self.info.split('\n')
-        #print(line_of_info)
-        for i in line_of_info:
+        for i in self.diff_info:
             start_of_word = self.current.find(i.strip())
             self._cursor.setPosition(start_of_word)
-            self._cursor.movePosition(QTextCursor.StartOfWord)
-            start = self._cursor.position()
-            self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-            end = self._cursor.position() #儲存結束位置
-            self._cursor.setPosition(start)
-            self._cursor.setPosition(end, QTextCursor.KeepAnchor) #選取需要置換的區域
+            self._cursor.setPosition(start_of_word + len(i.strip()), QTextCursor.KeepAnchor) #選取需要置換的區域
             if flash_font:
                 self._cursor.insertText(i.strip(), flash_font)
             else:
@@ -401,7 +416,7 @@ class MainWindow(QMainWindow):
         if self._cursor.hasSelection() and self._cursor.selectedText().strip() in schedule_set:
             tmp_info = self._cursor.selectedText().strip()
             self.last_cursor = position
-            self._cursor.insertText(self.space_2, self.inner_font)
+            self._cursor.insertText(self.inner_space, self.inner_font)
             self._cursor.movePosition(QTextCursor.EndOfLine)
             self._cursor.insertText(tmp_info, light_font)
     
@@ -427,16 +442,6 @@ class MainWindow(QMainWindow):
             self.show_info.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.show_info.viewport().setCursor(Qt.CursorShape.IBeamCursor)
-            
-        
-            
-        
-        
-
-        
-        
-
-    
 
     #region 得到使用者即時選擇的資訊並且傳回給顯示面板
     def get_real_info(self, text):
@@ -444,54 +449,76 @@ class MainWindow(QMainWindow):
         information_index = 0
         info = ''
         if text in project:       #使用者選擇project時
-            information_index = self.information.index('   Select Project:')
+            information_index = self.information.index('Select Project:')
             info = text
         #settime = ['Current shift', 'Today', 'This Week', 'A Week' ,'1 day shift', '1 night shift']
-        if text in time_selection[:-1]:
-            information_index = self.information.index('   Set Time:')
+        if text in time_selection and text != 'Select time':
+            information_index = self.information.index('Set Time:')
             #Current shift 今日早上8點到現在時間
             if text == time_selection[0]:                     
-                info = self.nowdate + ' 08:00' + ' ~' + '\n' + self.space_2 + self.nowdatetime
+                info = self.nowdate + ' 08:00' + ' ~' + '\n' + self.inner_space + self.nowdatetime
             #Today 今日0點到現在時間
             if text == time_selection[1]:                      
-                info = self.nowdate + ' 00:00' + ' ~' + '\n' + self.space_2 + self.nowdatetime
+                info = self.nowdate + ' 00:00' + ' ~' + '\n' + self.inner_space + self.nowdatetime
             #This Week 這禮拜一 0點 到 現在時間點
             if text == time_selection[2]:                      
                 delta = timedelta(days = datetime.today().weekday())
                 thisweek = self.now - delta
                 thisweek_date = thisweek.strftime('%Y/%m/%d')
-                info = thisweek_date + ' 00:00' + ' ~' + '\n' + self.space_2 + self.nowdatetime
+                info = thisweek_date + ' 00:00' + ' ~' + '\n' + self.inner_space + self.nowdatetime
             #A Week 一個禮拜
             if text == time_selection[3]:                      
                 lastweek = self.now - timedelta(weeks = 1)
                 lastweek_datetime = lastweek.strftime('%Y/%m/%d')
-                info = lastweek_datetime + ' 00:00' + ' ~' + '\n' + self.space_2 + self.nowdatetime
+                info = lastweek_datetime + ' 00:00' + ' ~' + '\n' + self.inner_space + self.nowdatetime
             #1 day shift  昨天8點 到 現在時間點
             if text == time_selection[4]:                    
                 delta = timedelta(days = 1)
                 yesterday = self.now - delta
                 yesterday_date = yesterday.strftime('%Y/%m/%d')
-                info = yesterday_date + ' 08:00' + ' ~' + '\n' + self.space_2 + self.nowdate + ' 20:00' 
+                info = yesterday_date + ' 08:00' + ' ~' + '\n' + self.inner_space + self.nowdate + ' 20:00' 
             #1 night shift 過一晚上，昨天下班(晚上8點) 到 現在時間點
             if text == time_selection[5]:  
                 delta = timedelta(days = 1)
                 yesterday = self.now - delta
                 yesterday_date = yesterday.strftime('%Y/%m/%d')                   
-                info = yesterday_date + ' 20:00' + ' ~' + '\n' + self.space_2 + self.nowdate + ' 08:00'
+                info = yesterday_date + ' 20:00' + ' ~' + '\n' + self.inner_space + self.nowdate + ' 08:00'
         
         #如果text為使用這自己選擇的日期時間(當text為'Select time' 或是 他的type為數字(選擇時間) 或是 他的type為QtCore.QDate(使用日曆選擇時間))
-        if  text == 'Select time' or type(text) == int or type(text) == QtCore.QDate:     
-            information_index = self.information.index('   Set Time:')
-            info = self.date_start.date().toString('yyyy/MM/dd') + ' ' + self.day_start_time.currentText() + ' ~' + '\n' + self.space_2 + self.date_end.date().toString('yyyy/MM/dd')+ ' ' +  self.day_end_time.currentText()
+        if  text == 'Select time' or text == 'selecttime_change':     
+            information_index = self.information.index('Set Time:')
+            info = self.date_start.date().toString('yyyy/MM/dd') + ' ' + self.day_start_time.currentText() + ' ~' + '\n' + self.inner_space + self.date_end.date().toString('yyyy/MM/dd')+ ' ' +  self.day_end_time.currentText()
        
         #如果text為使用者改變排程日期時
         if  type(text) == QtCore.QTime:       
-            information_index = self.information.index('   Set Task Scheduler Time:')
+            information_index = self.information.index('Set Task Scheduler Time:')
             temp = self.schedular_time.time().toString()
             info = temp.split(':')[0] + ':' + temp.split(':')[1]
     
         return information_index, info  
         #endregion 
+
+
+    #設定執行狀態顯示字體
+    def set_show_current_status(self):
+        self.show_status = self._window.plainTextEdit_2
+        self.status_cursor = self.show_status.textCursor()
+        self.show_status.setReadOnly(True)
+        self.show_status.setStyleSheet("background : black")
+        #self.show_current.setFocus()
+        self.exefont = self.show_status.currentCharFormat()
+        self.exefont.setForeground(Qt.green)
+        self.exefont.setFontWeight(QFont.Normal)
+        self.exefont.setFontPointSize(10)
+        self.show_status.moveCursor(QTextCursor.End)
+        self.show_status.setCurrentCharFormat(self.exefont)
+    
+    #顯示下方狀態字幕
+    def show_current_status(self, text):
+        self.get_now_time()
+        status_space = ' '*2
+        self.show_status.appendPlainText(self.now_H_M + status_space + text)
+
         
     def start_thread(self):
         self.start_init_thread = start_prcess()

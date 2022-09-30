@@ -102,10 +102,10 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3.addWidget(self.dateEdit_2, 4, 0, 1, 3)
 
-        self.comboBox_4 = QComboBox(self.groupBox_2)
-        self.comboBox_4.setObjectName(u"comboBox_4")
+        self.comboBox_5 = QComboBox(self.groupBox_2)
+        self.comboBox_5.setObjectName(u"comboBox_5")
 
-        self.gridLayout_3.addWidget(self.comboBox_4, 4, 3, 1, 1)
+        self.gridLayout_3.addWidget(self.comboBox_5, 4, 3, 1, 1)
 
 
         self.gridLayout_4.addLayout(self.gridLayout_3, 0, 0, 1, 1)
