@@ -61,7 +61,7 @@ def load_ini(config_path):
                 break
 
             if dd.strip().startswith('chapter'):
-                chapter = dd.split('=')[1].strip()
+                chapter = int(dd.split('=')[1].strip())
             
             elif dd.strip().startswith('title'):
                 title = dd.split('=')[1].strip()

@@ -13,7 +13,7 @@ from PySide6.QtGui import QFont, QColor, QIntValidator
 from pdf_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '0.04'
+VERSION = '0.05'
 
 config_path = r".\config.ini"
 

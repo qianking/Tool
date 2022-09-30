@@ -105,6 +105,9 @@ def main(basic_data, special_data, config):
         get_variable_form_UI(basic_data, special_data, config)
 
         All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title = config_load.load_ini(config_path)
+        print(All_Same_Chapter)
+        print(Stamp_ver_Chapter_1_2_data)
+        print(Audit_ver_Chapter_1_inner_title)
         merger.get_title_data(All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title)
         
         send_msg_to_UI('合併開始...')

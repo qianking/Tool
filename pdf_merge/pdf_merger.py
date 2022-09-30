@@ -219,10 +219,11 @@ class Merge_Pdf_and_GetOutline():
         if self.pdf_data['select_stytle'] == 'Stamp_multi':
             self.find_Stamp_multi_page()
             self.merge_Stamp_multi_file()
+            self.delete_file_list.append(self.special_chapter_file_path)
         if self.pdf_data['select_stytle'] == 'Audit':
             self.find_Audit_page_and_merge()
 
-        self.delete_file_list.append(self.special_chapter_file_path)
+        
 
     
     def find_Stamp_single_page(self):
