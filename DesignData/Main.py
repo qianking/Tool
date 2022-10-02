@@ -13,7 +13,8 @@ def send_to_ui_status(txt):
 
 def data_from_ui(signals):
     global ui_signal
-    ui_signal = signals
+    ui_sig
+    nal = signals
 
 
 def debug(func):
