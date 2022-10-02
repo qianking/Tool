@@ -1,3 +1,4 @@
+from logging import exception
 import sys
 from datetime import datetime, timedelta
 from PySide6 import QtCore, QtWidgets
@@ -6,6 +7,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow, QCalendarWidget
 from PySide6.QtGui import QFont, QColor, QIntValidator, QTextCharFormat, QBrush, QTextCursor
 from IPLAS_UI import Ui_MainWindow
+import tests.test_2
 
 VERSION = '1.0.1'
 
@@ -31,14 +33,16 @@ class MainWindow(QMainWindow):
         self._count_timer = QTimer(self)
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
+        self.execute_flag = True
+
         self.setup_ui()
         self.last_cursor = None
         self.last_info = str()
-        
         self.show_info.mousePressEvent = self.hightlight_selection
         self.show_info.keyPressEvent = self.open_delete_key
         self.show_info.mouseMoveEvent = self.change_mouse_shape
-    
+        
+
     @property
     def window(self):
         return self._window
@@ -66,15 +70,17 @@ class MainWindow(QMainWindow):
         self.set_day_end_time()
         self.set_schedule_group()
         self.set_scheduler_time()
-        #self.choose_schedular()
+        self.set_schedular_btm()
+        self.del_schedular_btm()
         self.set_download_path_group()
         self.set_default_path()
         self.set_download_path_btm()
         self.setup_info()
         self.set_show_current_status()
+        self.Execute_btm()
+        self.Stop_btm()
+        self.Exit_btm()
         
-
-
         
     #監看是否有關掉視窗的事件觸發 .ui版本
     def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
@@ -210,6 +216,12 @@ class MainWindow(QMainWindow):
         self.schedular_time.setFont(QFont('Calibri', 13))
         self.schedular_time.setFixedWidth(100)
         self.schedular_time.timeChanged.connect(self.change_info_show)
+    
+    def set_schedular_btm(self):
+        self.set_schedular = self._window.pushButton_6
+    
+    def del_schedular_btm(self):
+        self.del_schedular = self._window.pushButton_7
 #endregion
     
 #region 設置下載路徑
@@ -223,7 +235,8 @@ class MainWindow(QMainWindow):
         self._window.lineEdit.setFont(QFont('Calibri', 13))
     
     def set_download_path_btm(self):
-        self._window.pushButton_8.clicked.connect(self.open_file)
+        self.select_download_path = self._window.pushButton_8
+        self.select_download_path.clicked.connect(self.open_file)
     
     def open_file(self):
         global download_path
@@ -246,6 +259,24 @@ class MainWindow(QMainWindow):
             self.date_end.setEnabled(True)
             self.day_start_time.setEnabled(True)
             self.day_end_time.setEnabled(True)
+    
+    def execute_disable(self):
+       
+        self.pro_selection.setEnabled(False)
+        self.refresh.setEnabled(False)
+        self.time_selection.setEnabled(False)
+        self.date_start.setEnabled(False)
+        self.date_end.setEnabled(False)
+        self.day_start_time.setEnabled(False)
+        self.day_end_time.setEnabled(False)
+        self._window.lineEdit.setEnabled(False)
+        self.select_download_path.setEnabled(False)
+        self.schedular_time.setEnabled(False)
+        self.set_schedular.setEnabled(False)
+        self.del_schedular.setEnabled(False)
+        self.execute.setEnabled(False)
+
+
     
 
     #region 顯示初始資訊&字體設定
@@ -314,6 +345,7 @@ class MainWindow(QMainWindow):
             self.show_info.setCurrentCharFormat(self.inner_font)
             self.show_info.appendPlainText(self.inner_space + i)
         self.show_info.moveCursor(QTextCursor.Start)
+    #endregion
 
 
     #region 當按鈕改變時改變顯示的資訊
@@ -519,19 +551,72 @@ class MainWindow(QMainWindow):
         status_space = ' '*2
         self.show_status.appendPlainText(self.now_H_M + status_space + text)
 
+    
+    #錯誤視窗
+    def errobox(self, text):
+        QMessageBox.warning(self, 'error', text, QMessageBox.Ok)
+
+    #檢查時間並且執行        
+    def check_datetime(self):
+        if self.time_selection.currentText() == 'Select time':
+            start_time = self.date_start.date().toString(Qt.ISODate) + ' ' + self.day_start_time.currentText() + ':00'
+            end_time = self.date_end.date().toString(Qt.ISODate)+ ' ' + self.day_end_time.currentText() + ':00'
+            start = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            end = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+            
+            if start > self.now or end > self.now:
+                self.execute_flag = False
+                self.errobox('不能超過現在時間!')
+                     
+            elif end < start:
+                self.execute_flag = False
+                
+                self.errobox('結束時間不能在起始時間之前!')
+                    
+            elif abs(end-start).days >= 30:
+                self.execute_flag = False
+                self.errobox('時間間格不能大於一個月!')
+                
+            
+    #執行按鈕
+    def Execute_btm(self):
+        self.execute = self._window.pushButton
+        self.execute.clicked.connect(self.execute_flow)
+    
+    def Stop_btm(self):
+        self.stop = self._window.pushButton_3
+        self.stop.clicked.connect(self.stop_flow)
+    
+    def Exit_btm(self):
+        self.Exit = self._window.pushButton_2
+        self.Exit.clicked.connect(self.exit)
+    
+    
+
         
+    def execute_flow(self):
+        self.check_datetime()
+        if self.execute_flag:
+            self.execute_disable()
+            self.start_thread()
+    
+    def stop_flow(self):
+       self.start.stop()
+
+
+              
     def start_thread(self):
-        self.start_init_thread = start_prcess()
-        self.start_init_thread.signal.status.connect()
-        self.threadpool.start(self.start_init_thread)
+        self.start = start_prcess()
+        #self.start.signal.status.connect()
+        self.threadpool.start(self.start)
 
 
+    def exit(self):
+        self.close()
 
 
 class thread_signal(QObject):
     status = Signal(dict)
-
-
 
 class start_prcess(QRunnable):
     def __init__(self):
@@ -539,7 +624,14 @@ class start_prcess(QRunnable):
         self.signal = thread_signal()
     
     def run(self):
-        pass
+        
+        self.tt = tests.test_2.test_flow()
+        self.tt.test()
+        
+    
+    def stop(self):
+        self.tt.test('stop')
+
 
 
 
