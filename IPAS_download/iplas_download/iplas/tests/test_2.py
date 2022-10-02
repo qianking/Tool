@@ -15,13 +15,10 @@ class test_flow(threading.Thread):
         self.fff= None 
 
     def test(self, ooo = None):
-        try:
-            for i in range(100000):
-                
-                print(i)
-                time.sleep(1)
-        finally:
-            print('ended')
+        
+        for i in range(100000):   
+            print(i)
+            time.sleep(1)
     
     def stop(self, ooo):
         if ooo:

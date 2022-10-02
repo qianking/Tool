@@ -11,14 +11,13 @@ import tests.test_2
 
 VERSION = '1.0.1'
 
+download_path = r'D:\download'
 project = ['SWITCH_CISCO_EZ1KA1', 'b']
-Select_project = 'SWITCH_CISCO_EZ1KA1'
 time_selection = ['Current shift', 'Today','This Week', 'A Week' ,'1 day shift', '1 night shift', 'Select time']
 day_time = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00']
 
-download_path = r'D:\IPLAS Download'  #外部傳入
 
-schedule_set = ['SWITCH_CISCO_EZ1KA15555', 'Current shift5555', 'Today555','This Week555', 'A Week5555']
+schedule_set = ['09:00 SWITCH_CISCO_EZ1KA1(Current shift)', '09:15 SWITCH_CISCO_EZ1KA1(Today)', '10:00 SWITCH_CISCO_EZ1KA1(A Week)']
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
@@ -130,7 +129,7 @@ class MainWindow(QMainWindow):
         self.pro_selection.setFixedWidth(330)
         self.pro_selection.addItems(project)
         self.pro_selection.currentTextChanged.connect(self.change_info_show)
-        self.pro_selection.setCurrentText(Select_project)
+        self.pro_selection.setCurrentText(project[0])
     
     #更新使用者project
     def refresh_project_btm(self):
@@ -222,6 +221,8 @@ class MainWindow(QMainWindow):
     
     def del_schedular_btm(self):
         self.del_schedular = self._window.pushButton_7
+        self.del_schedular.clicked.connect(self.del_schedular_set)
+
 #endregion
     
 #region 設置下載路徑
@@ -231,8 +232,9 @@ class MainWindow(QMainWindow):
         self.groupBox_3.setFont(QFont('Arial', 13))
     
     def set_default_path(self):
-        self._window.lineEdit.setText(download_path)
-        self._window.lineEdit.setFont(QFont('Calibri', 13))
+        self.download_path = self._window.lineEdit
+        self.download_path.setText(download_path)
+        self.download_path.setFont(QFont('Calibri', 13))
     
     def set_download_path_btm(self):
         self.select_download_path = self._window.pushButton_8
@@ -242,10 +244,13 @@ class MainWindow(QMainWindow):
         global download_path
         self.folder_path = QFileDialog.getExistingDirectory(self, 'Choose folder', './')
         if self.folder_path != download_path and self.folder_path != '':
-            self._window.lineEdit.setText(self.folder_path)
-            self.folder_path = self.folder_path.replace("/", "\\")
-            download_path = self.folder_path
-            self._window.lineEdit.setText(self.folder_path)
+            if len(self.folder_path.split('/')) >= 3:
+                self.errobox('建議選擇路徑不要超過兩層，會有檔案開不起來的問題')
+            else:
+                self.folder_path = self.folder_path.replace("/", "\\")
+                self.download_path.setText(self.folder_path)
+                download_path = self.folder_path
+            
 #endregion    
 
     def setdisable(self, text):
@@ -261,7 +266,6 @@ class MainWindow(QMainWindow):
             self.day_end_time.setEnabled(True)
     
     def execute_disable(self):
-       
         self.pro_selection.setEnabled(False)
         self.refresh.setEnabled(False)
         self.time_selection.setEnabled(False)
@@ -269,15 +273,12 @@ class MainWindow(QMainWindow):
         self.date_end.setEnabled(False)
         self.day_start_time.setEnabled(False)
         self.day_end_time.setEnabled(False)
-        self._window.lineEdit.setEnabled(False)
+        self.download_path.setEnabled(False)
         self.select_download_path.setEnabled(False)
         self.schedular_time.setEnabled(False)
         self.set_schedular.setEnabled(False)
         self.del_schedular.setEnabled(False)
         self.execute.setEnabled(False)
-
-
-    
 
     #region 顯示初始資訊&字體設定
     def setup_info(self):
@@ -323,7 +324,7 @@ class MainWindow(QMainWindow):
         self.show_info.setCurrentCharFormat(self.second_title_font)
         self.show_info.appendPlainText(self.title_space + self.information[1])
         self.show_info.setCurrentCharFormat(self.inner_font)
-        self.show_info.appendPlainText(self.inner_space + Select_project)
+        self.show_info.appendPlainText(self.inner_space)
         self.show_info.setCurrentCharFormat(self.second_title_font)
         self.show_info.appendPlainText(self.title_space + self.information[2])
         self.show_info.setCurrentCharFormat(self.inner_font)
@@ -454,6 +455,11 @@ class MainWindow(QMainWindow):
     
     def open_delete_key(self, event):
         if event.key() == Qt.Key_Delete and self.last_cursor:
+            self.del_schedular_set()
+
+
+    def del_schedular_set(self):
+        if self.last_cursor:
             self._cursor.setPosition(self.last_cursor)
             self._cursor.movePosition(QTextCursor.StartOfLine)
             self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
@@ -577,7 +583,17 @@ class MainWindow(QMainWindow):
                 self.execute_flag = False
                 self.errobox('時間間格不能大於一個月!')
                 
-            
+    def get_execute_data(self):
+        information_index, time_period = self.get_real_info(self.time_selection.currentText())
+        self.execute_data = {
+        'site':'蘇州',
+        'data_source':'Test Station',
+        'user_select_project': self.pro_selection.currentText(),
+        'time_selection':{'time': self.time_selection.currentText(), 'time_period':[time_period.split('~')[0].strip(), time_period.split('\n')[1].strip()],
+        'Download_path':self.download_path.text()}
+        }
+        print(self.execute_data)
+
     #執行按鈕
     def Execute_btm(self):
         self.execute = self._window.pushButton
@@ -585,29 +601,22 @@ class MainWindow(QMainWindow):
     
     def Stop_btm(self):
         self.stop = self._window.pushButton_3
-        self.stop.clicked.connect(self.stop_flow)
     
     def Exit_btm(self):
         self.Exit = self._window.pushButton_2
         self.Exit.clicked.connect(self.exit)
     
-    
-
-        
     def execute_flow(self):
         self.check_datetime()
         if self.execute_flag:
             self.execute_disable()
             self.start_thread()
-    
-    def stop_flow(self):
-       self.start.stop()
-
-
-              
+            self.get_execute_data()
+         
     def start_thread(self):
-        self.start = start_prcess()
-        #self.start.signal.status.connect()
+        self.start = start_prcess(self.execute_data)
+        self.start.signal.status.connect(self.show_current_status)
+        self.start.signal.error.connect(self.errobox)
         self.threadpool.start(self.start)
 
 
@@ -616,24 +625,17 @@ class MainWindow(QMainWindow):
 
 
 class thread_signal(QObject):
-    status = Signal(dict)
+    status = Signal(str)
+    error = Signal(str)
 
 class start_prcess(QRunnable):
-    def __init__(self):
+    def __init__(self, execute_data):
         super(start_prcess, self).__init__()  
         self.signal = thread_signal()
+        self.execute_data = execute_data
     
     def run(self):
-        
-        self.tt = tests.test_2.test_flow()
-        self.tt.test()
-        
-    
-    def stop(self):
-        self.tt.test('stop')
-
-
-
+        self.tt = tests.test_2.test_flow(self.execute_data, self.signal)
 
 
 if '__main__' == __name__:

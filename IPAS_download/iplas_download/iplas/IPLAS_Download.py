@@ -47,6 +47,18 @@ driver_count = 1  #用在編號drivers
 driver_data = dict()
 all_data =dict()
 
+ui_signal = None
+
+
+def get_data_from_UI(data, signal):
+    global execute_data
+    global ui_signal
+    execute_data = data
+    ui_signal = signal
+
+def send_to_UI(txt):
+    ui_signal.status.emit(txt)
+
 
 def get_now_daytime():
     now = datetime.datetime.now()
@@ -311,7 +323,9 @@ def timer_and_debug(func):
             func()
         except TimeoutError as ex:
             print(ex)
+            ui_signal.error.emit(ex)
             Download_logger.exception('exception:')
+            
         except Exception as ex:
             error_class = ex.__class__.__name__ #取得錯誤類型
             detail = ex.args[0] #取得詳細內容
@@ -322,6 +336,7 @@ def timer_and_debug(func):
             funcName = lastcallstack[2] #取得發生的函數名稱
             error_txt = f"[ERROR TYPE] {error_class}\n[ERROR DETAIL] {detail}\n[ERROR PATH] in file \"{fileName}\", line {lineNum}, function [{funcName}]"
             print(error_txt)
+            ui_signal.error.emit(error_txt)
             Download_logger.exception('exception:')
             return 0  
         finally:
@@ -330,7 +345,8 @@ def timer_and_debug(func):
     return warp
 
 #@timer_and_debug
-def Main_Download(execute_data):
+def Main_Download(data, signal):
+    get_data_from_UI(data, signal)
     clear_folder(IPLAS_download_buffer)  #清除download buffer裡面的檔案
     create_today_download_file()  #建立以'月-日 小時-分鐘_下載project' 為名子的資料夾
     isn_data = Start_Thread_main()
