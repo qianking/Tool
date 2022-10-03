@@ -15,7 +15,6 @@ import sys
 import traceback
 import datetime
 import lib.create_log as create_log
-import json
 import lib.Excel_barchart as excel_report
 
 
@@ -39,7 +38,7 @@ os.makedirs(IPLAS_download_log, exist_ok=True)
 
 IPLAS_download_log_file = fr"{IPLAS_download_log}\IPLAS_download_log.txt"
 Download_logger = create_log.create_logger(IPLAS_download_log_file, f'IPLAS_download_log')
-Download_logger.disabled = True  #禁用log
+#Download_logger.disabled = True  #禁用log
 
 threadLocal = threading.local()
 rlock = threading.RLock()
@@ -317,14 +316,10 @@ def move_and_unzip_isn_file(isn_data):
 
 #用來顯示花費時間
 def timer_and_debug(func):
-    def warp():
+    def warp(*warp, **awage):
         start_time = time.time()
         try:
-            func()
-        except TimeoutError as ex:
-            print(ex)
-            ui_signal.error.emit(ex)
-            Download_logger.exception('exception:')
+            func(*warp, **awage)
             
         except Exception as ex:
             error_class = ex.__class__.__name__ #取得錯誤類型
@@ -339,12 +334,15 @@ def timer_and_debug(func):
             ui_signal.error.emit(error_txt)
             Download_logger.exception('exception:')
             return 0  
+
         finally:
+            for driver in driver_data:  #關掉driver
+                driver.close()
             end_time = time.time()
             print(f'cost time {end_time-start_time}')
     return warp
 
-#@timer_and_debug
+@timer_and_debug
 def Main_Download(data, signal):
     get_data_from_UI(data, signal)
     clear_folder(IPLAS_download_buffer)  #清除download buffer裡面的檔案
@@ -357,8 +355,8 @@ def Main_Download(data, signal):
         organize_station_data()
     ''' with open(r'D:\Qian\python\GIT\Tool\IPAS_download\iplas_download\IPLAS_Download\data.txt', 'w+') as f:
         f.write(json.dumps(all_data)) '''
-    excel_report.excel_wrtting_flow(all_data, execute_data)
-    
+    print(all_data)
+    excel_report.excel_wrtting_flow(all_data, execute_data) 
     #print('\nall_data', all_data)
 
 
@@ -386,11 +384,17 @@ def Get_Station_Data(executor):
     global all_data
     futures = [executor.submit(Login_Flow, ) for i in range(3)]   #三個瀏覽器登入
     futures = executor.submit(Get_Station_Data_Flow, )  #其中一個去拿測站的資訊
-    data = futures.result()  #傳回測站的名子和pass fail個數
-    all_data['station_data'] = data.pop('station_data')
-    all_data['iplas_data'] = data
-    station_data = deepcopy(all_data['station_data'])
-    return station_data
+    exception = futures.exception()
+    if not exception:
+        data = futures.result()  #傳回測站的名子和pass fail個數
+        all_data['station_data'] = data.pop('station_data')
+        all_data['iplas_data'] = data
+        station_data = deepcopy(all_data['station_data'])
+        return station_data
+    else:
+        send_to_UI(f'Exception! Please see the download log: \n{IPLAS_download_log_file}')
+        raise Exception(exception)
+    
 
 def Get_PassFail_ISN(executor, station_data):
     '''
@@ -401,8 +405,13 @@ def Get_PassFail_ISN(executor, station_data):
     station_list = [key for key in station_data.keys() if station_data[key]['fail_num']]     #傳入有fail數目的測站
     datas = [executor.submit(Get_PassFail_ISN_Flow, station) for station in station_list]    #得到各測站fail的isn名單
     for data in datas: 
-        error_tmp_data.update(data.result().pop('error_tmp_data'))
-        tmp_dic.update(data.result())
+        exception = data.exception()
+        if not exception:
+            error_tmp_data.update(data.result().pop('error_tmp_data'))
+            tmp_dic.update(data.result())
+        else:
+            send_to_UI(f'Exception! Please see the download log: \n{IPLAS_download_log_file}')
+            raise Exception(exception)
     merge_dic(tmp_dic)
     return error_tmp_data
 
@@ -415,10 +424,15 @@ def Get_Error_Data(executor, error_tmp_data):
     error_url_list = list(error_tmp_data.keys())
     datas = [executor.submit(Get_Error_Data_Flow, error_url) for error_url in error_url_list]
     for data in datas:
-        url = data.result()['error_url']
-        url_data = error_tmp_data[url]
-        error_data = data.result()['error_data']
-        all_data['station_data'][url_data.split('+')[0]]['ISN_data'][url_data.split('+')[1]]['error_count_data'] = error_data
+        exception = data.exception()
+        if not exception:
+            url = data.result()['error_url']
+            url_data = error_tmp_data[url]
+            error_data = data.result()['error_data']
+            all_data['station_data'][url_data.split('+')[0]]['ISN_data'][url_data.split('+')[1]]['error_count_data'] = error_data
+        else:
+            send_to_UI(f'Exception! Please see the download log: \n{IPLAS_download_log_file}')
+            raise Exception(exception)
 
     return all_data['station_data']
 
@@ -431,8 +445,15 @@ def Download_ISN_File(executor, station_data):
     isn_list = get_all_isn_list(station_data)   #得到retest跟fail的isn名單
     datas = [executor.submit(Download_ISN_File_Flow, isn) for isn in isn_list]   #下載retest isn列表裡的檔案
     for data in datas:
-        isn_data.append(data.result())      #('995548', '(QSFC09)', '08/15 21:47:08', 'Loopback Test-SFP 1G Link TEST')
+        exception = data.exception()
+        if not exception:
+            isn_data.append(data.result())      #('995548', '(QSFC09)', '08/15 21:47:08', 'Loopback Test-SFP 1G Link TEST')
+        else:
+            send_to_UI(f'Exception! Please see the download log: \n{IPLAS_download_log_file}')
+            raise Exception(exception)
+
     return isn_data
+
 
 
 def ReDownload_ISN(isn_datas):
@@ -440,12 +461,15 @@ def ReDownload_ISN(isn_datas):
     IPLAS = IPLAS_Flow(driver, Download_logger)
     IPLAS.Login_IPLAS(main_data['userdata'])
     for isn_data in isn_datas:
-        IPLAS.ReDownload_ISN_File(execute_data['user_select_project'], isn_data) 
-
+        IPLAS.ReDownload_ISN_File(execute_data['user_select_project'], isn_data)
+        if IPLAS.exception:
+            raise Exception(IPLAS.exception) 
 
 def Login_Flow():
     IPLAS = get_IPLAS()
     IPLAS.Login_IPLAS(main_data['userdata'])
+    if IPLAS.exception:
+        raise Exception(IPLAS.exception)
 
 def Get_Station_Data_Flow():
     IPLAS = get_IPLAS()
@@ -456,32 +480,51 @@ def Get_Station_Data_Flow():
     IPLAS.Choose_Time(execute_data['time_selection'])
     IPLAS.Get_Necessary_Parameter()
     IPLAS.Get_Stationname_and_PassFail()
-    return IPLAS.iplas_data
+    if IPLAS.exception:
+        raise Exception(IPLAS.exception)
+    else:
+        return IPLAS.iplas_data
 
 def Get_PassFail_ISN_Flow(station):
     IPLAS = get_IPLAS()
     IPLAS.Get_PassFail_ISN(station, execute_data['user_select_project'], all_data['iplas_data']['queryid'])
-    return IPLAS.iplas_data
+    if IPLAS.exception:
+        raise Exception(IPLAS.exception)
+    else:
+        return IPLAS.iplas_data
+
 
 def Get_Error_Data_Flow(error_url):
     IPLAS = get_IPLAS()
     IPLAS.Get_Error_Data(error_url)
-    return IPLAS.iplas_data
+    if IPLAS.exception:
+        raise Exception(IPLAS.exception)
+    else:
+        return IPLAS.iplas_data
+
 
 def Download_ISN_File_Flow(isn):
     IPLAS = get_IPLAS()
     IPLAS.Download_ISN_File(execute_data['user_select_project'], isn)
-    return IPLAS.iplas_data
-
-
-
-
+    if IPLAS.exception:
+        raise Exception(IPLAS.exception)
+    else:
+        return IPLAS.iplas_data
 
 def _test():
     driver = set_chrome_driver()
     driver_data[driver] = 1
     IPLAS = IPLAS_Flow(driver, Download_logger, driver_data)
     IPLAS.Login_IPLAS(main_data['userdata'])
+    IPLAS.Get_User_Project()
+    IPLAS.Jump_to_Project_page(execute_data['user_select_project'])
+    IPLAS.Get_Time_Option()
+    IPLAS.Choose_Line_View()
+    IPLAS.Choose_Time(execute_data['time_selection'])
+    IPLAS.Get_Necessary_Parameter()
+    IPLAS.Get_Stationname_and_PassFail()
+    if IPLAS.exception:
+        raise Exception(IPLAS.exception)
     
     #IPLAS.Download_ISN_File(execute_data['user_select_project'], isn = '2259943802782')
     ''' IPLAS.Get_User_Project()
@@ -495,14 +538,26 @@ def _test():
     staton_data = IPLAS.Get_PassFail_ISN('Pretest', execute_data['user_select_project'], iii['queryid'])
     print(staton_data)"""
    
+def Get_Project_list(signal):
+    driver = set_chrome_driver()
+    IPLAS = IPLAS_Flow(driver, Download_logger)
+    IPLAS.Login_IPLAS(main_data['userdata'])
+    IPLAS.Get_User_Project()
+    if IPLAS.exception:
 
+        raise Exception(IPLAS.exception)
+    else:
+        driver.close()
+        signal.status.emit("finish")
+        return IPLAS.iplas_data
 
 
 if __name__ == "__main__":
     isn_datas = [{"isn": "2259346202964", "isn_data": [["991952", "(QSFCG4)", "08/28 05:06:58", "DUT Reload TIME OUT"]]}, 
                 {"isn": "2259346200570", "isn_data": [["620886", "(QSFC38)", "08/28 05:36:51", "Combo copper-prefer setup"]]},]
     #Main_Download(execute_data)
-    ReDownload_ISN(isn_datas)
+    #ReDownload_ISN(isn_datas)
     #move_and_unzip_isn_file(isn_data)
     #organize_station_data()
     #print('\nall_data', all_data)
+    _test()

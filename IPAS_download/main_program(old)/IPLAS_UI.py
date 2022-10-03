@@ -843,6 +843,7 @@ class getproject_thread(QThread):
             IPLAS_UI_logger.info("Success get user project")
             self.signal.emit("finish")
 
+
 '''創一個小視窗並顯示等待字樣'''
 class Getproject(QMainWindow):
     signal = Signal(int)
@@ -861,13 +862,12 @@ class Getproject(QMainWindow):
         self.label.setFont(font)
         self.label.setGeometry(30,15,300,100)
         
-
     def startthread(self):
         self.work = loadingThread()
         self.work.start()
         self.work.trigger.connect(self.updatelabel)
         self.work.setTerminationEnabled(True)
-        self.updatelabel('|')
+        self.updatelabel('...')
     
     def startproject(self):
         self.get_thread = getproject_thread()
@@ -886,7 +886,7 @@ class loadingThread(QThread):
     
     def __init__(self):
         super().__init__()
-        self.dot = [' /','—',' \\',' |',' /','—',' \\',' |']
+        self.dot = ['.','..', '...']
 
     def run(self):
         while True :

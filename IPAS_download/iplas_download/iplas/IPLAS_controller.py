@@ -1,23 +1,33 @@
 from logging import exception
 import sys
+import os
+import time
+from copy import deepcopy
 from datetime import datetime, timedelta
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt, QFile, QThread, Signal, Qt, QRunnable, QThreadPool, QObject, QDate, QTime, QPoint, QTimer
 from PySide6.QtUiTools import QUiLoader 
-from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow, QCalendarWidget
+from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow, QCalendarWidget, QLabel
 from PySide6.QtGui import QFont, QColor, QIntValidator, QTextCharFormat, QBrush, QTextCursor
 from IPLAS_UI import Ui_MainWindow
-import tests.test_2
+import IPLAS_Download
+import json
 
 VERSION = '1.0.1'
 
 download_path = r'D:\download'
 project = ['SWITCH_CISCO_EZ1KA1', 'b']
-time_selection = ['Current shift', 'Today','This Week', 'A Week' ,'1 day shift', '1 night shift', 'Select time']
-day_time = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00']
+time_selection = ['Current Shift', 'Today','This Week', 'A Week' ,'YTD Day Shift', 'YTD Night Shift', 'Select Manually']
+day_time = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00']
 
+current_path = os.path.dirname(os.path.abspath(__file__))
+upper = '\\'.join(current_path.split('\\')[:-1])
+schedular_folder = fr"{upper}\docs"
+os.makedirs(schedular_folder, exist_ok=True)
+schedular_file = fr"{schedular_folder}\schedular.json"
+IPLAS_data_file = fr"{schedular_folder}\IPLAS_data.json"
 
-schedule_set = ['09:00 SWITCH_CISCO_EZ1KA1(Current shift)', '09:15 SWITCH_CISCO_EZ1KA1(Today)', '10:00 SWITCH_CISCO_EZ1KA1(A Week)']
+schedule_set = ['09:00 SWITCH_CISCO_EZ1KA1 (Current shift)', '09:15 SWITCH_CISCO_EZ1KA1 (Today)', '10:00 SWITCH_CISCO_EZ1KA1 (A Week)']
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
@@ -71,6 +81,7 @@ class MainWindow(QMainWindow):
         self.set_scheduler_time()
         self.set_schedular_btm()
         self.del_schedular_btm()
+        self.get_schedular_set()
         self.set_download_path_group()
         self.set_default_path()
         self.set_download_path_btm()
@@ -152,7 +163,7 @@ class MainWindow(QMainWindow):
         self.time_selection = self._window.comboBox_2
         self.time_selection.addItems(time_selection)
         self.time_selection.setFont(QFont('Arial', 13))
-        self.time_selection.currentTextChanged.connect(self.setdisable)
+        self.time_selection.currentTextChanged.connect(self.selecttime_disable)
         self.time_selection.currentTextChanged.connect(self.change_info_show)
         self.time_selection.setCurrentText(time_selection[0])
 
@@ -218,11 +229,76 @@ class MainWindow(QMainWindow):
     
     def set_schedular_btm(self):
         self.set_schedular = self._window.pushButton_6
+        self.set_schedular.clicked.connect(self.set_schedular_set)
     
     def del_schedular_btm(self):
         self.del_schedular = self._window.pushButton_7
         self.del_schedular.clicked.connect(self.del_schedular_set)
 
+    def open_delete_key(self, event):
+        if event.key() == Qt.Key_Delete and self.last_cursor:
+            self.del_schedular_set()
+    
+    def get_schedular_set(self):
+        self.schedule_set = list()
+        self.schedular = _read_json(schedular_file)
+        for time, set in self.schedular.items():
+            self.schedule_set.append(f"{time} {set['user_select_project']} ({set['time_selection']['time']})") 
+    
+    def set_schedular_set(self):
+        self.get_execute_data()
+        time_choose = self.schedular_time.text()
+        if time_choose in self.schedular:
+            self.errobox('同一時間段內已有排程')
+        else:
+            self.schedular[time_choose] = deepcopy(self.execute_data)
+            tmp_list = list(self.schedular.keys())
+            tmp_list = [datetime.strptime(i, '%H:%M') for i in tmp_list]
+            _Sort(tmp_list)
+            tmp_list = [i.strftime('%H:%M') for i in tmp_list]
+            tmp_dic = deepcopy(self.schedular)
+            self.schedular.clear()
+            for time in tmp_list:
+                self.schedular[time] = deepcopy(tmp_dic[time])
+            _write_json(schedular_file, self.schedular)
+            
+            tmp_list.clear()
+            for time, set in self.schedular.items():
+                tmp_list.append(f"{time} {set['user_select_project']} ({set['time_selection']['time']})") 
+            
+            if len(self.schedule_set):
+                area_start = self.current.find(self.information[-1]) + len(self.information[-1])
+                area_end = self.current.find(self.schedule_set[-1]) + len(self.schedule_set[-1])
+                self._cursor.setPosition(area_start)
+                self._cursor.setPosition(area_end, QTextCursor.KeepAnchor)
+                if self._cursor.hasSelection():
+                    self._cursor.removeSelectedText()
+            insert_position = self.current.find(self.information[-1])
+            self._cursor.setPosition(insert_position)
+            self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+            for i in tmp_list:
+                self.show_info.setCurrentCharFormat(self.inner_font)
+                self.show_info.appendPlainText(self.inner_space + i)
+            self.schedule_set = tmp_list
+
+    def del_schedular_set(self):
+        if self.last_cursor:
+            self._cursor.setPosition(self.last_cursor)
+            self._cursor.movePosition(QTextCursor.StartOfLine)
+            self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+            if self._cursor.hasSelection():
+                del_schecdular = self._cursor.selectedText().strip()    
+                self.schedule_set.remove(del_schecdular)                   
+                self._cursor.removeSelectedText()
+                self._cursor.deletePreviousChar()
+                try:
+                    self.schedular.pop(del_schecdular.split(' ')[0])
+                    _write_json(schedular_file, self.schedular)
+                except Exception as ex:
+                    self.show_current_status(f'Delete schedular failed: {ex}')
+                else:
+                    self.show_current_status(f'Deleted schedular successfully!')
+                self.last_cursor = None 
 #endregion
     
 #region 設置下載路徑
@@ -249,12 +325,11 @@ class MainWindow(QMainWindow):
             else:
                 self.folder_path = self.folder_path.replace("/", "\\")
                 self.download_path.setText(self.folder_path)
-                download_path = self.folder_path
-            
+                download_path = self.folder_path          
 #endregion    
 
-    def setdisable(self, text):
-        if text != 'Select time':
+    def selecttime_disable(self, text):
+        if text != time_selection[-1]:
             self.date_start.setEnabled(False)
             self.date_end.setEnabled(False)
             self.day_start_time.setEnabled(False)
@@ -342,7 +417,7 @@ class MainWindow(QMainWindow):
         self.show_info.setCurrentCharFormat(self.second_title_font)
         self.show_info.appendPlainText(self.title_space + self.information[6])
         
-        for i in schedule_set:
+        for i in self.schedule_set:
             self.show_info.setCurrentCharFormat(self.inner_font)
             self.show_info.appendPlainText(self.inner_space + i)
         self.show_info.moveCursor(QTextCursor.Start)
@@ -446,38 +521,26 @@ class MainWindow(QMainWindow):
         self._cursor.setPosition(position)
         self._cursor.movePosition(QTextCursor.StartOfLine)
         self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-        if self._cursor.hasSelection() and self._cursor.selectedText().strip() in schedule_set:
+        if self._cursor.hasSelection() and self._cursor.selectedText().strip() in self.schedule_set:
             tmp_info = self._cursor.selectedText().strip()
             self.last_cursor = position
             self._cursor.insertText(self.inner_space, self.inner_font)
             self._cursor.movePosition(QTextCursor.EndOfLine)
             self._cursor.insertText(tmp_info, light_font)
     
-    def open_delete_key(self, event):
-        if event.key() == Qt.Key_Delete and self.last_cursor:
-            self.del_schedular_set()
-
-
-    def del_schedular_set(self):
-        if self.last_cursor:
-            self._cursor.setPosition(self.last_cursor)
-            self._cursor.movePosition(QTextCursor.StartOfLine)
-            self._cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-            if self._cursor.hasSelection():    
-                schedule_set.remove(self._cursor.selectedText().strip())                   
-                self._cursor.removeSelectedText()
-                self._cursor.deletePreviousChar()
-                #寫回排程紀錄裡
-                self.last_cursor = None
     
+
     def change_mouse_shape(self, event):
         now_cursor = self.show_info.cursorForPosition(event.pos())
         now_position = now_cursor.position() 
         self.current = self.show_info.toPlainText()
-        area_start = self.current.find(schedule_set[0])
-        area_end = self.current.find(schedule_set[-1]) + len(schedule_set[-1])
-        if now_position in range(area_start, area_end):
-            self.show_info.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
+        if len(self.schedule_set):
+            area_start = self.current.find(self.schedule_set[0])
+            area_end = self.current.find(self.schedule_set[-1]) + len(self.schedule_set[-1])
+            if now_position in range(area_start, area_end):
+                self.show_info.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
+            else:
+                self.show_info.viewport().setCursor(Qt.CursorShape.IBeamCursor)
         else:
             self.show_info.viewport().setCursor(Qt.CursorShape.IBeamCursor)
 
@@ -490,7 +553,7 @@ class MainWindow(QMainWindow):
             information_index = self.information.index('Select Project:')
             info = text
         #settime = ['Current shift', 'Today', 'This Week', 'A Week' ,'1 day shift', '1 night shift']
-        if text in time_selection and text != 'Select time':
+        if text in time_selection[:-1]:
             information_index = self.information.index('Set Time:')
             #Current shift 今日早上8點到現在時間
             if text == time_selection[0]:                     
@@ -523,7 +586,7 @@ class MainWindow(QMainWindow):
                 info = yesterday_date + ' 20:00' + ' ~' + '\n' + self.inner_space + self.nowdate + ' 08:00'
         
         #如果text為使用這自己選擇的日期時間(當text為'Select time' 或是 他的type為數字(選擇時間) 或是 他的type為QtCore.QDate(使用日曆選擇時間))
-        if  text == 'Select time' or text == 'selecttime_change':     
+        if  text == time_selection[-1] or text == 'selecttime_change':     
             information_index = self.information.index('Set Time:')
             info = self.date_start.date().toString('yyyy/MM/dd') + ' ' + self.day_start_time.currentText() + ' ~' + '\n' + self.inner_space + self.date_end.date().toString('yyyy/MM/dd')+ ' ' +  self.day_end_time.currentText()
        
@@ -534,7 +597,7 @@ class MainWindow(QMainWindow):
             info = temp.split(':')[0] + ':' + temp.split(':')[1]
     
         return information_index, info  
-        #endregion 
+    #endregion 
 
 
     #設定執行狀態顯示字體
@@ -547,7 +610,7 @@ class MainWindow(QMainWindow):
         self.exefont = self.show_status.currentCharFormat()
         self.exefont.setForeground(Qt.green)
         self.exefont.setFontWeight(QFont.Normal)
-        self.exefont.setFontPointSize(10)
+        self.exefont.setFontPointSize(12)
         self.show_status.moveCursor(QTextCursor.End)
         self.show_status.setCurrentCharFormat(self.exefont)
     
@@ -555,6 +618,7 @@ class MainWindow(QMainWindow):
     def show_current_status(self, text):
         self.get_now_time()
         status_space = ' '*2
+
         self.show_status.appendPlainText(self.now_H_M + status_space + text)
 
     
@@ -593,6 +657,7 @@ class MainWindow(QMainWindow):
         'Download_path':self.download_path.text()}
         }
         print(self.execute_data)
+        
 
     #執行按鈕
     def Execute_btm(self):
@@ -610,8 +675,9 @@ class MainWindow(QMainWindow):
         self.check_datetime()
         if self.execute_flag:
             self.execute_disable()
-            self.start_thread()
             self.get_execute_data()
+            self.start_thread()
+            
          
     def start_thread(self):
         self.start = start_prcess(self.execute_data)
@@ -623,6 +689,23 @@ class MainWindow(QMainWindow):
     def exit(self):
         self.close()
 
+def _Sort(list):
+    for i in range(0, len(list)-1):
+        minIndex = i
+        for j in range(i+1, len(list)):
+            if list[j] < list[minIndex]:
+                minIndex = j
+        list[i], list[minIndex] = list[minIndex], list[i]
+    return list
+
+def _write_json(file_path, info):
+    with open(file_path, 'w') as f:
+        json.dump(info, f, indent = 2)
+
+def _read_json(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
 
 class thread_signal(QObject):
     status = Signal(str)
@@ -635,8 +718,7 @@ class start_prcess(QRunnable):
         self.execute_data = execute_data
     
     def run(self):
-        self.tt = tests.test_2.test_flow(self.execute_data, self.signal)
-
+        IPLAS_Download.Main_Download(self.execute_data, self.signal) 
 
 if '__main__' == __name__:
 
@@ -655,4 +737,5 @@ if '__main__' == __name__:
     else:
         mainwindow.show()          #.py版本
 
-    sys.exit(app.exec())
+    sys.exit(app.exec()) 
+   

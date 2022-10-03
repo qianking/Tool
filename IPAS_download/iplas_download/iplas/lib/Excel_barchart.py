@@ -82,12 +82,13 @@ cell_style = {'cell_color' : {'spring_green': PatternFill(fill_type="solid", fgC
                             'normal': Font(name = "Calibri", size = 11, ), 
                             'isn': Font(name = "Calibri", size = 11, color='0000FF', ),},
             'cell_alignment': Alignment(horizontal = 'center', vertical = 'center')}
-
+one_page_flag = False
 
 def transfer_to_first_page_data(all_data, execute_data):
     '''
     將all_data['station_data']裡面的資料轉成tuple list形式，並且將執行參數寫成第一頁要的格式
     '''
+    global one_page_flag
     frist_page_data = {}
     frist_page_data['iplas_data'] = []
     station_data = all_data['station_data']
@@ -110,8 +111,11 @@ def transfer_to_first_page_data(all_data, execute_data):
             tmp_dic.append(0)
         tmp_dic.append(station_all_data['pass_num'])
         tmp_dic.append(station_all_data['fail_num'])
-        tmp_dic.append(station_all_data['final_pass_num'])
-        tmp_dic.append(station_all_data['final_fail_num'])
+        if 'final_pass_num' in station_all_data:
+            tmp_dic.append(station_all_data['final_pass_num'])
+            tmp_dic.append(station_all_data['final_fail_num'])
+        else:
+            one_page_flag = True
         frist_page_data['iplas_data'].append(tuple(tmp_dic))
     return frist_page_data
 
@@ -141,21 +145,23 @@ def excel_summary_page(sheet, frist_page_data):
                 cell.number_format = '0.00%'
 
     #找尋retest rate最大值，並將其填成紅色
-    value_list = list(retest_rate_dic.keys())
-    max_value_index = value_list.index(max(value_list))
-    max_cell = retest_rate_dic[max(value_list)]
-    max_cell.fill = cell_style["cell_color"]['red']
+    if not one_page_flag:
+        value_list = list(retest_rate_dic.keys())
+        max_value_index = value_list.index(max(value_list))
+        max_cell = retest_rate_dic[max(value_list)]
+        max_cell.fill = cell_style["cell_color"]['red']
 
     start_coordi = (1, 1) #給定表格起始範圍
     end_coordi = (len(frist_page_data['iplas_data']), len(frist_page_data['iplas_data'][0]))  #給定表格結束範圍 
     adjust_sheet_width(sheet, start_coordi, end_coordi)
 
     #設定第一行的頁超連結和顏色(放這邊是為了防止格式跑掉)
-    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col = sheet.max_column): 
-        for cell in row:
-            if row[0].row > 1 and cell.column_letter == 'A':    
-                cell.value = '=HYPERLINK("{}", "{}")'.format(f"#{cell.value}!A1", cell.value) 
-                cell.font = cell_style["cell_font"]['isn']
+    if not one_page_flag:
+        for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col = sheet.max_column): 
+            for cell in row:
+                if row[0].row > 1 and cell.column_letter == 'A':    
+                    cell.value = '=HYPERLINK("{}", "{}")'.format(f"#{cell.value}!A1", cell.value) 
+                    cell.font = cell_style["cell_font"]['isn']
 
     sheet.insert_rows(1, len(frist_page_data['execute_data'])+1)    #在上方插入5格(表格往下移五格)
     for idx, data in enumerate(frist_page_data['execute_data'], 1):  #填入執行參數的數據
@@ -170,7 +176,8 @@ def excel_summary_page(sheet, frist_page_data):
 
     start_of_draw_data_row = len(frist_page_data['execute_data']) + 2  #開始為執行參數下面兩列
     end_of_draw_data_row = start_of_draw_data_row + len(frist_page_data['iplas_data']) - 1 #結束為加上iplas data的長度
-    summary_page_draw_barchart(sheet, start_of_draw_data_row, end_of_draw_data_row, max_value_index)   
+    if not one_page_flag:
+        summary_page_draw_barchart(sheet, start_of_draw_data_row, end_of_draw_data_row, max_value_index)   
 
     #設定所有列高度
     for row in range(1, sheet.max_row + 1):
@@ -410,9 +417,10 @@ def save_excel(book, today_download_path):
 def excel_wrtting_flow(all_data, execute_data):
     frist_page_data = transfer_to_first_page_data(all_data, execute_data)
     book = Workbook()
-    sheet = book.active 
+    sheet = book.active
     excel_summary_page(sheet, frist_page_data)
-    excel_station_page(book, all_data)
+    if not one_page_flag:
+        excel_station_page(book, all_data)
     today_download_path = all_data["today_download_path"]
     save_path = save_excel(book, today_download_path)
     return save_path

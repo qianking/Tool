@@ -1,0 +1,53 @@
+{
+  "09:00": {
+    "site": "\u8607\u5dde",
+    "data_source": "Test Station",
+    "user_select_project": "SWITCH_CISCO_EZ1KA1",
+    "time_selection": {
+      "time": "Select Manually",
+      "time_period": [
+        "2022/08/28 00:00",
+        "2022/08/28 10:00"
+      ]
+    }
+  },
+  "09:01": {
+    "site": "\u8607\u5dde",
+    "data_source": "Test Station",
+    "user_select_project": "SWITCH_CISCO_EZ1KA1",
+    "time_selection": {
+      "time": "Current shift",
+      "time_period": [
+        "2022/10/03 08:00",
+        "2022/10/03 11:50"
+      ],
+      "Download_path": "D:\\download"
+    }
+  },
+  "09:02": {
+    "site": "\u8607\u5dde",
+    "data_source": "Test Station",
+    "user_select_project": "SWITCH_CISCO_EZ1KA1",
+    "time_selection": {
+      "time": "Current shift",
+      "time_period": [
+        "2022/10/03 08:00",
+        "2022/10/03 11:50"
+      ],
+      "Download_path": "D:\\download"
+    }
+  },
+  "10:00": {
+    "site": "\u8607\u5dde",
+    "data_source": "Test Station",
+    "user_select_project": "SWITCH_CISCO_EZ1KA1",
+    "time_selection": {
+      "time": "Current shift",
+      "time_period": [
+        "2022/10/03 08:00",
+        "2022/10/03 11:45"
+      ],
+      "Download_path": "D:\\download"
+    }
+  }
+}

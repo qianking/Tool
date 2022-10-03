@@ -14,6 +14,7 @@ class IPLAS_Flow():
         self.driver_data = driver_data
         self.driver = driver
         self.Download_logger = Download_logger
+        self.exception = None
         self.locl = 'SZ'
         self.IPLAS_URL_base = "http://cnsiplas.sz.pegatroncorp.com/iPLAS"
         self.iplas_data = {}  
@@ -49,8 +50,8 @@ class IPLAS_Flow():
                 self.Download_logger.debug(logger_txt)
             except Exception as ex:
                 error_txt = self.get_exception_detail(ex)
-                self.Download_logger.debug(error_txt)
-                raise TimeoutError(error_txt)
+                self.exception = error_txt
+                return False
 
         return wrapper
        
@@ -182,8 +183,10 @@ class IPLAS_Flow():
         if page_num == 0:  #如果才一頁
             page_num = 1
         for page in range(page_num):
-            stations=self.driver.find_elements(by=By.CSS_SELECTOR, value=".pega-station-icon.js-pega-station.keep_sidechart")  #定位到最上方那排test station icon  
-            station_name_list = [name.get_attribute('innerText') for name in stations]                                                                       
+            stations=self.driver.find_elements(by=By.CSS_SELECTOR, value=".pega-station-icon.keep_sidechart")  #定位到最上方那排test station icon  
+            station_name_list = [name.get_attribute('innerText') for name in stations] 
+            if not len(station_name_list):
+                raise Exception("can't find station icon element")                                                                
             UPHs=self.driver.find_elements(by=By.CSS_SELECTOR, value="._showStUPH")   #定位到最上方所有的UPH位置
 
             for i, station_name in enumerate(station_name_list):           #找到所有測站名稱以及pass/fail個數
