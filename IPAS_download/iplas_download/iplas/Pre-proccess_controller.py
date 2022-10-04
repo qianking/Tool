@@ -1,43 +1,71 @@
 import time
 import sys
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt, QFile, QThread, Signal, Qt, QRunnable, QThreadPool, QObject
-from PySide6.QtUiTools import QUiLoader 
-from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow, QLabel, QWidget, QGridLayout
+from PySide6.QtCore import Qt, QThread, Signal, Qt, QRunnable, QThreadPool, QObject
+from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow, QLabel, QWidget, QGridLayout, QHBoxLayout
 from PySide6.QtGui import QFont
 import IPLAS_Download
+#from Pre_proccess_UI import Ui_MainWindow
+
+"""
+檢查網路、檢查chrome driver版本，檢查是否有User Project
+"""
 
 
 class Pre_process(QMainWindow):
     def __init__(self):
         super(Pre_process, self).__init__()
+        #self._window = Ui_MainWindow()
+        #self._window.setupUi(self)
+        
         self.init_UI()
 
         self.threadpool = QThreadPool()
-        self.threadpool.setMaxThreadCount(1)
-        #self.startproject()
-        #self.startthread()
+        self.threadpool.setMaxThreadCount(2)
+        self.start_proccess()
+        self.start_loading()
+    
+    ''' @property
+    def window(self):
+        return self._window '''
         
     def init_UI(self):
         self.set_windows()
+        #self.set_label()
         self.set_frameless()
 
     def set_windows(self):
         self._widget = QWidget()
-        self._width = 300
+        self._width = 250
         self._height = 100
+        #self.setGeometry(500, 500, self._width, self._height)
         self.setFixedSize(self._width, self._height)
         
-        self.label = QLabel(self)
         font = QFont("Arial", 14, QFont.Bold)
+        self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(font)
 
+        self.symbal = QLabel(self)
+        self.symbal.setAlignment(Qt.AlignCenter)
+        self.symbal.setFont(font)
+
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(self.label, 1)
+        h_layout.addWidget(self.symbal, 1)
+
         g_layout = QGridLayout()    
-        g_layout.addWidget(self.label)
+        g_layout.addItem(h_layout, 0, 0, 0, 0)
 
         self._widget.setLayout(g_layout)
         self.setCentralWidget(self._widget)
+    
+    ''' def set_label(self):
+        self.label = self._window.label
+        self.symbal = self._window.label_2
+        font = QFont("Arial", 14, QFont.Bold)
+        self.label.setFont(font)
+        self.symbal.setFont(font) '''
     
     def set_frameless(self):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
@@ -60,53 +88,56 @@ class Pre_process(QMainWindow):
         self._old_pos = event.globalPos()
     
 
-    def startthread(self):
-        self.work = loadingThread()
-        self.work.start()
-        self.work.trigger.connect(self.updatelabel)
-        self.work.setTerminationEnabled(True)
-        self.updatelabel('...')
-    
-    def startproject(self):
-        self.get_thread = getproject_thread()
-        self.get_thread.signal.status.connect(self.done)
-        self.threadpool.start(self.get_thread)
+    def start_loading(self):
+        self.loading = Load_Thread()
+        self.loading.signal.status.connect(self.load_label)
+        self.threadpool.start(self.loading)
+        self.load_label('...')
 
-    def updatelabel(self, text):
-        self.label.setText('Catch User Project  ' + text) 
+    def start_proccess(self):
+        self.get_proccess = Proccess_Thread()
+        self.get_proccess.signal.status.connect(self.done)
+        self.threadpool.start(self.get_proccess)
+        self.status_label(9)
+
+
+    def load_label(self, text):
+        self.symbal.setText(text) 
+    
+    def status_label(self, txt):
+        self.label.setText('Get User Project  ') 
 
     def done(self):
         self.close()  
 
 class thread_signal(QObject):
+    start = Signal(str)
     status = Signal(str)
-    error = Signal(str)
+    finish = Signal(str)
     
-class getproject_thread(QRunnable):
+class Proccess_Thread(QRunnable):
     def __init__(self):
-        super(getproject_thread, self).__init__()  
+        super(Proccess_Thread, self).__init__()  
         self.signal = thread_signal()
 
     def run(self):
         IPLAS_Download.Get_Project_list(self.signal)
 
-class loadingThread(QThread):
-    trigger = Signal(str)
+
+class Load_Thread(QRunnable):
     def __init__(self):
-        super().__init__()
+        super(Load_Thread, self).__init__() 
+        self.signal = thread_signal()
         self.dot = ['.','..', '...']
 
     def run(self):
         while True :
             for i in self.dot:
-                time.sleep(0.3)
-                self.trigger.emit(i) 
+                time.sleep(1)
+                self.signal.status.emit(i) 
 
 
 if '__main__' == __name__:
-    
-  
-    
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
     qt_app = QtWidgets.QApplication(sys.argv)
     
@@ -114,6 +145,6 @@ if '__main__' == __name__:
     if app is None:
         app = QApplication(sys.argv)
 
-    mainwindow =Pre_process()
+    mainwindow = Pre_process()
     mainwindow.show()         
     sys.exit(app.exec()) 
