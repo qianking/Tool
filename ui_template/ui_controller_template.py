@@ -1,6 +1,5 @@
 import sys
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt
 from PySide6.QtCore import QFile, QThread, Signal, Qt, QRunnable, QThreadPool, QObject
 from PySide6.QtUiTools import QUiLoader 
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QPlainTextEdit, QMainWindow
