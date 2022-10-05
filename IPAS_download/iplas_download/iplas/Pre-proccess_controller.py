@@ -51,8 +51,8 @@ class Pre_process(QMainWindow):
         self.symbal.setFont(font)
 
         h_layout = QHBoxLayout()
-        h_layout.addWidget(self.label, 1)
-        h_layout.addWidget(self.symbal, 1)
+        h_layout.addWidget(self.label, 2)
+        h_layout.addWidget(self.symbal, )
 
         g_layout = QGridLayout()    
         g_layout.addItem(h_layout, 0, 0, 0, 0)
@@ -105,7 +105,7 @@ class Pre_process(QMainWindow):
         self.symbal.setText(text) 
     
     def status_label(self, txt):
-        self.label.setText('Get User Project  ') 
+        self.label.setText(txt + ' '*2) 
 
     def done(self):
         self.close()  
