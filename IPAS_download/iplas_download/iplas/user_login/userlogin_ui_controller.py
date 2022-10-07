@@ -1,8 +1,9 @@
 import getpass
 import sys
+import time
 from login_ui import Ui_MainWindow
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication, QFontDialog, QLineEdit
+from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication, QLineEdit
 from PySide6.QtCore import Signal, QRunnable, QThreadPool, QObject 
 from PySide6.QtGui import QFont, QIcon, Qt
 import login_flow
@@ -20,7 +21,7 @@ class User_Login(QMainWindow):
         
         self.keyPressEvent = self.PressReturnKey
         self.threadpool = QThreadPool()
-        self.threadpool.setMaxThreadCount(1)
+        self.threadpool.setMaxThreadCount(3)
         self.font = QFont("KaiTi", 14)
         self.setup_ui()
     
@@ -38,8 +39,9 @@ class User_Login(QMainWindow):
         self.set_login_btm()
 
     def set_description_text(self):
-        self._window.label.setFont(self.font)
-        self._window.label.setText('第一次使用或密碼有改變時請輸入OA密碼')
+        self.description = self._window.label
+        self.description.setFont(self.font)
+        self.description.setText('第一次使用或密碼有改變時請輸入OA密碼')
     
     def user_name_title(self):
         self.username = self._window.username
@@ -84,39 +86,41 @@ class User_Login(QMainWindow):
         self.login_btm.clicked.connect(self.check_userdata_and_write)
     
     def check_userdata_and_write(self):
-        self.userdata.append(self.user_name)
-        self.userdata.append(self.password_input.text())
-        self.set_disable(True)
-        self.start_thread()
+        if self.password_input.text():
+            self.userdata.append(self.user_name)
+            self.userdata.append(self.password_input.text())
+            self.set_disable(True)
+            self.start_thread()
+        else:
+            self.password_empty_error()
     
     def set_disable(self, bool):
         self.password_input.setDisabled(bool)
-        #self.username_input.setDisabled(bool)
         self.show_pwd.setDisabled(bool)
         self.login_btm.setDisabled(bool)
-    
-
+       
     def event_proccess(self, event):
         self.internet_status = event
-        self.set_disable(False)
+        
         if event == 401:
+            self.userdata.clear()
+            self.password_input.clear()
             self.password_error_msg()
-
+        
         if event == 200:
             self.login_msg()
-
-        if event == 'password_empty':
-            self.password_empty_error()
         
         if event == 404:
             self.internet_error_msg()
 
+        self.set_disable(False)
+        self.loading.end()
+        self.description.setText('第一次使用或密碼有改變時請輸入OA密碼')
+        
 
     def password_error_msg(self):
         QMessageBox.warning(self, 'warning', 'Wrong Userdata!', QMessageBox.Ok)
-        self.userdata.clear()
-        self.password_input.clear()
-    
+        
     def password_empty_error(self):
         QMessageBox.warning(self, 'warning', 'Please Enter OA Password', QMessageBox.Ok) 
 
@@ -133,25 +137,53 @@ class User_Login(QMainWindow):
 
     def start_thread(self):
         print(self.userdata)
-        self.start_check_data = start_prcess(self.user_data_path, self.userdata)
-        self.start_check_data.signal.status.connect(self.event_proccess)
+        self.start_check_data = start_verify(self.user_data_path, self.userdata)
+        self.start_check_data.signal.result.connect(self.event_proccess)
         self.threadpool.start(self.start_check_data)
-
+        self.start_loading('Verify')
     
+    def start_loading(self, txt):
+        self.loading = Load_Thread(txt)
+        self.loading.signal.loading.connect(self.load_label)
+        self.threadpool.start(self.loading)
+
+    def load_label(self, text):
+        self.description.setText(text) 
+
+
 class thread_signal(QObject):
-    status = Signal(dict)
+    result = Signal(int)
+    loading = Signal(str)
 
-class start_prcess(QRunnable):
+class start_verify(QRunnable):
     def __init__(self, user_data_path, userdata):
-        super(start_prcess, self).__init__()  
+        super(start_verify, self).__init__()  
         self.signal = thread_signal()
-        self.userdata = userdata
         self.user_data_path = user_data_path
-    
+        self.userdata = userdata
+        
     def run(self):
         login_flow.check_user_data(self.user_data_path, self.userdata, self.signal)
 
+
+class Load_Thread(QRunnable):
+    def __init__(self, txt):
+        super(Load_Thread, self).__init__() 
+        self.signal = thread_signal()
+        self.flag = False
+        self.txt = txt
+        self.dot = ['.','..', '...']
+
+    def run(self):
+        while True :
+            for i in self.dot:
+                if self.flag:
+                    break
+                self.signal.loading.emit(f"{self.txt} {i}")
+                time.sleep(1)
     
+    def end(self):
+        self.flag = True
 
 if __name__ == "__main__":
     data = ['Andy_Chien', 'Qianking0706']

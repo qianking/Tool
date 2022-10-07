@@ -2,7 +2,7 @@ import time
 import sys
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt, QThread, Signal, Qt, QRunnable, QThreadPool, QObject
-from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow, QLabel, QWidget, QGridLayout, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow, QLabel, QWidget, QGridLayout, QHBoxLayout, QFileDialog
 from PySide6.QtGui import QFont
 import IPLAS_Download
 #from Pre_proccess_UI import Ui_MainWindow
@@ -22,8 +22,9 @@ class Pre_process(QMainWindow):
 
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(2)
-        self.start_proccess()
-        self.start_loading()
+        self.choose_chrome_path()
+        #self.start_proccess()
+        #self.status_loading()
     
     ''' @property
     def window(self):
@@ -46,16 +47,8 @@ class Pre_process(QMainWindow):
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(font)
 
-        self.symbal = QLabel(self)
-        self.symbal.setAlignment(Qt.AlignCenter)
-        self.symbal.setFont(font)
-
-        h_layout = QHBoxLayout()
-        h_layout.addWidget(self.label, 2)
-        h_layout.addWidget(self.symbal, )
-
         g_layout = QGridLayout()    
-        g_layout.addItem(h_layout, 0, 0, 0, 0)
+        g_layout.addItem(self.label, 0, 0, 0, 0)
 
         self._widget.setLayout(g_layout)
         self.setCentralWidget(self._widget)
@@ -87,33 +80,39 @@ class Pre_process(QMainWindow):
         self.move(self.x() + delta_x, self.y() + delta_y)
         self._old_pos = event.globalPos()
     
-
-    def start_loading(self):
-        self.loading = Load_Thread()
-        self.loading.signal.status.connect(self.load_label)
-        self.threadpool.start(self.loading)
-        self.load_label('...')
-
+    def error_box(self, txt):
+        error_txt = f"預期外的錯誤!\n{txt}\n請聯絡開發者"
+        ret = QMessageBox.critical(self, 'unexpected error', error_txt, QMessageBox.Ok)
+        if ret == QMessageBox.Ok:
+            self.close_window()
+    
     def start_proccess(self):
         self.get_proccess = Proccess_Thread()
-        self.get_proccess.signal.status.connect(self.done)
+        self.get_proccess.signal.status.connect(self.status_loading)
+        self.get_proccess.signal.error.connect(self.error_box)
+        self.get_proccess.signal.finish.connect(self.close_window)
         self.threadpool.start(self.get_proccess)
-        self.status_label(9)
+    
+    def status_loading(self, txt_tuple):
 
+        self.loading = Load_Thread(txt_tuple)
+        self.loading.signal.loading.connect(self.load_label)
+        self.threadpool.start(self.loading)
 
     def load_label(self, text):
-        self.symbal.setText(text) 
-    
-    def status_label(self, txt):
-        self.label.setText(txt + ' '*2) 
+        self.label.setText(text)
 
-    def done(self):
+    
+
+    def close_window(self):
         self.close()  
 
 class thread_signal(QObject):
-    start = Signal(str)
+    
     status = Signal(str)
-    finish = Signal(str)
+    error = Signal(str)
+    loading = Signal(str)
+    finish = Signal()
     
 class Proccess_Thread(QRunnable):
     def __init__(self):
@@ -125,16 +124,23 @@ class Proccess_Thread(QRunnable):
 
 
 class Load_Thread(QRunnable):
-    def __init__(self):
+    def __init__(self, txt):
         super(Load_Thread, self).__init__() 
         self.signal = thread_signal()
+        self.txt = txt
+        self.end_flag = False
         self.dot = ['.','..', '...']
 
     def run(self):
         while True :
             for i in self.dot:
+                if self.end_flag:
+                    break
+                self.signal.loading.emit(f"{self.txt} {i}")
                 time.sleep(1)
-                self.signal.status.emit(i) 
+
+    def end(self):
+        self.end_flag = True
 
 
 if '__main__' == __name__:

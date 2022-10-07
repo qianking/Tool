@@ -538,13 +538,12 @@ def _test():
     staton_data = IPLAS.Get_PassFail_ISN('Pretest', execute_data['user_select_project'], iii['queryid'])
     print(staton_data)"""
    
-def Get_Project_list(signal):
+def Get_User_Project(signal):
     driver = set_chrome_driver()
     IPLAS = IPLAS_Flow(driver, Download_logger)
     IPLAS.Login_IPLAS(main_data['userdata'])
     IPLAS.Get_User_Project()
     if IPLAS.exception:
-
         raise Exception(IPLAS.exception)
     else:
         driver.close()
