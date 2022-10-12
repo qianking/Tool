@@ -80,9 +80,9 @@ class Login_and_Checkinternet():
             return userdata
 
     def open_login_ui(self):
-        ''' app = QApplication.instance()
+        app = QApplication.instance()
         if app is None:
-            app = QApplication(sys.argv) '''
+            app = QApplication(sys.argv)
         self.login = Login(self.user_data_path)
         self.login.show()
         return self.login.userdata

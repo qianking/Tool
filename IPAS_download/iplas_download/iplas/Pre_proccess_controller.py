@@ -18,8 +18,8 @@ class Pre_process(QMainWindow):
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(3)
         self.start_proccess()
+        self.status_loading()
         #self.test()
-        #self.status_loading()
         
     def init_UI(self):
         self.set_windows()
@@ -36,7 +36,7 @@ class Pre_process(QMainWindow):
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(font)
 
-        g_layout = QGridLayout()    
+        g_layout = QGridLayout()   
         g_layout.addWidget(self.label, 0, 0, 0, 0)
 
         self._widget.setLayout(g_layout)
@@ -75,6 +75,10 @@ class Pre_process(QMainWindow):
         #self.get_proccess.signal.finish.connect(self.close_window)
         self.threadpool.start(self.get_proccess)
     
+    def test(self):
+        login = Pre_proccess.Login_and_Checkinternet()
+        login.open_login_ui()
+    
     def status_loading(self):
         self.loading = Load_Thread()
         self.loading.signal.loading.connect(self.load_label)
@@ -100,11 +104,12 @@ class Proccess_Thread(QRunnable):
     def __init__(self):
         super(Proccess_Thread, self).__init__()  
         self.signal = thread_signal()
+       
 
     def run(self):
         login = Pre_proccess.Login_and_Checkinternet()
         login.open_login_ui()
-
+       
 
 class Load_Thread(QRunnable):
     def __init__(self):
@@ -120,7 +125,6 @@ class Load_Thread(QRunnable):
                 if self.end_flag:
                     break
                 self.signal.loading.emit(f"{self.txt} {i}")
-                print('1')
                 time.sleep(1)
     
     ''' def get_txt(self, txt):
