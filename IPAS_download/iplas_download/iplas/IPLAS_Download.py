@@ -33,7 +33,7 @@ upper_folder_path = '\\'.join(current_path.split('\\')[:-1])     #到上一層�
 IPLAS_download_buffer = fr"{upper_folder_path}\IPLAS_Download\buffer"        #IPLAS下載檔案buffer的資料夾
 os.makedirs(IPLAS_download_buffer, exist_ok=True)
 
-IPLAS_download_log = fr"{upper_folder_path}\logs\IPLAS download"  #存IPLAS下載log的資料夾
+IPLAS_download_log = fr"{upper_folder_path}\logs"  #存IPLAS下載log的資料夾
 os.makedirs(IPLAS_download_log, exist_ok=True)
 
 IPLAS_download_log_file = fr"{IPLAS_download_log}\IPLAS_download_log.txt"

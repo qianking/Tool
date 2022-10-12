@@ -9,9 +9,9 @@ from PySide6.QtGui import QFont, QIcon, Qt
 import login_flow
 
 
-class User_Login(QMainWindow):
+class Login(QMainWindow):
     def __init__(self, user_data_path = None):
-        super(User_Login, self).__init__()
+        super(Login, self).__init__()
         self.userdata = list()
         self.internet_status = None
 
@@ -193,13 +193,10 @@ if __name__ == "__main__":
     帳密資訊有錯為401(驗證錯誤)
 
     '''
-    
-    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
-    qt_app = QtWidgets.QApplication(sys.argv)
     app = QApplication.instance()
     if app is None:
         app = QApplication(sys.argv)
-    mainwindow = User_Login()
+    mainwindow = Login()
     mainwindow.show()       
     sys.exit(app.exec())
         

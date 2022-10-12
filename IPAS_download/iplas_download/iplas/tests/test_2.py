@@ -42,18 +42,17 @@ def choose_chrome_path():
     app.exec()
 
 
-def chrome_path_error_box():
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication(sys.argv)
-    MessageBox = QMessageBox()
-    MessageBox.setWindowTitle('Warning')
-    MessageBox.setText("這台電腦的google chrome路徑不為預設路徑，請選擇正確的chrome.exe路徑，以完成後續的設定")
-    font = QFont("Arial", 12)
-    MessageBox.setFont(font)
-    MessageBox.show()
-    app.exec()
-    
+class another(QWidget):
+    def __init__(self):
+        super(another, self).__init__()
+        MessageBox = QMessageBox()
+        MessageBox.setWindowTitle('Warning')
+        MessageBox.setText("這台電腦的google chrome路徑不為預設路徑，請選擇正確的chrome.exe路徑，以完成後續的設定")
+        font = QFont("Arial", 12)
+        MessageBox.setFont(font)
+
+
+
     
 def wrong_chrome_path_box():
     app = QApplication.instance()
@@ -66,17 +65,18 @@ def wrong_chrome_path_box():
     MessageBox.setFont(font)
     MessageBox.show()
     app.exec()
-    
 
-driver_mapping = {}
-#for key, value in driver_mapping.items():
-last_check_time = driver_mapping.get('last_check_time')
-chrome_path = driver_mapping.get('chrome_path')
 
-if not last_check_time :
-    print(5555)
-else:
-    print(last_check_time, chrome_path)
+#last_check_time = None
+''' driver_mapping = dict()
+driver_mapping.items()
+lll = driver_mapping.get('chrome_major_ver')
+print(lll)
+ '''
+
+
+
+
 
     
 

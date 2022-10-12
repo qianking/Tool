@@ -1,6 +1,10 @@
+import sys
+import os
 import requests
 from requests_ntlm import HttpNtlmAuth
-import lib.crypt as crypt
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath( __file__ ))))
+sys.path.append("./lib")
+import _crypt
 import urllib3
 
 urllib3.disable_warnings()
@@ -10,13 +14,10 @@ def check_user_data(user_data_path, userdata, signal):
     
     if code == 200:
         data = ' '.join(userdata)
-        en_data = crypt.Encrypt(data)
+        en_data = _crypt.Encrypt(data)
         with open(user_data_path, 'wb') as f:
             f.write(en_data)
     signal.result.emit(code)    
-
-    
-
 
 def _checkpass_request(data):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
@@ -35,7 +36,7 @@ def _checkpass_request(data):
 
 def _test(userdata):
     data = ' '.join(userdata)
-    en_data = crypt.Encrypt(data)
+    en_data = _crypt.Encrypt(data)
     with open(user_data_path, 'wb') as f:
         f.write(en_data)
 
