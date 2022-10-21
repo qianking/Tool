@@ -184,8 +184,19 @@ with ThreadPoolExecutor(max_workers=10) as executor:
     print('done') '''
 
 
+class foo(object):
+    def get_name(self):
+        return sys._getframe(1).f_code.co_name
 
-if 5 in range(3, 6):
-    print(99999999)
+    def bar(self):
+        name = self.get_name()
+        print (name)
+
+oo = foo()
+oo.bar()
+
+
+
+
 
 
