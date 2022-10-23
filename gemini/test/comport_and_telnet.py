@@ -76,7 +76,7 @@ class COM():
 
                         buffer = self.com.read(self.com.inWaiting())
                         #print('buffer:', buffer)
-                        self.Variable.log = Tmp_data
+                        self.Variable.raw_log = {'log': Tmp_data}
                         raise TimeOutError
                     
                     else:
@@ -90,7 +90,7 @@ class COM():
                                         
                                         buffer = self.com.read(self.com.inWaiting())
                                         #print('buffer:', buffer)
-                                        self.Variable.log = Tmp_data
+                                        self.Variable.raw_log = {'log': Tmp_data}
                                         time.sleep(0.1)
                                         return 0
                                     
@@ -99,7 +99,7 @@ class COM():
                         
                                     buffer = self.com.read(self.com.inWaiting())
                                     #print('buffer:', buffer)
-                                    self.Variable.log = Tmp_data
+                                    self.Variable.raw_log = {'log': Tmp_data}
                                     time.sleep(0.1)
                                     return 0
                                       
@@ -224,7 +224,7 @@ class Telnet():
                         time.sleep(0.1)                     #必須休息一小段時間
                         self.logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
                         buffer = self.tn.read_very_eager()
-                        self.Variable.log = Tmp_data
+                        self.Variable.raw_log = {'log': Tmp_data}
                         raise TimeoutError
                             
                     else:
@@ -237,7 +237,7 @@ class Telnet():
                                     if (goal_word in data.strip()) or (word in data.strip()):     
                                         buffer = self.tn.read_very_eager()
                                         #print('buffer:', buffer)
-                                        self.Variable.log = Tmp_data
+                                        self.Variable.raw_log = {'log': Tmp_data}
                                         time.sleep(0.1)
                                         return 0              
                                     
@@ -245,7 +245,7 @@ class Telnet():
                                 if goal_word in data.strip():
                                     buffer = self.tn.read_very_eager()
                                     #print('buffer:', buffer)
-                                    self.Variable.log = Tmp_data
+                                    self.Variable.raw_log = {'log': Tmp_data}
                                     time.sleep(0.1)
                                     return 0
                                      

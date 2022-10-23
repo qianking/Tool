@@ -133,9 +133,7 @@ class Flow_MetaClass(type):
 
 class Fail_Dealer():
     def __init__(self, Variable):
-        pass
         self.Variable = Variable
-        #self.func = func
 
     def __call__(self, func):
         @wraps(func)
@@ -193,6 +191,7 @@ class mChild(type(Flow), type(Test_Item.Gemini_Test_Item)):
 class Gemini(Flow, Test_Item.Gemini_Test_Item, metaclass = mChild):
 
     def __init__(self, telnet_port):
+        self.Variable.logger = 
         self.telnet_port = telnet_port
         self.Gemini_logger = file_util.create_logger(logger_path, f"Gemini {telnet_port}_log")
         super().__init__(ip = telnet_ip, port = self.telnet_port, logger = self.Gemini_logger, value_config_path = value_config_path)  

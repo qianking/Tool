@@ -6,7 +6,6 @@ import datetime
 from copy import deepcopy
 import file_util
 
-
 logfile_path = r'.\log'
 logger_path = r'.\debug'
 write_logger = file_util.create_logger(logger_path, 'write_log_log')
@@ -16,8 +15,6 @@ title_data = {'program_version' : 'V1.00.10',
               'error_code' : '',
               'csn' : '',
               'terminal_connect_flag' : 'Pass',
-              'dut_connect_flag' : '',
-              'pg_connect_flag' : '',
               'start_time' : '',
               'end_time' : ''}
 

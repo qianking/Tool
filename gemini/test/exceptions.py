@@ -12,9 +12,14 @@ class TestItemFail(Exception):
             super().__init__((test_item, (None, None, None), error))
         else:
             super().__init__((test_item, data, error))
+            
 
 class Test_Fail(Exception):
     pass
+
+class Upload_Fail(Exception):
+    pass
+
        
         
 
