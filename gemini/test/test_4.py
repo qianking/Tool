@@ -6,7 +6,9 @@ class jj():
     
     pp = SingleTonNew()
 
-    def __init__(self, b):
-        self.pp.i.a += b
+    def __init__(self):
+        pass
         
+    def add(self, b):
+        self.pp.i.a += b
         print(self.pp.i.a)

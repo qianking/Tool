@@ -11,9 +11,26 @@ def uu():
         for p in i:
             futures = executor.submit(Main(p))
 
+class pppp():
+
+    ooo = SingleTonNew()
+
+    def __init__(self):
+        self.j = jj()
+
+    def test(self, b):
+
+        self.j.add(b)
+        print(self.ooo.i.a)
+
+    
+
 def Main(b):
     sin = SingleTonNew()
-    oo = jj(b)
+    oo = pppp()
+    oo.test(b)
     print(sin.i.a)
+
+
 uu()
 
