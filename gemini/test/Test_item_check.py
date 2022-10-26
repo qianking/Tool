@@ -37,6 +37,7 @@ class myMetaClass(type):
                 local[attr] = Fail_Dealer()(value)
         return super().__new__(cls, name, bases, local)
 
+inside = 0
 
 class Fail_Dealer():
     v = SingleTon_Variable()
@@ -72,23 +73,29 @@ class Fail_Dealer():
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            try:
-                self.upper_name = sys._getframe(1).f_code.co_name
-                results = func(*args, **kwargs)
-                flag = self.deal_result(results)  
-                   
-                if not flag:
-                    self.f.dut_been_test_fail = True
-                    self.v.dut_test_fail = True
-                    raise TestItemFail
+            global inside
+            inside += 1
+            if inside == 1:
+                try:
+                    self.upper_name = sys._getframe(1).f_code.co_name
+                    results = func(*args, **kwargs)
+                    flag = self.deal_result(results)  
+                    
+                    if not flag:
+                        self.f.dut_been_test_fail = True
+                        self.v.dut_test_fail = True
+                        raise TestItemFail
 
-            except Exception as ex:
-                """系統錯誤"""
-                self.sys_exception(ex)
-                raise Exception 
+                except Exception as ex:
+                    """系統錯誤"""
+                    self.sys_exception(ex)
+                    raise Exception 
 
-            else:
-                return True
+                else:
+                    return True
+
+                finally:
+                    inside = 0
 
         return decorated
 
@@ -116,7 +123,8 @@ class Gemini_Test(metaclass = myMetaClass):
         SN = self.Variable.tmp_log.split('\r\n')[1]
         SN = SN.split(':')[1].strip()
         self.Variable.dut_info = {'SN' : SN}
-        return tmp_log.append(True, None, (SN, None, None))
+        tmp_log.append((True, None, (SN, None, None)))
+        return tmp_log
 
 
     def check_two_power_address(self):

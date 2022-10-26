@@ -20,6 +20,7 @@ class myMetaClass(type):
                 local[attr] = Fail_Dealer()(value)
         return super().__new__(cls, name, bases, local)
 
+inside = 0
 
 class Fail_Dealer():
     v = SingleTon_Variable()
@@ -27,6 +28,7 @@ class Fail_Dealer():
 
     def __init__(self):
         self.ERROR = Error_Code()
+         
 
     def get_runtime(self):
         runtime = str(time.time() - self.v.test_item_start_timer)
@@ -52,30 +54,37 @@ class Fail_Dealer():
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            try:
-                test_name = sys._getframe(1).f_code.co_name
-                result, data = func(*args, **kwargs)
-                self.v.raw_log = {'log' : data}
+            global inside
+            inside += 1
+            if inside == 1:
+                try:
+                    test_name = sys._getframe(1).f_code.co_name
+                    
+                    result, data = func(*args, **kwargs)
+                    self.v.raw_log = {'log' : data}
 
-                if result:   
-                    self.v.upload_log = (test_name, (1, None, None, None, None, self.get_runtime()))
-                else:       #timeout fail
-                    self.f.dut_been_test_fail = True
-                    self.v.dut_test_fail = True
-                    self.v.test_error_msg = f"[{test_name}] time out"
-                    self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime())) 
-                    raise TimeOutError
+                    if result:   
+                        self.v.upload_log = (test_name, (1, None, None, None, None, self.get_runtime()))
+                    else:       #timeout fail
+                        self.f.dut_been_test_fail = True
+                        self.v.dut_test_fail = True
+                        self.v.test_error_msg = f"[{test_name}] time out"
+                        self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime())) 
+                        raise TimeOutError
 
-            except Exception as ex:
-                print(ex)
-                """連上錯誤"""
-                self.v.raw_log = {'log' : ''}
-                self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime()))
-                self.sys_exception(ex)
-                raise Exception 
+                except Exception as ex:
+                    print(ex)
+                    """連上錯誤"""
+                    self.v.raw_log = {'log' : ''}
+                    self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime()))
+                    self.sys_exception(ex)
+                    raise Exception 
 
-            else:
-                return True
+                else:
+                    return True
+                    
+                finally:
+                    inside = 0
         return decorated
 
 
