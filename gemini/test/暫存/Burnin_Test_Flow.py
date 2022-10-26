@@ -146,11 +146,8 @@ class Fail_Dealer():
 
 class Flow(metaclass = Flow_MetaClass):
     pass
-
-class mChild(type(Flow), type(Test_Item.Terminal_Server_Test_Item)):
-    pass 
        
-class TerminalFlow(Flow, Test_Item.Terminal_Server_Test_Item, metaclass = mChild):
+class TerminalFlow(Test_Item.Terminal_Server_Test_Item):
 
     v = SingleTon_Variable()
 
@@ -262,14 +259,12 @@ def Test_End_Function(run_times):
     online.IPLAS_Upload()
 
 
-
+@Fail_Dealer()
 def Terminal_Flow():
     ter = SingleTon_Variable()
     terminal = TerminalFlow()
-    if not terminal.Check_ALL_Comport():
-        return False
-    if not terminal.Terminal_Server_Flow():
-        return False
+    terminal.Check_ALL_Comport()
+    terminal.Terminal_Server_Flow()
     
 
 def Create_Debug_Log():
@@ -296,8 +291,9 @@ def Gemini_Burn_In_Flow(telnet_port, device_ID):
     while condition:
         Main_Flow = MainFlow()
         Main_v.test_start_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        
+
         result = Main_Flow.Gemini_BurnIn()
+        
         Main_v.test_end_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         if result:
             if len(Main_v._dut_error_code):

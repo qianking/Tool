@@ -6,11 +6,9 @@ from functools import wraps
 from comport_and_telnet import Telnet
 from comport_and_telnet import COM
 import Test_item_check
-import analyze_method
 from Log_Dealer import Log_Model
-
+from error_code import Error_Code
 from Global_Variable import SingleTon_Variable, SingleTon_Flag
-import exceptions
 from exceptions import TimeOutError, TestItemFail, Test_Fail
 
 
@@ -27,6 +25,15 @@ class log_deco():
     Flag = SingleTon_Flag()
     Variable = SingleTon_Variable()
 
+    def __init__(self):
+        self.ERROR = Error_Code()
+        
+    def get_runtime(self):
+        runtime = str(time.time() - self.start_time)
+        runtime = int(runtime.split('.')[0])
+        return runtime
+
+       
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
@@ -35,21 +42,25 @@ class log_deco():
             func(*args, **kwargs)
             self.v.Variable.raw_log = {'end_time': datetime.now()}
             return True '''
-            test_item = func.__name__
-            self.Variable.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
-            self.Variable.test_item_start_timer = time.time()
-            self.Variable.raw_log = {'name': test_item, 'start_time': datetime.now()}
             try:
+                self.start_time = time.time()
+                test_item = func.__name__
+                self.Variable.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+                self.Variable.raw_log = {'name': test_item, 'start_time': datetime.now()}
+
                 func(*args, **kwargs)
 
             #當telnet或是 comport timeout時會進到這裡
             except TimeOutError:
-                self.Variable.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+                print('timeoutfail')
+                self.error_function(test_item)
                 raise Test_Fail
                 
+            
             #測試項目失敗會進到這裡
-            except TestItemFail:
-                self.Variable.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            except TestItemFail as test_item_data:
+                print('testitemfail')
+                self.error_function(test_item, test_item_data.args[0])
                 raise Test_Fail
                
 
@@ -58,18 +69,60 @@ class log_deco():
                 self.sys_exception(ex)
                 raise Exception
             
+            else:
+                self.Variable.upload_log = (test_item, (1, None, None, None, None, self.get_runtime()))
+            
             finally:
                 self.Variable.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
                 self.Variable.raw_log = {'end_time': datetime.now()}
         
         return decorated 
 
+    def error_function(self, test_item, test_item_data = None):
+
+        self.Variable.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+
+        if test_item_data[0]:
+            test_item = test_item_data[0]
+
+        error = self.ERROR[test_item]
+        self.Variable.error_code = error
+        self.Flag.dut_been_test_fail = True
+        self.Variable.dut_test_fail = True
+        
+        self.Variable.upload_log = (test_item, (0, test_item_data[1][0], test_item_data[1][1], test_item_data[1][2], error, self.get_runtime()))
+        self.Variable.test_error_msg = test_item_data[2]
 
     def sys_exception(self, ex):
-        error_msg = exceptions.error_dealer(ex)
-        print(error_msg)
-        self.Variable.sys_error_msg = error_msg
 
+        #只有這三種錯誤式系統的exception，所以直接在UI彈出提示視窗   
+        if 'FileNotFoundError' in str(ex):           #console連接錯誤 電腦找不到這個port口
+            #print('Comport 找不到指定port口')
+            self.Variable.sys_error_msg = 'Comport 找不到指定port口'
+                
+        elif 'PermissionError' in str(ex):             #console連接錯誤 port口被其他程式使用
+            #print('Comport Port口被占据')
+            self.Variable.sys_error_msg = 'Comport Port口被占据'
+        
+        elif 'WinError 10061' in str(ex):                    #telnet連接錯誤 telnet被占線
+            #print('Telnet连线被占据')
+            self.Variable.sys_error_msg = 'Telnet连线被占据'
+
+        else:
+            error_msg = self.error_dealer(ex)
+            print(error_msg)
+            self.Variable.sys_error_msg = error_msg
+    
+    def error_dealer(self, ex):
+        error_class = ex.__class__.__name__ #取得錯誤類型
+        detail = ex.args[0] #取得詳細內容
+        cl, exc, tb = sys.exc_info() #取得Call Stack
+        lastCallStack = traceback.extract_tb(tb)[-1] #取得Call Stack的最後一筆資料
+        fileName = lastCallStack[0] #取得發生的檔案名稱
+        lineNum = lastCallStack[1] #取得發生的行號
+        funcName = lastCallStack[2]#取得發生的函數名稱
+        errMsg = f"{[error_class]}\n\"{fileName}\", line {lineNum}, in {funcName}\n{detail}"
+        return errMsg
           
 class Terminal_Server_Test_Item(metaclass = myMetaClass):
 
@@ -77,7 +130,9 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
 
     def __init__(self, **args):
         self.Variable.debug_logger = self.Variable.main_debug_logger
-        self.connect = COM(args['port'], args['baud'], self.Variable.debug_logger)
+        self.connect = COM(args['port'], args['baud'], self.Variable)
+        self.check_test = Test_item_check.Terminal_Test()
+
 
     def Check_Comport(self):
         """
@@ -91,7 +146,7 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
         進入Router#，如果有密碼就打密碼:pega123
         """
         self.connect.send_and_receive('', 'Router', 5, 'Password:')
-        if analyze_method.Find_Method.FindString(self.Variable.tmp_log, 'Password:'):
+        if self.check_test.If_PassWord(self.Variable.tmp_log):
             self.connect.send_and_receive('pega123', 'Router>', 5)            
         self.connect.send_and_receive('en', 'Router#', 5)
 
@@ -110,7 +165,7 @@ class Gemini_Test_Item(metaclass = myMetaClass):
 
     def __init__(self, **args):
         self.Variable.debug_logger = self.Variable.dut_debug_logger
-        self.connect = Telnet(args['ip'], args['port'], self.Variable.debug_logger)
+        self.connect = Telnet(args['ip'], args['port'], self.Variable)
         self.check_test = Test_item_check.Gemini_Test(self.Variable, args['value_config_path'])
         self.port = args['port']
         self.root_word = 'root@intel-corei7-64:~/mfg#'
@@ -141,6 +196,7 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         self.connect.send_and_receive('./mfg_sources/mb_eeprom_rw.sh r serial_number', self.root_word, 10)
         self.check_test.get_SN()
+        
     
     def Set_Two_Power(self):
         """

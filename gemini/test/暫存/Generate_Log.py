@@ -127,8 +127,7 @@ class Gearate_log():
     
 
 def generate_log():
-    pass
-
+    
 
 
 

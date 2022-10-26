@@ -34,8 +34,6 @@ class _dut_data():
     _dut_info = dict()
     _dut_test_fail = False
     _dut_error_code = str()
-
-    _test_item_start_timer = float()
     
     _test_start_time = str()
     _test_end_time = str()
@@ -72,14 +70,6 @@ class _dut_data():
     @telnet_port.setter
     def telnet_port(self, data:int):
         self._telnet_port = data
-
-    @property
-    def test_item_start_timer(self):
-        return self._test_item_start_timer
-
-    @test_item_start_timer.setter
-    def test_item_start_timer(self, data:float):
-        self._test_item_start_timer = data
 
     @property
     def test_start_time(self):
@@ -145,7 +135,7 @@ class _online_data():
 class _error_msg():
 
     _test_error_msg = str()
-    _sys_error_msg = list()
+    _sys_error_msg = str()
     _ftp_error_msg = str()
     _sfis_error_msg = str()
     _iplas_error_msg = str()
@@ -164,7 +154,7 @@ class _error_msg():
 
     @sys_error_msg.setter
     def sys_error_msg(self, data:str):
-        self._sys_error_msg.append(data)
+        self._sys_error_msg += data
 
     @property
     def ftp_error_msg(self):
@@ -334,7 +324,7 @@ class SingleTon_Variable(_All_Variable):
         self._test_error_msg = str()
         self._dut_info = dict()
         self._dut_error_code = str()
-        self._sys_error_msg = list()
+        self._sys_error_msg = str()
         self._ftp_error_msg = str()
         self._sfis_error_msg = str()
         self._iplas_error_msg = str()

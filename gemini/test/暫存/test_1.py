@@ -6,7 +6,6 @@ from datetime import datetime
 import traceback
 import inspect
 import sys
-import time
      
          
 
@@ -54,24 +53,5 @@ def jjj():
 
 
 
-class TEST():
-    def __init__(self):
-        self._log = {'test':6}
-    
-    @property
-    def log(self):
-        return self._log
+jjj()
 
-def iii():
-    print('g')
-
-
-def uu(a = None):
-    
-    print('yy')
-    iii()
-    return 'p', 5
-uu(a=5)
-#print(inspect.getmembers(uu, predicate=inspect.ismethod))
-method_list = [func for func in dir(uu) if callable(getattr(uu, func))]   
-print(uu.__closure__ )

@@ -3,13 +3,7 @@ from functools import wraps
 import sys
 import traceback
 
-class myMetaClass(type):
-    def __new__(cls, name, bases, local):
-        for attr in local:
-            value = local[attr]
-            if not len(bases) and callable(value) and attr != '__init__':
-                local[attr] = Fail_Dealer()(value)
-        return super().__new__(cls, name, bases, local)
+
 
 class Fail_Dealer():
     def __init__(self):
@@ -20,26 +14,27 @@ class Fail_Dealer():
         def decorated(*args, **kwargs):
 
             func(*args, **kwargs)
-            print('in decorator:', sys._getframe(1).f_code.co_name)
+            print('in decorator:', traceback.extract_stack(None, 2)[0][2])
 
             print(self.jjj.a)
 
         return decorated
 
-class jj(metaclass = myMetaClass):
+class jj():
     
     pp = SingleTonNew()
 
     def __init__(self):
         pass
-
+    
+    @Fail_Dealer()
     def add(self):
        print('nn')
-       print('in add:', sys._getframe(1).f_code.co_name)
+       print('in add:', traceback.extract_stack(None, 2)[0][2])
 
 
 def get_function_name():
-    return sys._getframe(1).f_code.co_name
+    return traceback.extract_stack(None, 2)[0][2]
     
 class hh():
     ff = jj()

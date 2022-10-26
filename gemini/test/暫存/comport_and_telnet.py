@@ -1,109 +1,42 @@
 import time
 import serial
 import telnetlib
-from functools import wraps
-import sys
-import time
-import exceptions
-from error_code import Error_Code
 from exceptions import TimeOutError
-from Global_Variable import SingleTon_Variable, SingleTon_Flag
 
-
-class myMetaClass(type):
-    def __new__(cls, name, bases, local):
-        print(bases)
-        print(local)
-        for attr in local:
-            value = local[attr]
-            if not len(bases) and callable(value) and attr != '__init__':
-                local[attr] = Fail_Dealer()(value)
-        return super().__new__(cls, name, bases, local)
-
-
-class Fail_Dealer():
-    v = SingleTon_Variable()
-    f = SingleTon_Flag()
-
-    def __init__(self):
-        self.ERROR = Error_Code()
-
-    def get_runtime(self):
-        runtime = str(time.time() - self.v.test_item_start_timer)
-        runtime = int(runtime.split('.')[0])
-        return runtime
-    
-    def sys_exception(self, ex):
-        #只有這三種錯誤式系統的exception，所以直接在UI彈出提示視窗   
-        if 'FileNotFoundError' in str(ex):           #console連接錯誤 電腦找不到這個port口
-            self.v.sys_error_msg = 'Comport 找不到指定port口'
-                
-        elif 'PermissionError' in str(ex):             #console連接錯誤 port口被其他程式使
-            self.v.sys_error_msg = 'Comport Port口被占据'
-        
-        elif 'WinError 10061' in str(ex):                    #telnet連接錯誤 telnet被占線
-            self.v.sys_error_msg = 'Telnet连线被占据'
-
-        else:
-            error_msg = exceptions.error_dealer(ex)
-            print(error_msg)
-            self.v.sys_error_msg = error_msg
-
-    def __call__(self, func):
-        @wraps(func)
-        def decorated(*args, **kwargs):
-            try:
-                test_name = sys._getframe(1).f_code.co_name
-                result, data = func(*args, **kwargs)
-                self.v.raw_log = {'log' : data}
-
-                if result:   
-                    self.v.upload_log = (test_name, (1, None, None, None, None, self.get_runtime()))
-                else:       #timeout fail
-                    self.f.dut_been_test_fail = True
-                    self.v.dut_test_fail = True
-                    self.v.test_error_msg = f"[{test_name}] time out"
-                    self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime())) 
-                    raise TimeOutError
-
-            except Exception as ex:
-                print(ex)
-                """連上錯誤"""
-                self.v.raw_log = {'log' : ''}
-                self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime()))
-                self.sys_exception(ex)
-                raise Exception 
-
-            else:
-                return True
-        return decorated
-
-
-class COM(metaclass = myMetaClass):
-
-    def __init__(self, port, baud, debug_logger, **awags):
-        self.debug_logger = debug_logger
+class COM():
+    def __init__(self, port, baud, Variable, **awags):
+        self.Variable = Variable
         self.port = port
         self.baud = int(baud)
-        self.bytesize = 8 if not awags.get('bytesize') else awags.get('bytesize')
-        self.stopbits = 1 if not awags.get('stopbits') else awags.get('stopbits')
-        self.parity = 'N' if not awags.get('parity') else awags.get('parity')
+        self.bytesize = 8
+        self.stopbits = 1
+        self.parity = 'N'
+        self.awags = awags
         self.com = None
         self.ports_list = []
+        self.get_variable()
+
+    def get_variable(self):
+        if len(self.awags):
+            if 'bytesize' in self.awags:
+                self.bytesize = self.awags['bytesize']
+            if 'stopbits' in self.awags:
+                self.stopbits = self.awags['stopbits']
+            if 'parity' in self.awags:
+                self.parity = self.awags['parity']
 
     def check_connect(self):
-        self.close_telnet()
+        self.close_com()
         with serial.Serial(port = self.port, baudrate = self.baud, bytesize=self.bytesize, parity = self.parity, timeout=1, stopbits=self.stopbits) as self.com:
             time.sleep(0.1)
+            self.Variable.raw_log = {'log': ''}
             buffer = self.com.read(self.com.inWaiting())
             #print('buffer:', buffer)   
-        #self.close_telnet()
-        return True, ''
+        self.close_com()
     
-    def close_telnet(self):
+    def close_com(self):
         if self.com is not None and self.com.isOpen:
             self.com.close()
-        
     
     '''def open_com(self):
         if self.com is not None and self.com.isOpen:
@@ -133,44 +66,47 @@ class COM(metaclass = myMetaClass):
             start_time = time.time()
 
             if command != None:
-                self.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")
-                self.com.write(f"{command}\r\n".encode("utf-8"))
+                self.Variable.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")
+                self.com.write(self.to_bytes(command))
             if goal_word != None:
                 while True :
                     end_time = time.time()
                     data = self.com.readline().decode("utf-8", errors="backslashreplace")
                     if end_time - start_time > timeout:
-                        self.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
+                        self.Variable.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
 
                         buffer = self.com.read(self.com.inWaiting())
                         #print('buffer:', buffer)
-                        return False, Tmp_data
+                        self.Variable.raw_log = {'log': Tmp_data}
+                        raise TimeOutError
                     
                     else:
                         if data != '':
                             Tmp_data += data
                             print(data, end = '')
-                            self.debug_logger.debug(f"port [{self.port}] RECEIVE : {data.strip()}")
+                            self.Variable.debug_logger.debug(f"port [{self.port}] RECEIVE : {data.strip()}")
                             if len(goal_array):       #如果有多個目標
                                 for word in goal_array:
                                     if (goal_word in data.strip()) or (word in data.strip()):
                                         
                                         buffer = self.com.read(self.com.inWaiting())
                                         #print('buffer:', buffer)
+                                        self.Variable.raw_log = {'log': Tmp_data}
                                         time.sleep(0.1)
-                                        return True, Tmp_data
+                                        return 0
                                     
                             else:
                                 if goal_word in data.strip():
                         
                                     buffer = self.com.read(self.com.inWaiting())
                                     #print('buffer:', buffer)
+                                    self.Variable.raw_log = {'log': Tmp_data}
                                     time.sleep(0.1)
-                                    return True, Tmp_data
+                                    return 0
                                       
-class Telnet(metaclass = myMetaClass):
-    def __init__(self, host, port, debug_logger):
-        self.debug_logger = debug_logger
+class Telnet():
+    def __init__(self, host, port, Variable):
+        self.Variable = Variable
         self.host = str(host)
         self.port = port
         self.tn = None 
@@ -184,12 +120,10 @@ class Telnet(metaclass = myMetaClass):
         """
         with telnetlib.Telnet(host=self.host, port=self.port) as self.tn:
             time.sleep(0.1)
+            self.Variable.raw_log = {'log': ''}
             buffer = self.tn.read_very_eager()
             #print('buffer', buffer)
-        if self.tn is not None:
-            self.tn.close()
-        return True, ''
-
+        self.close_telnet()
         
     def open_telnet(self):
         if self.tn is not None:
@@ -202,9 +136,9 @@ class Telnet(metaclass = myMetaClass):
     def close_telnet(self):
         if self.tn is not None:
             self.tn.close()
-            self.debug_logger.debug(f"port [{self.port}] close port")
+            self.Variable.debug_logger.debug(f"port [{self.port}] close port")
         else:
-            self.debug_logger.debug(f"port [{self.port}] self.tn is none")
+            self.Variable.debug_logger.debug(f"port [{self.port}] self.tn is none")
         
     
     '''def send_and_receive(self, command, goal_word, timeout, *goal_array:tuple):
@@ -275,8 +209,8 @@ class Telnet(metaclass = myMetaClass):
             buffer = self.tn.read_very_eager()
             if command != None: 
                 time.sleep(0.1) 
-                self.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")                            
-                self.tn.write(f"{command}\r\n".encode("utf-8"))
+                self.Variable.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")                            
+                self.tn.write(self.to_bytes(command))
                 
             if goal_word != None:
                 start_time = time.time()
@@ -288,30 +222,32 @@ class Telnet(metaclass = myMetaClass):
                 
                     if end_time - start_time > timeout:
                         time.sleep(0.1)                     #必須休息一小段時間
-                        self.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
+                        self.Variable.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
                         buffer = self.tn.read_very_eager()
                         self.Variable.raw_log = {'log': Tmp_data}
-                        return False, Tmp_data
+                        raise TimeoutError
                             
                     else:
                         if data != '':
                             Tmp_data += data
                             print(data, end = '')
-                            self.debug_logger.debug(f"port [{self.port}] RECEIVE : {data.strip()}")
+                            self.Variable.debug_logger.debug(f"port [{self.port}] RECEIVE : {data.strip()}")
                             if len(goal_array) != 0:
                                 for word in goal_array:
                                     if (goal_word in data.strip()) or (word in data.strip()):     
                                         buffer = self.tn.read_very_eager()
                                         #print('buffer:', buffer)
+                                        self.Variable.raw_log = {'log': Tmp_data}
                                         time.sleep(0.1)
-                                        return True, Tmp_data           
+                                        return 0              
                                     
                             else:
                                 if goal_word in data.strip():
                                     buffer = self.tn.read_very_eager()
                                     #print('buffer:', buffer)
+                                    self.Variable.raw_log = {'log': Tmp_data}
                                     time.sleep(0.1)
-                                    return True, Tmp_data    
+                                    return 0
                                      
 
 

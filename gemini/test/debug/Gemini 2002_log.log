@@ -1,0 +1,5 @@
+[2022-10-26 19:07:02,310 DEBUG]: >>>>> In [Check_Telnet_Connect] <<<<<
+[2022-10-26 19:07:02,418 DEBUG]: >>>>> Out [Check_Telnet_Connect] <<<<<
+[2022-10-26 19:07:02,418 DEBUG]: >>>>> In [Boot_Up] <<<<<
+[2022-10-26 19:09:33,682 DEBUG]: port [2002] timeout! log:
+[2022-10-26 19:09:33,685 DEBUG]: >>>>> Out [Boot_Up] <<<<<
