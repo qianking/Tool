@@ -9,7 +9,7 @@ from error_code import Error_Code
 from exceptions import TimeOutError
 from Global_Variable import SingleTon_Variable, SingleTon_Flag
 
-
+''' 
 class myMetaClass(type):
     def __new__(cls, name, bases, local):
         print(bases)
@@ -18,9 +18,8 @@ class myMetaClass(type):
             value = local[attr]
             if not len(bases) and callable(value) and attr != '__init__':
                 local[attr] = Fail_Dealer()(value)
-        return super().__new__(cls, name, bases, local)
+        return super().__new__(cls, name, bases, local) '''
 
-inside = 0
 
 class Fail_Dealer():
     v = SingleTon_Variable()
@@ -54,41 +53,35 @@ class Fail_Dealer():
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            global inside
-            inside += 1
-            if inside == 1:
-                try:
-                    test_name = sys._getframe(1).f_code.co_name
-                    
-                    result, data = func(*args, **kwargs)
-                    self.v.raw_log = {'log' : data}
+            try:
+                test_name = sys._getframe(1).f_code.co_name
+                
+                result, data = func(*args, **kwargs)
+                self.v.raw_log = {'log' : data}
 
-                    if result:   
-                        self.v.upload_log = (test_name, (1, None, None, None, None, self.get_runtime()))
-                    else:       #timeout fail
-                        self.f.dut_been_test_fail = True
-                        self.v.dut_test_fail = True
-                        self.v.test_error_msg = f"[{test_name}] time out"
-                        self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime())) 
-                        raise TimeOutError
+                if result:   
+                    self.v.upload_log = (test_name, (1, None, None, None, None, self.get_runtime()))
+                else:       #timeout fail
+                    self.f.dut_been_test_fail = True
+                    self.v.dut_test_fail = True
+                    self.v.test_error_msg = f"[{test_name}] time out"
+                    self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime())) 
+                    raise TimeOutError
 
-                except Exception as ex:
-                    print(ex)
-                    """連上錯誤"""
-                    self.v.raw_log = {'log' : ''}
-                    self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime()))
-                    self.sys_exception(ex)
-                    raise Exception 
+            except Exception as ex:
+                print(ex)
+                """連上錯誤"""
+                self.v.raw_log = {'log' : ''}
+                self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime()))
+                self.sys_exception(ex)
+                raise Exception 
 
-                else:
-                    return True
-                    
-                finally:
-                    inside = 0
+            else:
+                return True
         return decorated
 
 
-class COM(metaclass = myMetaClass):
+class COM():
 
     def __init__(self, port, baud, debug_logger, **awags):
         self.debug_logger = debug_logger
@@ -100,13 +93,14 @@ class COM(metaclass = myMetaClass):
         self.com = None
         self.ports_list = []
 
+    @Fail_Dealer()
     def check_connect(self):
         self.close_telnet()
         with serial.Serial(port = self.port, baudrate = self.baud, bytesize=self.bytesize, parity = self.parity, timeout=1, stopbits=self.stopbits) as self.com:
             time.sleep(0.1)
             buffer = self.com.read(self.com.inWaiting())
             #print('buffer:', buffer)   
-        #self.close_telnet()
+        self.close_telnet()
         return True, ''
     
     def close_telnet(self):
@@ -124,9 +118,11 @@ class COM(metaclass = myMetaClass):
         buffer = self.com.read(self.com.inWaiting())
         print('buffer:', buffer)'''
 
-    def to_bytes(self, command):
+    @staticmethod
+    def to_bytes(command):
         return f"{command}\r\n".encode("utf-8")
 
+    @Fail_Dealer()
     def send_and_receive(self, command, goal_word, timeout, *goal_array:tuple):
         """
         參數(指令、目標字、timout, *goal_array(多個目標))
@@ -143,7 +139,7 @@ class COM(metaclass = myMetaClass):
 
             if command != None:
                 self.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")
-                self.com.write(f"{command}\r\n".encode("utf-8"))
+                self.com.write(self.to_bytes(command))
             if goal_word != None:
                 while True :
                     end_time = time.time()
@@ -177,26 +173,28 @@ class COM(metaclass = myMetaClass):
                                     time.sleep(0.1)
                                     return True, Tmp_data
                                       
-class Telnet(metaclass = myMetaClass):
+class Telnet():
     def __init__(self, host, port, debug_logger):
         self.debug_logger = debug_logger
         self.host = str(host)
         self.port = port
         self.tn = None 
-       
-    def to_bytes(self, command):
+    
+    @staticmethod
+    def to_bytes(command):
         return f"{command}\r\n".encode("utf-8")
     
+    @Fail_Dealer()
     def check_connect(self):
         """
         確認telnet是否連線
         """
+        self.close_telnet()
         with telnetlib.Telnet(host=self.host, port=self.port) as self.tn:
             time.sleep(0.1)
             buffer = self.tn.read_very_eager()
             #print('buffer', buffer)
-        if self.tn is not None:
-            self.tn.close()
+        self.close_telnet()
         return True, ''
 
         
@@ -270,7 +268,8 @@ class Telnet(metaclass = myMetaClass):
                                     break
                                             
                 return self.Tmp_data'''
-        
+
+    @Fail_Dealer()
     def send_and_receive(self, command, goal_word, timeout, *goal_array:tuple):
         """
         送指令跟收特定的字，收字必須一定要使用最後一個字，不然DUT可能會收到奇怪的指令而壞掉
@@ -285,7 +284,7 @@ class Telnet(metaclass = myMetaClass):
             if command != None: 
                 time.sleep(0.1) 
                 self.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")                            
-                self.tn.write(f"{command}\r\n".encode("utf-8"))
+                self.tn.write(self.to_bytes())
                 
             if goal_word != None:
                 start_time = time.time()

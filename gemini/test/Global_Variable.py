@@ -25,9 +25,9 @@ class SingleTon_Flag(_Global_Flag):
 class _comport_data():
     terminal_comport = str()
 
-class _dut_data():
 
-    _telnet_port = int()
+class _dut_data():
+    telnet_port = int()
     run_times = 1
     total_run_times = 5
     
@@ -67,11 +67,11 @@ class _dut_data():
 
     @property
     def telnet_port(self):
-        return self._telnet_port
+        return self.telnet_port
 
     @telnet_port.setter
     def telnet_port(self, data:int):
-        self._telnet_port = data
+        self.telnet_port = data
 
     @property
     def test_item_start_timer(self):
@@ -224,7 +224,7 @@ class _All_Variable(_error_msg, _dut_data, _online_data, _comport_data, _debug_l
     _upload_data = dict()
     _sfis_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{VERSION}\r\n'
     _iplas_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{VERSION}\r\n'
-    _form_log = ['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']
+    _form_log = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']]
 
     @property
     def debug_logger(self):
@@ -349,7 +349,7 @@ class SingleTon_Variable(_All_Variable):
         self._upload_data = dict()
         self._sfis_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{self.VERSION}\r\n'
         self._iplas_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{self.VERSION}\r\n'
-        self._form_log = ['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']
+        self._form_log = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']]
 
 
 

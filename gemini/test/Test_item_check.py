@@ -37,8 +37,6 @@ class myMetaClass(type):
                 local[attr] = Fail_Dealer()(value)
         return super().__new__(cls, name, bases, local)
 
-inside = 0
-
 class Fail_Dealer():
     v = SingleTon_Variable()
     f = SingleTon_Flag()
@@ -73,30 +71,24 @@ class Fail_Dealer():
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            global inside
-            inside += 1
-            if inside == 1:
-                try:
-                    self.upper_name = sys._getframe(1).f_code.co_name
-                    results = func(*args, **kwargs)
-                    flag = self.deal_result(results)  
-                    
-                    if not flag:
-                        self.f.dut_been_test_fail = True
-                        self.v.dut_test_fail = True
-                        raise TestItemFail
+          
+            try:
+                self.upper_name = sys._getframe(1).f_code.co_name
+                results = func(*args, **kwargs)
+                flag = self.deal_result(results)  
+                
+                if not flag:
+                    self.f.dut_been_test_fail = True
+                    self.v.dut_test_fail = True
+                    raise TestItemFail
 
-                except Exception as ex:
-                    """系統錯誤"""
-                    self.sys_exception(ex)
-                    raise Exception 
+            except Exception as ex:
+                """系統錯誤"""
+                self.sys_exception(ex)
+                raise Exception 
 
-                else:
-                    return True
-
-                finally:
-                    inside = 0
-
+            else:
+                return True
         return decorated
 
 
@@ -123,6 +115,7 @@ class Gemini_Test(metaclass = myMetaClass):
         SN = self.Variable.tmp_log.split('\r\n')[1]
         SN = SN.split(':')[1].strip()
         self.Variable.dut_info = {'SN' : SN}
+
         tmp_log.append((True, None, (SN, None, None)))
         return tmp_log
 
@@ -130,23 +123,32 @@ class Gemini_Test(metaclass = myMetaClass):
     def check_two_power_address(self):
         tmp_log = list()
         power_address = self.Variable.tmp_log.split('\r\n')[1]
+
         if power_address != '0x03':
-            return tmp_log.append((False, None, (power_address, None, None)))
-        return tmp_log.append((True, None, (power_address, None, None)))
+            tmp_log.append((False, None, (power_address, None, None)))
+        else:
+            tmp_log.append((True, None, (power_address, None, None)))
+        return tmp_log
     
     def check_A_power_address(self):
         tmp_log = list()
         power_address = self.Variable.tmp_log.split('\r\n')[1]
+
         if power_address != '0x22':
-            return tmp_log.append((False, None, (power_address, None, None)))
-        return tmp_log.append((True, None, (power_address, None, None)))
+            tmp_log.append((False, None, (power_address, None, None)))
+        else:
+            tmp_log.append((True, None, (power_address, None, None)))
+        return tmp_log
     
     def check_B_power_address(self):
         tmp_log = list()
         power_address = self.Variable.tmp_log.split('\r\n')[1]
+
         if power_address != '0x11':
-           return tmp_log.append((False, None, (power_address, None, None)))
-        return tmp_log.append((True, None, (power_address, None, None)))
+            tmp_log.append((False, None, (power_address, None, None)))
+        else:
+            tmp_log.append((True, None, (power_address, None, None)))
+        return tmp_log
 
 
     def check_HW_SW(self):
@@ -163,7 +165,8 @@ class Gemini_Test(metaclass = myMetaClass):
         find = analyze_method.Extract_Method.Extract_Data('Hardware Information(.*)Firmware Version', self.Variable.tmp_log)
         get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
         if get_info != HW_info:
-            return tmp_log.append((False, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
         
         SW_info = "MFG: Gemini v0.2.7"\
                 "SDK: Marvell CPSS 4.2.2020.3"\
@@ -183,18 +186,23 @@ class Gemini_Test(metaclass = myMetaClass):
         find = analyze_method.Extract_Method.Extract_Data('Firmware Version(.*)root@', self.Variable.tmp_log)            
         get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
         if get_info != SW_info:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
+
+        tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
 
     
     def check_RTC(self):
         tmp_log = list()
         find_year = int(analyze_method.Extract_Method.Extract_Data(' (\d{4}) ', self.Variable.tmp_log))
         now_date = datetime.date.today()
-        if find_year != now_date.year:
-            return tmp_log.append((False, None, (find_year, None, None)))
-        return tmp_log.append((True, None, (find_year, None, None)))
 
+        if find_year != now_date.year:
+            tmp_log.append((False, None, (find_year, None, None)))
+        else:
+            tmp_log.append((True, None, (find_year, None, None)))
+        return tmp_log
 
     def HW_Monitor(self):
         #print(repr(self.Variable.tmp_log))
@@ -216,11 +224,13 @@ class Gemini_Test(metaclass = myMetaClass):
             if vol_num in range(check_limit[0], check_limit[1]):
                 tmp_log.append((True, vol_name, (vol_num, check_limit[0], check_limit[1])))
             else:
-                return tmp_log.append((False, vol_name, (vol_num, check_limit[0], check_limit[1])))
+                tmp_log.append((False, vol_name, (vol_num, check_limit[0], check_limit[1])))
+                return tmp_log
 
         
         if count != total_count:
-            return tmp_log.append((False, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
             
         
         #找到正常風扇轉速資料
@@ -239,10 +249,12 @@ class Gemini_Test(metaclass = myMetaClass):
             if fan_num in range(check_limit[0], check_limit[1]):
                 tmp_log.append((True, fan_name, (fan_num, check_limit[0], check_limit[1])))
             else:
-                return tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
+                tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
+                return tmp_log
         
         if count != total_count:
-            return tmp_log.append((False, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
 
 
         #找到風扇警告資料
@@ -253,7 +265,8 @@ class Gemini_Test(metaclass = myMetaClass):
         if count_N == total_count:
             tmp_log.append((True, check_item_name, (count_N, total_count, total_count)))
         else:
-            return tmp_log.append((False, check_item_name, (count_N, total_count, total_count)))
+            tmp_log.append((False, check_item_name, (count_N, total_count, total_count)))
+            return tmp_log
          
 
         #找到各溫度資料
@@ -273,10 +286,12 @@ class Gemini_Test(metaclass = myMetaClass):
             if temp_num > check_limit[0] and temp_num < check_limit[1]:
                 tmp_log.append((True, temp_name, (temp_num, check_limit[0], check_limit[1])))
             else:
-                return tmp_log.append((False, temp_name, (temp_num, check_limit[0], check_limit[1])))
+                tmp_log.append((False, temp_name, (temp_num, check_limit[0], check_limit[1])))
+                return tmp_log
         
         if count != total_count:
-            return tmp_log.append((False, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
 
 
         #找到各溫度警告資料  
@@ -288,7 +303,8 @@ class Gemini_Test(metaclass = myMetaClass):
         if count_Normal == total_count:
             tmp_log.append((True, check_item_name, (count_Normal, total_count, total_count)))
         else:
-            return tmp_log.append((False, check_item_name, (count_Normal, total_count, total_count)))
+            tmp_log.append((False, check_item_name, (count_Normal, total_count, total_count)))
+            return tmp_log
 
 
         #找到CPU溫度資料 
@@ -307,7 +323,8 @@ class Gemini_Test(metaclass = myMetaClass):
             if cpu_temp_num > crit_temp_lower and cpu_temp_num < crit_temp_upper:
                 tmp_log.append((True, check_item_name, (cpu_temp_num, crit_temp_lower, crit_temp_upper)))
             else:
-                return tmp_log.append((False, check_item_name, (cpu_temp_num, crit_temp_lower, crit_temp_upper)))
+                tmp_log.append((False, check_item_name, (cpu_temp_num, crit_temp_lower, crit_temp_upper)))
+                return tmp_log
 
 
         #找到各警告資料
@@ -318,10 +335,11 @@ class Gemini_Test(metaclass = myMetaClass):
         if count_N == total_count:
             tmp_log.append((True, check_item_name, (count_N, total_count, total_count)))
         else:
-            return tmp_log.append((False, check_item_name, (count_N, total_count, total_count)))
+            tmp_log.append((False, check_item_name, (count_N, total_count, total_count)))
+            return tmp_log
         
-
-        return tmp_log.append((True, None, (None, None, None)))
+        tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
 
 
     def check_Fan_0(self):
@@ -341,11 +359,15 @@ class Gemini_Test(metaclass = myMetaClass):
             if fan_num in range(check_limit[0], check_limit[1]):
                 tmp_log.append((True, fan_name, (fan_num, check_limit[0], check_limit[1])))
             else:
-                return tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
+                tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
+                return tmp_log
         
         if count != total_count:
-            return tmp_log.append((False, None, (None, None, None)))
-    
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
+
+        tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
 
     def check_Fan_100(self):
         tmp_log = list()
@@ -364,31 +386,42 @@ class Gemini_Test(metaclass = myMetaClass):
             if fan_num in range(check_limit[0], check_limit[1]):
                 tmp_log.append((True, fan_name, (fan_num, check_limit[0], check_limit[1])))
             else:
-                return tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
+                tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
+                return tmp_log
         
         if count != total_count:
-            return tmp_log.append((False, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+            return tmp_log
 
+        tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
 
     def check_DRAM_test(self):
         tmp_log = list()
         if 'DRAM Test PASS' not in self.Variable.tmp_log:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
-    
+            tmp_log.append((False, None, (None, None, None)))
+        else:
+            tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
+
+
     def check_SSD_test(self):
         tmp_log = list()
         if 'SSD Test PASS' not in self.Variable.tmp_log:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))   
+        else:
+            tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
 
     def check_module_signal(self):
         tmp_log = list()
         total_count = 56
         signal_count = len(re.findall(r'All signal check OK', self.Variable.tmp_log))
         if signal_count != total_count:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
+            tmp_log.append((False, None, (signal_count, None, None)))
+        else:
+            tmp_log.append((True, None, (total_count, None, None)))
+        return tmp_log
 
     def check_loopback_power(self):
         tmp_log = list()
@@ -403,22 +436,28 @@ class Gemini_Test(metaclass = myMetaClass):
 
         find = analyze_method.Extract_Method.Extract_Data('Module Power Setting ...(.*)root', self.Variable.tmp_log)
         get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
+
         if get_info != power_info:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+        else:
+            tmp_log.append((True, None, (None, None, None)))        
+        return tmp_log 
 
     def check_traffic_test(self):
         tmp_log = list()
         if 'PEGATRON MFG Initial Ready' not in self.Variable.tmp_log:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
+            tmp_log.append((False, None, (None, None, None)))
+        else:
+            tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
     
     def check_loopback_test(self):
         tmp_log = list()
         if 'TOTAL TRAFFIC TEST RESULT: PASS' not in self.Variable.tmp_log:
-            return tmp_log.append((False, None, (None, None, None)))
-        return tmp_log.append((True, None, (None, None, None)))
-    
+            tmp_log.append((False, None, (None, None, None)))
+        else:
+            tmp_log.append((True, None, (None, None, None)))
+        return tmp_log
 
     
 

@@ -225,15 +225,15 @@ class MainFlow(Flow, Test_Item.Gemini_Test_Item, Online_Flow, metaclass = mChild
         Gemini測試流程
         """
         self.Check_Telnet_Connect()
-        self.Boot_Up()
-        self.Get_SN()
-        self.SFIS_Check_Route()
+        #self.Boot_Up()
+        #self.Get_SN()
+        #self.SFIS_Check_Route()
 
-        ''' self.Set_Two_Power()
+        ''' self.Set_Two_Power()'''
         self.Check_HW_SW_Ver()
-        self.Check_RTC()    
+        '''self.Check_RTC()'''    
         self.Check_HW_Monitor()
-        self.Check_Fan0_Speed()
+        '''self.Check_Fan0_Speed()
         self.Check_Fan100_Speed()
         self.DRAM_Test()
         self.SSD_Test()
@@ -241,7 +241,7 @@ class MainFlow(Flow, Test_Item.Gemini_Test_Item, Online_Flow, metaclass = mChild
         self.Set_Loopback_3_5W()
         self.Traffic_Test()
         self.Loopbak_Test() '''
-        self.Rebbot()
+        #self.Rebbot()
 
         ''' test_log_path = r'.\test.txt'
         with open(test_log_path, 'w+', newline='', encoding="utf-8") as f:

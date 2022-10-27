@@ -9,9 +9,15 @@ write_logger = create_log.create_logger(logger_path, 'write_log_log')
 
 log_root_path = r'.\log'
 
-class Draw_Form():
-    def __init__(self, raw_data_list:list):
-        self.raw_data_list = raw_data_list
+class DrawStringLogWithChinese():
+    
+    v = SingleTon_Variable()
+
+    def __init__(self):
+        """
+        畫圖表(可使用中文字體)，回傳String
+        """
+        self.raw_data_list = self.v.form_log
 
     def _StringLengthCount(self, InputString):
         """
@@ -25,10 +31,7 @@ class Draw_Form():
                 count += 1
         return count
 
-    def DrawStringLogWithChinese(self):
-        """
-        畫圖表(可使用中文字體)，回傳String
-        """
+    def __repr__(self):
         LinesItemLen = len(self.raw_data_list)  # 找出總共有多少行
         LineItemLen = len(self.raw_data_list[0])  # 找出第一行共有幾個項目
         ItemMaxLength = []
@@ -82,8 +85,10 @@ class Log_Title():
     v = SingleTon_Variable()
 
     def __init__(self):
-
-        self.title_data = {'program_version' : self.v.VERSION, 
+        """
+        傳回log title的資料
+        """
+        self._title_data = {'program_version' : self.v.VERSION, 
                     'test_result' : "PASS" if not self.v.dut_test_fail else "FAIL",
                     'error_code' : self.v.error_code,
                     'csn' : self.v.dut_info.get('SN'),
@@ -93,38 +98,35 @@ class Log_Title():
 
     def __repr__(self):
         temp_str = str()
-        for name, data in self.title_data.items():
+        for name, data in self._title_data.items():
             temp_str += f"{name} : {data}\r\n"
         return temp_str.strip()
 
 
 class Gearate_log():
 
-    f = SingleTon_Variable()
-    title = Log_Title()
+    v = SingleTon_Variable()
 
     def __init__(self):
+        self.total_log = str()
         self.seperate = f"{'-'*50}\r\n"
-        self.sfis_seperate = f"{'SFIS':^50}\r\n"
-        self.iplas_separate = f"{'IPLAS':^50}\r\n"
-        form = Draw_Form(self.f.form_log)
-        self.form_data = form.DrawStringLogWithChinese()
-
+        self.sfis_seperate = f"{'SFIS':-^50}\r\n"
+        self.iplas_separate = f"{'IPLAS':-^50}\r\n"
+        
     def __repr__(self):
-        total_log = str()
-        total_log += f"{self.title}\r\n"
-        total_log += self.seperate
-        total_log += f"{self.self.form_data}\r\n"
-        total_log += self.seperate
-        total_log += f"{self.f.log}\r\n"
-        total_log += self.sfis_seperate
-        total_log += f"{self.f.sfis_log}\r\n"
-        total_log += self.iplas_separate
-        total_log += f"{self.f.iplas_log}\r\n"
+        self.total_log += f"{Log_Title()}\r\n"
+        self.total_log += self.seperate
+        self.total_log += f"{DrawStringLogWithChinese()}\r\n"
+        self.total_log += self.seperate
+        self.total_log += f"{self.v.log}\r\n"
+        self.total_log += self.sfis_seperate
+        self.total_log += f"{self.v.sfis_log}\r\n"
+        self.total_log += self.iplas_separate
+        self.total_log += f"{self.v.iplas_log}\r\n"
 
-        return total_log
+        return self.total_log
 
-    
+print(Gearate_log()) 
 
 def generate_log():
     pass

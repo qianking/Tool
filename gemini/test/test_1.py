@@ -71,7 +71,7 @@ def uu(a = None):
     print('yy')
     iii()
     return 'p', 5
-uu(a=5)
-#print(inspect.getmembers(uu, predicate=inspect.ismethod))
-method_list = [func for func in dir(uu) if callable(getattr(uu, func))]   
-print(uu.__closure__ )
+
+
+sfis_seperate = f"{'SFIS':-^50}\r\n"
+print(sfis_seperate)
