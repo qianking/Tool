@@ -1,4 +1,5 @@
-from test_3 import SingleTonNew
+from test_3 import SingleTonNew, variable
+import threading
 from functools import wraps
 import sys
 import traceback
@@ -26,28 +27,23 @@ class Fail_Dealer():
 
         return decorated
 
-class jj(metaclass = myMetaClass):
-    
-    pp = SingleTonNew()
+class jj():
 
-    def __init__(self):
-        pass
+    v = SingleTonNew()
+
+    def __init__(self): 
+        #self.v = SingleTonNew()
+        self.j = self.v._instance[threading.get_ident()]
+        print('in jj:', threading.get_ident()) 
+        print(self.j['a'])
 
     def add(self):
-       print('nn')
-       print('in add:', sys._getframe(1).f_code.co_name)
+       
+       print(self.v['a'])
+
+       
 
 
 def get_function_name():
     return sys._getframe(1).f_code.co_name
-    
-class hh():
-    ff = jj()
 
-    def test(self):
-        self.ff.add()
-
-
-
-oo = hh()
-oo.test()

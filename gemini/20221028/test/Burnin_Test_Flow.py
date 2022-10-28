@@ -8,24 +8,17 @@ import create_log as create_log
 from concurrent.futures import ThreadPoolExecutor
 from exceptions import Test_Fail, Online_Fail
 from Upload_Functions import Upload_FTP, SFIS_Function
-from Global_Variable import SingleTon_Variable, SingleTon_Flag
+from Global_Variable import SingleTon_Variable, SingleTon_Global
 from Log_Dealer import Log_Model
 import Generate_Log
 
 
-VERSION = ''
 
 #telnet設定
-telnet_ip = "10.1.1.2"
-telnet_ports = [2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 
-               2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021]
+
 
 open_station = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-sfis_deviceID = ['992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622',
-                '992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622']
-
 
   
 logger_path = r'.\debug'
@@ -35,11 +28,8 @@ value_config_path = r"D:\Qian\python\NPI\Gemini\value_config.ini"
 #測試參數
 signal = None
 serial_name = 'EZ1K_A1'
-serial_port = '8'
 terminal_server_comport = 'COM4'
-pg_comport = 'COM5'
-package_machine = 'Nustream'
-test_time = 48
+test_time = 8
 ftp_upload_funtion = False
 ftp_upload_path = '/SWITCH/EZ1K-ORT'
 SFIS_upload_function = True
@@ -177,15 +167,14 @@ class TerminalFlow(Flow, Test_Item.Terminal_Server_Test_Item, metaclass = mChild
 class Online_Flow(Upload_FTP, SFIS_Function):
     
     v = SingleTon_Variable()
-    f = SingleTon_Flag()
+    f = SingleTon_Global()
 
-    def __init__(self, runtimes = 0):
-        self.runtims = runtimes
+    def __init__(self, ):
         Upload_FTP.__init__(self, self.v.ftp_upload_path, self.v)
         SFIS_Function.__init__(self, self.v)
 
     def FTP_Upload(self):
-        self.ftb_upload_file()
+        self.ftb_upload_file(self.v.ftp_local_path, self.v.ftp_remote_path)
 
     def SFIS_Check_Route(self):
         if self.f.upload_func_open:
@@ -204,11 +193,6 @@ class Online_Flow(Upload_FTP, SFIS_Function):
             if not self.v.check_route_fail:
                 pass
 
-    def test(self):
-        for i in range(6):
-            print(i)
-            if i == 5:
-                raise Exception
 
 class mChild(type(Flow), type(Test_Item.Gemini_Test_Item)):
     pass 
@@ -254,9 +238,9 @@ class MainFlow(Flow, Test_Item.Gemini_Test_Item, Online_Flow, metaclass = mChild
 
 
 @Fail_Dealer()  
-def Test_End_Function(run_times):
-    '''write_log'''
-    online = Online_Flow(run_times)
+def Test_End_Function():
+    Generate_Log.generate_log()
+    online = Online_Flow()
     online.FTP_Upload()
     online.SFIS_Upload()
     online.IPLAS_Upload()
@@ -284,7 +268,7 @@ def Create_Debug_Log():
 def Gemini_Burn_In_Flow(telnet_port, device_ID):
     Create_Debug_Log()
     condition = True
-    Main_f = SingleTon_Flag()
+    Main_f = SingleTon_Global()
     Main_v = SingleTon_Variable()
     
     Main_v.log_model = Log_Model.only_name
@@ -320,7 +304,7 @@ def Gemini_Burn_In_Flow(telnet_port, device_ID):
 
 def Main_Test_Flow():
     Main_V = SingleTon_Variable()
-    Main_F = SingleTon_Flag()
+    Main_F = SingleTon_Global()
 
     """去拿UI給的變數存到Main_V, Main_F中
     Main_V.Variable.op = 'LA2100645'
@@ -356,7 +340,7 @@ def test():
 
 def test_main(telnet_port, terminal_comport):
     Main_V = SingleTon_Variable()
-    Main_F = SingleTon_Flag()
+    Main_F = SingleTon_Global()
     Main_V.telnet_port = telnet_port
     Main_V.terminal_comport = terminal_comport
     Create_Debug_Log()

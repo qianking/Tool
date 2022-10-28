@@ -1,15 +1,12 @@
 import time
-import sys
-import traceback
 from datetime import datetime
 from functools import wraps
 from comport_and_telnet import Telnet
 from comport_and_telnet import COM
 import Test_item_check
 import analyze_method
-from Log_Dealer import Log_Model
 
-from Global_Variable import SingleTon_Variable, SingleTon_Flag
+from Global_Variable import SingleTon_Variable, SingleTon_Global
 import exceptions
 from exceptions import TimeOutError, TestItemFail, Test_Fail
 
@@ -24,7 +21,7 @@ class myMetaClass(type):
     
 class log_deco():
 
-    Flag = SingleTon_Flag()
+    Flag = SingleTon_Global()
     Variable = SingleTon_Variable()
 
     def __call__(self, func):
@@ -52,7 +49,6 @@ class log_deco():
                 self.Variable.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
                 raise Test_Fail
                
-
             #當發生系統性的錯誤時會進到這裡
             except Exception as ex:
                 self.sys_exception(ex)

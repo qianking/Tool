@@ -1,12 +1,37 @@
-from copy import deepcopy
-from tkinter import N
 from Log_Dealer import Log_Model, Upload_Log_Tranfer
+from copy import deepcopy
 
-class _Global_Flag():
+class _Global_Variable():
+    VERSION = 'V0.00.01'    #程式版本
+    open_log = True     #是否開啟存取log
+    log_model = Log_Model.no_name_no_time   #log存取的型態
     upload_func_open = False
-    dut_been_test_fail = False
+    telnet_ip = "10.1.1.2"
+    terminal_comport = str()
+    ftp_upload_path = str()     #需要上傳到的FTP位置
+    op = None   #整個測試時的OP (SFIS)
+    total_run_times = 5  #總共需要跑幾次
+    sfis_deviceID_list = ['992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622',
+                        '992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622']
+    value_config_path = r".\value_config.ini"
+    signal = None
+    serial_name = 'Gemini'
+    terminal_server_comport = 'COM7'
+    test_time = 8
+    ftp_upload_path = '/SWITCH/EZ1K-ORT'
+    upload_function = True
+    sfis_op = ''
 
-class SingleTon_Flag(_Global_Flag):
+    sfis_debug_logger = None
+    ftp_debug_logger = None
+    iplas_debug_logger = None
+
+
+
+class SingleTon_Global(_Global_Variable):
+    """
+    整個測試都不會改變的flag
+    """
     _instance = None
 
     def __new__(cls, *args, **kwargs): 
@@ -14,33 +39,36 @@ class SingleTon_Flag(_Global_Flag):
             cls._instance = super().__new__(cls)
         return cls._instance 
     
-    def clear_all(self):
-        self.upload_func_open = False
-        self.dut_been_test_fail = False
 
 
-
-
-
-class _comport_data():
-    terminal_comport = str()
+class Thread_Global():
+    telnet_port = int() 
+    run_times = 1  #跑到第幾次
+    dut_been_test_fail = False
+    test_start_time = str() #這次測試開始的時間
+    test_end_time = str()  #這次測試結束的時間
+    ftp_upload_path = str()
+    device_id = None    #測試時這個dut的device_id (SFIS)
+    been_checkroute = False     #是否曾經check route過
+    been_sfis_upload = False     #是否曾經上傳過SFIS
+    
+    main_debug_logger = None
+    terminal_debug_logger = None
+    dut_debug_logger = None
+    sfis_debug_logger = None
+    ftp_debug_logger = None
+    iplas_debug_logger = None
 
 
 class _dut_data():
-    telnet_port = int()
-    run_times = 1
-    total_run_times = 5
-    
-    _dut_info = dict()
-    _dut_test_fail = False
-    _dut_error_code = str()
+    _dut_info = dict() #dut的資料，包含SN、機種...
+    _dut_test_fail = False #這輪測試是否失敗
+    _dut_error_code = str() #測項失敗的error code
 
-    _test_item_start_timer = float()
+    _test_item_start_timer = float() #這個測項開始的時間(計時器)(time.time())
     
-    _test_start_time = str()
-    _test_end_time = str()
+    
 
-    
     @property
     def dut_info(self):
         return self._dut_info
@@ -64,15 +92,7 @@ class _dut_data():
     @error_code.setter
     def error_code(self, data:str):
         self._dut_error_code = data
-
-    @property
-    def telnet_port(self):
-        return self.telnet_port
-
-    @telnet_port.setter
-    def telnet_port(self, data:int):
-        self.telnet_port = data
-
+    
     @property
     def test_item_start_timer(self):
         return self._test_item_start_timer
@@ -96,35 +116,29 @@ class _dut_data():
     @test_end_time.setter
     def test_end_time(self, data:str):
         self._test_end_time = data
-    
 
 class _online_data():
-
-    ftp_upload_path = str()
-    _device_id = None
-    _op = None
-    
-    been_sfis_upload = False
-    been_checkroute = False
-    _check_route_fail = False
-    _sfis_upload_fail = False
+    _ftp_local_path = str()
+    _ftp_remote_path = str()
+    _check_route_fail = False   #這次測試是否check route 失敗
+    _sfis_upload_fail = False   #這次測試是否sfis上傳失敗
 
     @property
-    def device_id(self):
-        return self._device_id
+    def ftp_local_path(self):
+        return self._ftp_local_path
 
-    @device_id.setter
-    def device_id(self, data:int):
-        self._device_id = data
-
-    @property
-    def op(self):
-        return self._op
-
-    @op.setter
-    def op(self, data:str):
-        self._op = data
+    @ftp_local_path.setter
+    def ftp_local_path(self, data:str):
+        self._ftp_local_path = data
     
+    @property
+    def ftp_remote_path(self):
+        return self._ftp_remote_path
+
+    @ftp_remote_path.setter
+    def ftp_remote_path(self, data:str):
+        self._ftp_remote_path = data
+
     @property
     def check_route_fail(self):
         return self._check_route_fail
@@ -140,10 +154,9 @@ class _online_data():
     @sfis_upload_fail.setter
     def sfis_upload_fail(self, data:bool):
         self._sfis_upload_fail = data
-    
 
 class _error_msg():
-
+    
     _test_error_msg = str()
     _sys_error_msg = list()
     _ftp_error_msg = str()
@@ -190,38 +203,14 @@ class _error_msg():
     def iplas_error_msg(self, data:str):
         self._iplas_error_msg = data
 
-class _debug_logger():
 
-    main_debug_logger = None
-    terminal_debug_logger = None
-    dut_debug_logger = None
-    sfis_debug_logger = None
-    ftp_debug_logger = None
-    iplas_debug_logger = None
-
-    _debug_logger = None
-
-    @property
-    def debug_logger(self):
-        return self._debug_logger
-
-    @debug_logger.setter
-    def debug_logger(self, data):
-        self._debug_logger = data
-
-
-        
-class _All_Variable(_error_msg, _dut_data, _online_data, _comport_data, _debug_logger, Upload_Log_Tranfer):
-    
-    VERSION = 'V0.00.01'
-    open_log = True
-    log_model = Log_Model.no_name_no_time
-    
-    _debug_logger = None 
-    _tmp_log = str()
-    _log_raw_data = dict()
-    _log = str()
-    _upload_data = dict()
+class Thread_local(_dut_data, _online_data, _error_msg, _Global_Variable):
+    VERSION = 'V0.00.01'    #程式版本
+    _debug_logger = None #暫存的debug logger(作為切換logger用)
+    _tmp_log = str() #暫存的log檔 (在每下一次指令後收到的資料都會先存到這裡，用於測項判斷時可以拿取)
+    _log_raw_data = dict() #原始log資料 ({'start_time': '', 'log':'', 'end_time': ''})
+    _log = str()  #被加總之後的log，型態取決於前面的設定
+    _upload_data = dict() #上傳的log的原始型態 ({test name: 1/0, value, lower, upper, error, time})
     _sfis_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{VERSION}\r\n'
     _iplas_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{VERSION}\r\n'
     _form_log = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']]
@@ -290,9 +279,9 @@ class _All_Variable(_error_msg, _dut_data, _online_data, _comport_data, _debug_l
             test_item, tuple_value = datas   #tuple_value = (0/1, value, lower, upper, error, time)
             self._upload_data[test_item] = tuple_value
             temp_dic[test_item] = tuple_value
-            self.sfis_log = self.transfer_to_sfis(temp_dic)
-            self.iplas_log = self.transfer_to_iplas(temp_dic)
-            self.form_log = self.transfer_to_form(temp_dic)
+            self.sfis_log = Upload_Log_Tranfer.transfer_to_sfis(temp_dic)
+            self.iplas_log = Upload_Log_Tranfer.transfer_to_iplas(temp_dic)
+            self.form_log = Upload_Log_Tranfer.transfer_to_form(temp_dic)
 
     @property
     def sfis_log(self):
@@ -319,40 +308,7 @@ class _All_Variable(_error_msg, _dut_data, _online_data, _comport_data, _debug_l
         for i in data:
             self._form_log.append(i)
 
-
-
-class SingleTon_Variable(_All_Variable):  
-
-    _instance = None
-
-    def __new__(cls, *args, **kwargs): 
-        if cls._instance is None: 
-            cls._instance = super().__new__(cls)
-        return cls._instance 
-    
-    def clear_all(self):
-        self._test_error_msg = str()
-        self._dut_info = dict()
-        self._dut_error_code = str()
-        self._sys_error_msg = list()
-        self._ftp_error_msg = str()
-        self._sfis_error_msg = str()
-        self._iplas_error_msg = str()
-        self._check_route_fail = False
-        self._sfis_upload_fail = False
-        self._test_start_time = str()
-        self._test_end_time = str()
-        self._tmp_log = str()
-        self._dut_test_fail = False
-        self._log_raw_data = dict()
-        self._log = str()
-        self._upload_data = dict()
-        self._sfis_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{self.VERSION}\r\n'
-        self._iplas_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{self.VERSION}\r\n'
-        self._form_log = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']]
-
-
-
-        
-if "__main__" == __name__:
-    pass
+if '__main__' == __name__:
+    oo = Terminal_Variable()
+    oo.terminal_log = 'lllll'
+    print(oo.terminal_log)

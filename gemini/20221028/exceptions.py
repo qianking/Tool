@@ -15,6 +15,11 @@ class TestItemFail(Exception):
 
 class Test_Fail(Exception):
     pass
+
+
+class Online_Fail(Exception):
+    pass
+
        
         
 

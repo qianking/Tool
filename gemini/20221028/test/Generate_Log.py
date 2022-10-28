@@ -1,11 +1,7 @@
 import os 
-import datetime
+from datetime import datetime
 from copy import deepcopy
-import create_log as create_log
-from Global_Variable import SingleTon_Variable
-
-logger_path = r'.\debug'
-write_logger = create_log.create_logger(logger_path, 'write_log_log')
+from Global_Variable import SingleTon_Variable, SingleTon_Global
 
 log_root_path = r'.\log'
 
@@ -126,10 +122,48 @@ class Gearate_log():
 
         return self.total_log
 
-print(Gearate_log()) 
 
 def generate_log():
-    pass
+    v = SingleTon_Variable()
+    f = SingleTon_Global()
+    
+    if_sfif = 'On SFIS' if f.upload_func_open else 'Off SFIS'
+    now_day = datetime.now().strftime("%m/%d")
+
+    if v.dut_info.get('SN'):
+        log_path = f"{log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}"
+        if not v.dut_test_fail:
+            log_name = f"{v.dut_info['SN']}_[{v.device_id}]_BURNIN_{v.run_times}_{v.VERSION}_[PASS]"
+        else:
+            log_name = f"{v.dut_info['SN']}_[{v.device_id}]_BURNIN_{v.run_times}_{v.VERSION}_[FAIL][{v.error_code}]"
+    
+    else:
+        log_path = f"{log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}\unsort log"
+        log_name = f"{v.telnet_port}_[{v.device_id}]_BURNIN_{v.run_times}_{v.VERSION}_[FAIL][{v.error_code}]"
+
+    os.makedirs(log_path, exist_ok=True) 
+
+    file_repeat_num = 0
+    while True:
+        final_path = os.path.join(log_path, f"{log_name}.txt")
+        if os.path.isfile(final_path):
+            file_repeat_num += 1
+            log_name = f"{log_name}_{file_repeat_num}.txt"
+        else:
+            break
+    
+    with open(final_path, 'w+', newline='', encoding="utf-8") as f:
+        f.write(Gearate_log())
+    
+    ftp_path = "/".join(log_path.split('\\')[len(log_root_path.split('\\')):-1])
+
+    v.ftp_local_path = final_path
+    v.ftp_remote_path = ftp_path
+
+
+
+    
+
 
 
 

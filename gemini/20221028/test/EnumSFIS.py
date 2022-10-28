@@ -47,3 +47,12 @@ class Enum_Url(Enum):
     WTSP_SEND_MAIL = base_url + "WTSP_SEND_MAIL"
     WTSP_SSD_INPUTDATA = base_url + "WTSP_SSD_INPUTDATA"
     WTSP_TSP_GET_INPUTDATA = base_url + "WTSP_TSP_GET_INPUTDATA"
+
+    def __init__(self, i):
+        self.i = i
+
+
+
+if "__main__" == __name__:
+    gg = Enum_Url(5)
+    

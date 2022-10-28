@@ -9,7 +9,8 @@ import sys
 import time
      
          
-
+now_day = datetime.now().strftime("%m/%d")
+print(now_day)
 
 ''' class func():
     def funcA(data):

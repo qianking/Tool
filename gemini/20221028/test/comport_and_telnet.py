@@ -7,7 +7,7 @@ import time
 import exceptions
 from error_code import Error_Code
 from exceptions import TimeOutError
-from Global_Variable import SingleTon_Variable, SingleTon_Flag
+from Global_Variable import SingleTon_Variable, SingleTon_Global
 
 ''' 
 class myMetaClass(type):
@@ -23,7 +23,7 @@ class myMetaClass(type):
 
 class Fail_Dealer():
     v = SingleTon_Variable()
-    f = SingleTon_Flag()
+    f = SingleTon_Global()
 
     def __init__(self):
         self.ERROR = Error_Code()

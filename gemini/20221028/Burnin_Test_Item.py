@@ -1,14 +1,14 @@
 from tabnanny import check
 from textwrap import wrap
 import time
-import datetime
+from datetime import datetime
 from functools import wraps
 from copy import deepcopy
 from comport_and_telnet import Telnet
 from comport_and_telnet import COM
-import Global_Variable 
+from Global_Variable import Thread_local
 import Test_item_check
-import error_code
+from error_code import Error_Code
 from exceptions import TimeOutError, TestItemFail, Test_Fail
 
 
@@ -23,7 +23,7 @@ class myMetaClass(type):
     
 class log_deco():
     def __init__(self, Variable):
-        
+        self.ERROR = Error_Code()
         self.Variable = Variable
     
     def get_runtime(self):
@@ -40,42 +40,47 @@ class log_deco():
             try:
                 self.start_time = time.time()
                 test_item = func.__name__
-                self.Variable.logger.debug(f'terminal server in [{test_item}]')
+                self.Variable.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+                self.Variable.raw_log = {'name': test_item, 'start_time': datetime.now()}
+                
                 func(*args, **kwargs)
 
             #當telnet或是 comport timeout時會進到這裡
             except TimeOutError:
-                self.Variable.logger.debug(f'terminal server failed in [{test_item}]')
                 self.error_function(test_item)
                 raise Test_Fail
                 
             
             #測試項目失敗會進到這裡
             except TestItemFail as test_item_data:
-                self.Variable.logger.debug(f'terminal server failed in [{test_item}]')
                 self.error_function(test_item, test_item_data.args[0])
                 raise Test_Fail
                
 
             #當發生系統性的錯誤時會進到這裡
             except Exception as ex:
-                self.Variable.logger.debug(f'terminal server failed in [{test_item}]')
+                print(ex)
                 self.sys_exception(ex)
                 raise Exception
             
             else:
-                self.Variable.upload_log = (test_item, (1, 'PASS', None, None, None, None, self.get_runtime()))
-        
+                self.Variable.upload_log = (test_item, (1, None, None, None, None, self.get_runtime()))
+
+            finally:
+                self.Variable.raw_log = {'end_time': datetime.now()}
+
         return decorated 
 
     def error_function(self, test_item, test_item_data = None):
         if test_item_data[0]:
             test_item = test_item_data[0]
 
-        #error = error_code[test_item_data[0]]  #get error code
-        error = 'A12345'
+        error = self.ERROR[test_item]
+        self.Variable.error_code = error
+        self.Variable.dut_test_fail = True
 
-        self.Variable.upload_log = (test_item, (0, 'FAIL', test_item_data[1][0], test_item_data[1][1], test_item_data[1][2], error, self.get_runtime()))
+
+        self.Variable.upload_log = (test_item, (0, test_item_data[1][0], test_item_data[1][1], test_item_data[1][2], error, self.get_runtime()))
 
         self.Variable.test_error_msg = test_item_data[2]
 
@@ -100,10 +105,10 @@ class log_deco():
           
 class Terminal_Server_Test_Item(metaclass = myMetaClass):
 
-    Variable = Global_Variable.Terminal_Variable()
+    Variable = Thread_local()
 
     def __init__(self, **args):
-        self.Variable.logger = args['logger']
+        self.Variable.debug_logger = args['logger']
         self.connect = COM(args['port'], args['baud'], self.Variable)
         self.check_test = Test_item_check.Terminal_Test()
 
@@ -136,13 +141,13 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
 
 class Gemini_Test_Item(metaclass = myMetaClass):
 
-    Variable = Global_Variable.DUT_Variable()
+    Variable = Thread_local()
     
     def __init__(self, **args):
         self.check_test = Test_item_check.Gemini_Test(self.Variable, args['value_config_path'])
-        self.connect = Telnet(args['ip'], args['port'], args['logger'], self.Variable)
+        self.Variable.debug_logger = args['logger']
+        self.connect = Telnet(args['ip'], args['port'], self.Variable)
         self.port = args['port']
-        self.Variable.logger = args['logger']
         self.root_word = 'root@intel-corei7-64:~/mfg#'
     
 
@@ -216,7 +221,7 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         檢查HW monitor(電壓, 風扇轉速, 風扇Alert, Temperature, Temperature Alert, CPU core Temperature PSU (0x58) Alert Status Check, PSU (0x59) Alert Status Check)
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [check_HW_monitor]")
+        
         self.connect.send_and_receive('./hw_monitor', self.root_word, 60)
         self.check_test.HW_Monitor()
 
@@ -224,7 +229,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         檢查在風扇0%的情況下風扇轉速是否正常
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [Check_Fan_Speed_0]")
         self.connect.send_and_receive('./mfg_sources/fan_control.sh speed 0', self.root_word, 10)
         time.sleep(5)
         self.connect.send_and_receive('./mfg_sources/fan_monitor.sh', self.root_word, 20)
@@ -235,7 +239,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         檢查在風扇100%的情況下風扇轉速是否正常
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [Check_Fan_Speed_100]")
         self.connect.send_and_receive('./mfg_sources/fan_control.sh speed 100', self.root_word, 10)
         time.sleep(5)
         self.connect.send_and_receive('./mfg_sources/fan_monitor.sh', self.root_word, 20)
@@ -246,7 +249,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         DRAM測試
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [DRAM_Test]")
         self.connect.send_and_receive('./mfg_sources/DDR_test.sh 16 1', self.root_word, 60)
         self.check_test.check_DRAM_test()
 
@@ -255,7 +257,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         SSD測試
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [SSD_Test]")
         self.connect.send_and_receive('./mfg_sources/peripheralTest_sequential.sh 64 0 SSD', self.root_word, 10)
         self.check_test.check_SSD_test()
     
@@ -263,7 +264,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         確認各模組的信號
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [Module_Signal_Check]")
         self.connect.send_and_receive('./mfg_sources/factory_mb_module_connection_check.sh', self.root_word, 180)
         self.check_test.check_module_signal()
 
@@ -271,7 +271,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         將各loopback module設定成3.5w
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [Set_Loopback_3_5W]")
         self.connect.send_and_receive('./mfg_sources/module_voltage_control.sh 3.5', self.root_word, 20)
         self.check_test.check_loopback_power()
 
@@ -279,7 +278,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         loopback測試初始化
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [Traffic_Test]")
         self.connect.send_and_receive('./appDemo', 'Console#', 120)
         self.check_test.check_traffic_test()
 
@@ -287,7 +285,6 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         loopback測試
         """
-        self.Variable.logger.debug(f"port [{self.port}] in [Loopbak_Test]")
         self.connect.send_and_receive('shell-execute PT_Pretest_Request 100 25 500', 'Console#', 40)
         self.check_test.check_loopback_test()
         self.connect.send_and_receive('CLIexit', '->', 5)
