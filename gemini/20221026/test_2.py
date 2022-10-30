@@ -1,77 +1,32 @@
 from concurrent.futures import ThreadPoolExecutor
-from test_3 import SingleTonNew
-from test_4 import jj
+from test_3 import SingleTonNew, Borg, get_thread_ctx, CustomLocal
+from threading import Thread, get_ident
+from test_4 import ADD_2
+import threading
+import time
 
 
 
-
-def uu():
-
-    n= SingleTonNew()
-    n.t = 'hello'
-    print('n.a:', n.a)
-    i = [1, 2, 9]
-    #Main(i[0])
+def Main_Thread():
+    i = [1, 2 , 9]
     with ThreadPoolExecutor(max_workers=3) as executor:
         for p in i:
-            futures = executor.submit(Main(p)) 
-
-
-
-class llll():
-
-    uuu = SingleTonNew()
-
-    def __init__(self):
-        pass
-
-    def test_6(self, b):
-    
-        self.uuu.a += b
-        print(self.uuu.a)
-
-
-class pppp(jj, llll):
-
-    ooo = SingleTonNew()
-
-    def __init__(self):
-        super().__init__()
-
-    def test(self, b):
-        self.test_6(b)
-
-        self.add(b)
-        print(self.ooo.a)
+            futures = executor.submit(Main, p) 
+            time.sleep(0.1)
 
     
-
 def Main(b):
-    sin = SingleTonNew()
-    run_time = 1
-    print(sin.t)
-    while run_time != 4:
-        
-        oo = pppp()
-        oo.test(b)
-        print(sin.a)
-        print(sin.p)
-        run_time += 1
-        sin.clear_all()
+    tmp = SingleTonNew()
+    print(id(tmp))
+    ident = get_ident()
+    #print(ident)
+    tmp.a = 5
+    print('tmp.a:', tmp.a)
+    
 
-def ii():
-    n= SingleTonNew()
-    print(n.p)
-    n.clear_all()
-    n.tess('world')
+    l = ADD_2(b)  
+    l.add()
+       
 
-def ooooo():
-    n= SingleTonNew()
-    n.tess('hello')
-    ii()
-    print(n.p)
-
-#ooooo()
-
-uu()
+Main_Thread()
 

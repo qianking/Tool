@@ -1,9 +1,38 @@
+<<<<<<< Updated upstream:gemini/20221029/test_4.py
 from test_3 import SingleTonNew, variable
 import threading
 from functools import wraps
 import sys
 import traceback
 import time
+=======
+from test_3 import SingleTonNew, Borg, get_thread_ctx, CustomLocal
+from functools import wraps
+import sys
+import traceback
+from test_1 import ADD_1
+
+
+
+class ADD_2():
+    
+    pp = SingleTonNew()
+
+    def __init__(self, b):
+        #print(self.pp['a'])
+        self.b = b
+        self.ggg = ADD_1(b)
+        self.ggg.add()
+
+    def add(self):
+        self.pp.a += self.b
+        print("in ADD_2 a before:", self.pp.a)
+    
+
+
+
+
+>>>>>>> Stashed changes:gemini/test/test_4.py
 
 class myMetaClass(type):
     def __new__(cls, name, bases, local):
@@ -15,19 +44,21 @@ class myMetaClass(type):
 
 class Fail_Dealer():
     def __init__(self):
-        self.jjj = SingleTonNew()
+        pass
 
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
+            try:
+                func(*args, **kwargs)
+                print('in decorator:', sys._getframe(1).f_code.co_name)
+            except Exception:
+                print('exception')
 
-            func(*args, **kwargs)
-            print('in decorator:', sys._getframe(1).f_code.co_name)
-
-            print(self.jjj.a)
 
         return decorated
 
+<<<<<<< Updated upstream:gemini/20221029/test_4.py
         
 
 class jj():
@@ -48,7 +79,31 @@ class jj():
 
 
        
+=======
 
+
+
+
+class MAIN():
+
+    @staticmethod
+    def test_1():
+        print('in test_1')
+        
+
+    def test_2(self):
+        raise Exception
+        print('in test_2')
+        
+>>>>>>> Stashed changes:gemini/test/test_4.py
+
+    @Fail_Dealer()
+    def main(self):
+        self.test_1()
+        self.test_2()
+
+
+    
 
 def get_function_name():
     return sys._getframe(1).f_code.co_name
@@ -56,7 +111,10 @@ def get_function_name():
 a= [0, 2003, 2004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 i = 0
 
+<<<<<<< Updated upstream:gemini/20221029/test_4.py
 def ooo():
     for o in a:
         return i+1 if o else i
 print(ooo)   
+=======
+>>>>>>> Stashed changes:gemini/test/test_4.py
