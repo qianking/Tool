@@ -24,22 +24,22 @@ class FTP_UP_Down():
             self.ftp.login(user, password)
             print(self.ftp.getwelcome())
         except(socket.error, socket.gaierror):
-            self.ftb_logger.exception(f"cannot reach {ip}")
+            self.ftb_logger.exception(f"[FTP Conncet] cannot reach {ip}")
             raise Exception(f"ERROR: cannot reach {ip}")
         except error_perm:
-            self.ftb_logger.exception("cannot login")
+            self.ftb_logger.exception("[FTP Conncet] cannot login")
             raise Exception("ERROR: cannot login")
 
     
     def check_localfile_exists(self, localpath):
         if not os.path.isfile(localpath):
-            self.ftb_logger.exception(f"cannot find local path: {localpath}")
+            self.ftb_logger.exception(f"[FTP Check File] cannot find local path: {localpath}")
             raise Exception("本地端找不到文件")
 
     
     def check_localdir_exists(self, localdir):
         if not os.path.isdir(localdir):
-            #elf.ftb_logger.exception(f"cannot find local folder: {localdir}")
+            self.ftb_logger.exception(f"[FTP Check File] cannot find local folder: {localdir}")
             raise Exception("本地端找不到資料夾")
 
     
@@ -49,10 +49,10 @@ class FTP_UP_Down():
     
     def check_open_remotedir(self, remotedir):
         try:
-            self.ftb_logger.info(f"open FTP folder: {remotedir}")
+            self.ftb_logger.info(f"[FTP Open FTP Folder] open FTP folder: {remotedir}")
             self.ftp.cwd(remotedir)
         except:
-            self.ftb_logger.exception(f"cannot find FTP folder: {remotedir}")
+            self.ftb_logger.exception(f"[FTP Open FTP Folder] cannot find FTP folder: {remotedir}")
             raise Exception('遠端資料夾路徑不存在')
 
 
@@ -68,17 +68,17 @@ class FTP_UP_Down():
         for file in new_remotepath:                                                            
             try:
                 self.ftp.cwd(file)
-                self.ftb_logger.info(f"open FTP folder: {file}")                             
+                self.ftb_logger.info(f"[FTP Open FTP Folder] open FTP folder: {file}")                             
             except Exception as ex:  
                 try:
                     self.ftp.mkd(file)
-                    self.ftb_logger.info(f"create FTP folder: {file}")   
+                    self.ftb_logger.info(f"[FTP Open FTP Folder] create FTP folder: {file}")   
                     self.ftp.cwd(file)
-                    self.ftb_logger.info(f"open FTP folder: {file}")
+                    self.ftb_logger.info(f"[FTP Open FTP Folder] open FTP folder: {file}")
                 except Exception as ex:
-                    self.ftb_logger.exception(f"create file exception: {ex}")
+                    self.ftb_logger.exception(f"[FTP Open FTP Folder] create file exception: {ex}")
                     self.ftp.cwd(file)
-                    self.ftb_logger.info(f"open FTP folder: {file}")
+                    self.ftb_logger.info(f"[FTP Open FTP Folder] open FTP folder: {file}")
                     
 
 
@@ -108,11 +108,11 @@ class FTP_UP_Down():
             file_handler = open(localfile, "rb")
             res = self.ftp.storbinary(f'STOR {filename}', file_handler, 1024)
         except Exception as ex:
-            self.ftb_logger.exception(f"exception:") 
+            self.ftb_logger.exception(f"[FTP Upload] exception:") 
             raise Exception(ex)
         else:
             if '226' in res:
-                self.ftb_logger.info(f"{filename} upload finished")   
+                self.ftb_logger.info(f"[FTP Upload] {filename} upload finished")   
                 print(f'{filename}上傳完成')
 
         finally:
@@ -135,11 +135,11 @@ class FTP_UP_Down():
         except Exception as ex:
             str_ex = str(ex)
             if 'cannot find the file' in str_ex or 'cannot find the path' in str_ex:
-                self.ftb_logger.exception(f"exception:")  
+                self.ftb_logger.exception(f"[FTP Download] exception:")  
                 raise Exception('在FTP上找不到指定檔案或路徑')
         else:
             if '226' in res:
-                self.ftb_logger.info(f"{local_filename} download finished")  
+                self.ftb_logger.info(f"[FTP Download] {local_filename} download finished")  
                 print(f'{local_filename}下載完成')
         
     

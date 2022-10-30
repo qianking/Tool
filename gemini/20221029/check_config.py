@@ -79,7 +79,7 @@ def check_config(config_path):
     config['config_error_msg'] = config_error_msg
     config['serial_name'] = serial_name
     config['test_time'] = test_time
-    config['terminal_server_comport'] = terminal_server_comport
+    config['terminal_comport'] = terminal_server_comport
     config['open_station'] = open_station
     config['ftp_upload_path'] = ftp_upload_path
     config['online_function'] = SFIS_function

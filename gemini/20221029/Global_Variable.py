@@ -1,21 +1,38 @@
 from copy import deepcopy
-from tkinter import N
+import threading
 from Log_Dealer import Log_Model, Upload_Log_Tranfer
 
 class _Global_Variable():
-    upload_func_open = False
-    dut_been_test_fail = False
+    VERSION = 'V0.00.01'    #程式版本
+    log_model = Log_Model.no_name_no_time   #log存取的型態
+    UI_Signal = None
+
+    online_function = False
     sfis_deviceID_list = ['992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622',
                         '992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622']
+    
     value_config_path = r".\value_config.ini"
+    config_path = r'.\config.ini'
 
+    log_root_path = r'\log'
+    logger_path = r'\debug'
 
+    telnet_ip = "10.1.1.2"
 
+    serial_name = 'Gemini'
+    test_time = 8
+    terminal_comport = 'COM7'
+    open_station = [0, 2003, 2004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ftp_upload_path = '/SWITCH/Gemini'
+    op ='LA2100645'
 
+    total_run_times = 5  #總共需要跑幾次
+
+    
 
 class SingleTon_Global(_Global_Variable):
     """
-    整個測試都不會改變的flag
+    整個程式的全域變數
     """
     _instance = None
 
@@ -24,18 +41,84 @@ class SingleTon_Global(_Global_Variable):
             cls._instance = super().__new__(cls)
         return cls._instance 
     
-    def clear_all(self):
-        self.upload_func_open = False
-        self.dut_been_test_fail = False
 
+
+class SingleTone_local(dict):  
+    def __new__(cls):
+        ident = threading.get_ident()
+        if not hasattr(cls, 'instance'):
+            cls._variable = super(SingleTone_local, cls).__new__(cls)
+            if  ident not in cls._variable:
+                cls._variable[ident] = super(SingleTone_local, cls).__new__(cls, ident)
+
+        return cls._variable[ident]
+    
+    def create_variable(self):
+        v = Thread_variable_dic()
+        ident = threading.get_ident()
+        add_variable(self._variable[ident], v.thread_global)
+        add_variable(self._variable[ident], v.thread_local)
+
+    def init_variable(self):
+        v = Thread_variable_dic()
+        ident = threading.get_ident()
+        add_variable(self._variable[ident], v.thread_local)
+        
 
 """
 有底線的變數為每次新的一輪測試都會被清掉的變數
 """
 
-class _connect_data():
-    telnet_ip = "10.1.1.2"
-    terminal_comport = str()
+class Thread_variable_dic():
+    v = SingleTon_Global()
+    
+    thread_global = {'dut_been_test_fail' : False,
+                    'telnet_port' : int(),
+                    'run_times' : 1,  #跑到第幾次
+                    'device_id' : None,    #測試時這個dut的device_id (SFIS)
+                    'DUT_SFIS_SN' : str(),
+                    'been_checkroute' : False,     #是否曾經check route過
+                    'been_sfis_upload' : False,     #是否曾經上傳過SFIS
+                    'main_debug_logger' : None,
+                    'dut_debug_logger' : None,
+                    'upload_debug_logger' : None,
+                    'sys_debug_logger' : None
+
+                }
+    """在一個thread中的全域變數"""
+    
+    thread_local = {'_dut_info' : dict(), #dut的資料，包含SN、機種...
+                    '_dut_test_fail' : False, #這輪測試是否失敗
+                    '_dut_error_code' : str(), #測項失敗的error code
+                    '_test_item_start_timer' : float(), #這個測項開始的時間(計時器)(time.time())
+                    '_test_start_time' : str(), #這次測試開始的時間
+                    '_test_end_time' : str(),  #這次測試結束的時間
+                    '_ftp_local_path' : str(), 
+                    '_ftp_remote_path' : str(),
+                    '_iplas_log_path' : str(),
+                    '_check_route_fail' : False,   #這次測試是否check route 失敗
+                    '_sfis_upload_fail' : False,   #這次測試是否sfis上傳失敗
+                    '_test_error_msg' : str(),
+                    '_sys_error_msg' : list(),
+                    '_ftp_error_msg' : str(),
+                    '_sfis_error_msg' : str(),
+                    '_iplas_error_msg' : str(),
+                    '_debug_logger' : None,
+                    '_tmp_log' : str(), #暫存的log檔 (在每下一次指令後收到的資料都會先存到這裡，用於測項判斷時可以拿取)
+                    '_log_raw_data' : {}, #原始log資料 ({'start_time': '', 'log':'', 'end_time': ''})
+                    '_log' : str(),  #被加總之後的log，型態取決於前面的設定
+                    '_upload_data' : dict(), #上傳的log的原始型態 ({test name: 1/0, value, lower, upper, error, time})
+                    '_sfis_log' : f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{v.VERSION}\r\n',
+                    '_iplas_log' : f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{v.VERSION}\r\n',
+                    '_form_log' : [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']],
+
+                    }
+    """每次新的一輪測試都會被清掉的變數"""
+
+def add_variable(dic:dict, variable:dict):
+    for name, value in variable.items():
+        dic[name] = value
+
 
 
 class _dut_data():
@@ -109,15 +192,11 @@ class _dut_data():
     def test_end_time(self, data:str):
         self._test_end_time = data
     
-
 class _online_data():
-
-    ftp_upload_path = str()     #需要上傳到的FTP位置
     _ftp_local_path = str()
     _ftp_remote_path = str()
 
     device_id = None    #測試時這個dut的device_id (SFIS)
-    op = None   #整個測試時的OP (SFIS)
     
     been_checkroute = False     #是否曾經check route過
     been_sfis_upload = False     #是否曾經上傳過SFIS
@@ -150,13 +229,6 @@ class _online_data():
     def device_id(self, data:int):
         self.device_id = data
 
-    @property
-    def op(self):
-        return self.op
-
-    @op.setter
-    def op(self, data:str):
-        self.op = data
     
     @property
     def check_route_fail(self):
@@ -174,7 +246,6 @@ class _online_data():
     def sfis_upload_fail(self, data:bool):
         self._sfis_upload_fail = data
     
-
 class _error_msg():
 
     _test_error_msg = str()
@@ -232,7 +303,7 @@ class _debug_logger():
     ftp_debug_logger = None
     iplas_debug_logger = None
 
-    _debug_logger = None
+    _debug_logger = None #暫存的debug logger(作為切換logger用)
 
     @property
     def debug_logger(self):
@@ -241,16 +312,13 @@ class _debug_logger():
     @debug_logger.setter
     def debug_logger(self, data):
         self._debug_logger = data
-
-
-        
-class _All_Variable(_error_msg, _dut_data, _online_data, _connect_data, _debug_logger, Upload_Log_Tranfer):
+     
+class _All_Variable(_error_msg, _dut_data, _online_data, _debug_logger, Upload_Log_Tranfer):
     
     VERSION = 'V0.00.01'    #程式版本
     open_log = True     #是否開啟存取log
     log_model = Log_Model.no_name_no_time   #log存取的型態
     
-    _debug_logger = None #暫存的debug logger(作為切換logger用)
     _tmp_log = str() #暫存的log檔 (在每下一次指令後收到的資料都會先存到這裡，用於測項判斷時可以拿取)
     _log_raw_data = dict() #原始log資料 ({'start_time': '', 'log':'', 'end_time': ''})
     _log = str()  #被加總之後的log，型態取決於前面的設定
@@ -351,8 +419,6 @@ class _All_Variable(_error_msg, _dut_data, _online_data, _connect_data, _debug_l
     def form_log(self, data:list):
         for i in data:
             self._form_log.append(i)
-
-
 
 class SingleTon_Variable(_All_Variable):  
 

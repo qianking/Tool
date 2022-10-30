@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 import sys
 import check_config
-
 import time
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt, QTimer
@@ -14,14 +13,14 @@ from ui import Ui_MainWindow
 config = {'config_error_msg': '', 
         'serial_name': 'Gemini', 
         'test_time': 8, 
-        'terminal_server_comport': 'COM7', 
+        'terminal_comport': 'COM7', 
         'open_station': [0, 2003, 2004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
         'ftp_upload_path': '/SWITCH/EZ1K-ORT', 
-        'online_function': True, 
+        'online_function': False, 
         'op': 'LA2100645'}
 
 config_path = r'.\config.ini'
-                                         
+value_config_path = r".\value_config.ini"                                         
 VERSION = 'V0.00.24'
 
 class MainWindow(QMainWindow):
@@ -81,6 +80,9 @@ class MainWindow(QMainWindow):
             self.custom_message('config error', config['config_error_msg'])
         
         config['VERSION'] = VERSION
+        config['config_path'] = config_path
+        config['value_config_path'] = value_config_path
+
 #endregion
     
 
@@ -193,7 +195,6 @@ class MainWindow(QMainWindow):
 #endregion
 
     def single_light_change(self, data:tuple):
-        #num =
         #data = (telnet_port, statue)
         telnet_port, statue = data
         station_no = config['open_station'].index(telnet_port)
@@ -231,18 +232,18 @@ class MainWindow(QMainWindow):
 
     #客製化messagebox
     @QtCore.Slot()
-    def custom_message(self, data:dict):
-        for title, msg in data.items():
-            msg_box = QMessageBox(self)
-            msg_box.setWindowTitle(title)
-            msg_box.setText(msg)
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            font = QFont("Calibri", 15, QFont.Normal)
-            msg_box.setFont(font)
-            msg_box.show()
-            
-            retval = msg_box.exec()
-            return retval
+    def custom_message(self, data:tuple):
+        title, msg = data
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(msg)
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        font = QFont("Calibri", 15, QFont.Normal)
+        msg_box.setFont(font)
+        msg_box.show()
+        
+        retval = msg_box.exec()
+        return retval
 
 
 

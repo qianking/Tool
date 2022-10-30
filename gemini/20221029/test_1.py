@@ -73,6 +73,8 @@ def uu(a = None):
     iii()
     return 'p', 5
 
+i = 'jjjjj'
 
-sfis_seperate = f"{'SFIS':-^50}\r\n"
+sfis_seperate = f"{ 'SFIS':-^50}\r\n"
 print(sfis_seperate)
+

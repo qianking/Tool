@@ -41,14 +41,21 @@ class SingleTonNew(dict):
     def __new__(cls):
         ident = threading.get_ident()
         if not hasattr(cls, 'instance'):
-            cls._instance = super(SingleTonNew, cls).__new__(cls)
-            if  ident not in cls._instance:
-                cls._instance[ident] = super(SingleTonNew, cls).__new__(cls, ident)
+            cls._variable = super(SingleTonNew, cls).__new__(cls)
+            if  ident not in cls._variable:
+                cls._variable[ident] = super(SingleTonNew, cls).__new__(cls, ident)
 
-        return cls._instance[ident]
+        return cls._variable[ident]
+    
+    def create_variable(self):
+        ident = threading.get_ident()
+        self._variable[ident]['b'] = lambda data: fff(data)
     
 
 
 
-
+def fff(data:dict):
+    for i, g in data.items():
+        g += 10
+        return g
     

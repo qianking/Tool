@@ -4,10 +4,11 @@ import telnetlib
 from functools import wraps
 import sys
 import time
+import threading
 import exceptions
 from error_code import Error_Code
 from exceptions import TimeOutError
-from Global_Variable import SingleTon_Variable, SingleTon_Global
+from Global_Variable import SingleTone_local, SingleTon_Global
 
 ''' 
 class myMetaClass(type):
@@ -22,33 +23,48 @@ class myMetaClass(type):
 
 
 class Fail_Dealer():
-    v = SingleTon_Variable()
-    f = SingleTon_Global()
+
+    p = SingleTone_local()
 
     def __init__(self):
+        ident = threading.get_ident()
+        self.l = self.p._variable[ident]
         self.ERROR = Error_Code()
          
 
     def get_runtime(self):
-        runtime = str(time.time() - self.v.test_item_start_timer)
+        runtime = str(time.time() - self.l['_test_item_start_timer'])
         runtime = int(runtime.split('.')[0])
         return runtime
     
     def sys_exception(self, ex):
         #只有這三種錯誤式系統的exception，所以直接在UI彈出提示視窗   
         if 'FileNotFoundError' in str(ex):           #console連接錯誤 電腦找不到這個port口
-            self.v.sys_error_msg = 'Comport 找不到指定port口'
+            self.l['_sys_error_msg'].append('Comport 找不到指定port口')
                 
         elif 'PermissionError' in str(ex):             #console連接錯誤 port口被其他程式使
-            self.v.sys_error_msg = 'Comport Port口被占据'
+            self.l['_sys_error_msg'].append('Comport Port口被占据')
         
         elif 'WinError 10061' in str(ex):                    #telnet連接錯誤 telnet被占線
-            self.v.sys_error_msg = 'Telnet连线被占据'
+            self.l['_sys_error_msg'].append('Telnet连线被占据')
 
         else:
             error_msg = exceptions.error_dealer(ex)
             print(error_msg)
-            self.v.sys_error_msg = error_msg
+            self.l['_sys_error_msg'].append(error_msg)
+    
+    
+    def deal_result(self, result, test_name):
+        if result:   
+            self.l['_upload_data'][test_name] = (1, None, None, None, None, self.get_runtime())
+        else:       #timeout fail
+            self.l['dut_been_test_fail'] = True
+            self.l['_dut_test_fail'] = True
+            self.l['_dut_error_code'] = self.ERROR[test_name]
+            error_msg = f"[{test_name}] time out"
+            self.l['_test_error_msg'] += error_msg
+            self.l['_debug_logger'].debug(f"{error_msg:*^100}")
+            self.l['_upload_data'][test_name] = (0, None, None, None, self.ERROR[test_name], self.get_runtime())
 
     def __call__(self, func):
         @wraps(func)
@@ -57,22 +73,18 @@ class Fail_Dealer():
                 test_name = sys._getframe(1).f_code.co_name
                 
                 result, data = func(*args, **kwargs)
-                self.v.raw_log = {'log' : data}
 
-                if result:   
-                    self.v.upload_log = (test_name, (1, None, None, None, None, self.get_runtime()))
-                else:       #timeout fail
-                    self.f.dut_been_test_fail = True
-                    self.v.dut_test_fail = True
-                    self.v.test_error_msg = f"[{test_name}] time out"
-                    self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime())) 
+                self.l['_log_raw_data'][test_name]['log'] += data
+                self.l['_tmp_log'] = data
+                self.deal_result(result, test_name)
+                if not result:   
                     raise TimeOutError
 
             except Exception as ex:
                 print(ex)
                 """連上錯誤"""
-                self.v.raw_log = {'log' : ''}
-                self.v.upload_log = (test_name, (0, None, None, None, self.ERROR[test_name], self.get_runtime()))
+                self.l['_log_raw_data'][test_name]['log'] += ''
+                self.l['_upload_data'][test_name] = (0, None, None, None, self.ERROR[test_name], self.get_runtime())
                 self.sys_exception(ex)
                 raise Exception 
 
@@ -108,7 +120,7 @@ class COM():
             self.com.close()
         
     
-    '''def open_com(self):
+    def open_com(self):
         if self.com is not None and self.com.isOpen:
             buffer = self.com.read(self.com.inWaiting())
             print('buffer:', buffer)
@@ -116,7 +128,7 @@ class COM():
         self.com = serial.Serial(port = self.port, baudrate = self.baud, bytesize=self.bytesize, parity = self.parity, timeout=1, stopbits=self.stopbits)
         time.sleep(0.1)
         buffer = self.com.read(self.com.inWaiting())
-        print('buffer:', buffer)'''
+        print('buffer:', buffer)
 
     @staticmethod
     def to_bytes(command):

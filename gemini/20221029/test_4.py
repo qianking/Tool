@@ -3,6 +3,7 @@ import threading
 from functools import wraps
 import sys
 import traceback
+import time
 
 class myMetaClass(type):
     def __new__(cls, name, bases, local):
@@ -27,19 +28,24 @@ class Fail_Dealer():
 
         return decorated
 
+        
+
 class jj():
 
     v = SingleTonNew()
 
     def __init__(self): 
-        #self.v = SingleTonNew()
-        self.j = self.v._instance[threading.get_ident()]
+        self.j = self.v._variable[threading.get_ident()]
+        print('id v:', id(self.v))
         print('in jj:', threading.get_ident()) 
-        print(self.j['a'])
+        print(self.v._variable)
+        print(self.j.get('a'))
+        i = 0
+        while i!= 50:
+            i+=1
+            time.sleep(0.5)
 
-    def add(self):
-       
-       print(self.v['a'])
+
 
        
 
@@ -47,3 +53,10 @@ class jj():
 def get_function_name():
     return sys._getframe(1).f_code.co_name
 
+a= [0, 2003, 2004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+i = 0
+
+def ooo():
+    for o in a:
+        return i+1 if o else i
+print(ooo)   

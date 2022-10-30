@@ -1,12 +1,12 @@
 import time
+import threading
 from datetime import datetime
 from functools import wraps
 from comport_and_telnet import Telnet
 from comport_and_telnet import COM
 import Test_item_check
 import analyze_method
-
-from Global_Variable import SingleTon_Variable, SingleTon_Global
+from Global_Variable import SingleTone_local, SingleTon_Global
 import exceptions
 from exceptions import TimeOutError, TestItemFail, Test_Fail
 
@@ -21,8 +21,11 @@ class myMetaClass(type):
     
 class log_deco():
 
-    Flag = SingleTon_Global()
-    Variable = SingleTon_Variable()
+    p = SingleTone_local()
+
+    def __init__(self):
+        ident = threading.get_ident()
+        self.l = self.p._variable[ident]
 
     def __call__(self, func):
         @wraps(func)
@@ -33,21 +36,17 @@ class log_deco():
             self.v.Variable.raw_log = {'end_time': datetime.now()}
             return True '''
             test_item = func.__name__
-            self.Variable.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
-            self.Variable.test_item_start_timer = time.time()
-            self.Variable.raw_log = {'name': test_item, 'start_time': datetime.now()}
+            self.l['_debug_logger'].debug(f'>>>>> In [{test_item}] <<<<<')
+            self.l['_test_item_start_timer'] = time.time()
+            self.l['_log_raw_data'][test_item] = {'start_time': datetime.now(), 'log':'', 'end_time': None}
+            
             try:
                 func(*args, **kwargs)
 
-            #當telnet或是 comport timeout時會進到這裡
-            except TimeOutError:
-                self.Variable.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-                raise Test_Fail
-                
-            #測試項目失敗會進到這裡
-            except TestItemFail:
-                self.Variable.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-                raise Test_Fail
+            #當telnet、 comport timeout時會進到這裡 或是 測試項目失敗會進到這裡
+            except (TimeOutError,TestItemFail) :
+                self.l['_debug_logger'].debug(f'>>>>> Failed In [{test_item}] <<<<<')
+                raise Test_Fail  
                
             #當發生系統性的錯誤時會進到這裡
             except Exception as ex:
@@ -55,8 +54,8 @@ class log_deco():
                 raise Exception
             
             finally:
-                self.Variable.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
-                self.Variable.raw_log = {'end_time': datetime.now()}
+                self.l['_debug_logger'].debug(f'>>>>> Out [{test_item}] <<<<<')
+                self.l['_log_raw_data'][test_item]['end_time'] = datetime.now()
         
         return decorated 
 
@@ -64,16 +63,21 @@ class log_deco():
     def sys_exception(self, ex):
         error_msg = exceptions.error_dealer(ex)
         print(error_msg)
-        self.Variable.sys_error_msg = error_msg
+        self.p['_sys_error_msg'].append(error_msg)
 
           
 class Terminal_Server_Test_Item(metaclass = myMetaClass):
 
-    Variable = SingleTon_Variable()
+    G = SingleTon_Global()
+    p = SingleTone_local()
 
     def __init__(self, **args):
-        self.Variable.debug_logger = self.Variable.main_debug_logger
-        self.connect = COM(args['port'], args['baud'], self.Variable.debug_logger)
+        ident = threading.get_ident()
+        self.l = self.p._variable[ident]
+
+        self.l['_debug_logger'] = self.l['main_debug_logger']
+        self.connect = COM(args['port'], args['baud'], self.l['_debug_logger'])
+        self.l['_debug_logger'].debug(f"{'In Terminal Server':-^50}")
 
     def Check_Comport(self):
         """
@@ -87,7 +91,7 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
         進入Router#，如果有密碼就打密碼:pega123
         """
         self.connect.send_and_receive('', 'Router', 5, 'Password:')
-        if analyze_method.Find_Method.FindString(self.Variable.tmp_log, 'Password:'):
+        if analyze_method.Find_Method.FindString(self.l['_tmp_log'], 'Password:'):
             self.connect.send_and_receive('pega123', 'Router>', 5)            
         self.connect.send_and_receive('en', 'Router#', 5)
 
@@ -102,15 +106,21 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
 
 class Gemini_Test_Item(metaclass = myMetaClass):
 
-    Variable = SingleTon_Variable()
+    G = SingleTon_Global()
+    p = SingleTone_local()
 
     def __init__(self, **args):
-        self.Variable.debug_logger = self.Variable.dut_debug_logger
-        self.connect = Telnet(args['ip'], args['port'], self.Variable.debug_logger)
-        self.check_test = Test_item_check.Gemini_Test(self.Variable, args['value_config_path'])
+        ident = threading.get_ident()
+        self.l = self.p._variable[ident]
+
+        self.l['_debug_logger'] = self.l['dut_debug_logger']
+        self.connect = Telnet(args['ip'], args['port'], self.l['_debug_logger'])
+        self.check_test = Test_item_check.Gemini_Test()
         self.port = args['port']
         self.root_word = 'root@intel-corei7-64:~/mfg#'
-    
+
+        self.l['_debug_logger'].debug(f"{self.l['run_times']:-^50}")
+
 
     def Check_Telnet_Connect(self):
         """
