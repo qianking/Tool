@@ -9,7 +9,7 @@ class Upload_FTP():
 
     def __init__(self, ftp_upload_path, Variable):
         self.Variable = Variable
-        self.debug_logger = self.Variable['upload_debug_logger']
+        self.debug_logger = self.Variable.upload_debug_logger
         self.ftp = FTP_UP_Down(self.debug_logger)
         self.ftp_upload_path = ftp_upload_path
         self.ip = '172.24.255.118'
@@ -57,9 +57,8 @@ class Upload_FTP():
             self.ftp.UploadFile(file_path, remotedir)
             self.ftp.close()
         except Exception as ex:
-            self.Variable['_ftp_error_msg'] = str(ex)
+            self.Variable.ftp_error_msg += str(ex)
             raise Online_Fail
-            #return False
 
     
 
@@ -67,9 +66,9 @@ class SFIS_Function():
 
     def __init__(self, op, Variable):
         self.Variable = Variable
-        self.SFIS_logger = self.Variable['upload_debug_logger']
+        self.SFIS_logger = self.Variable.upload_debug_logger
         self.sfis=SFIS() 
-        self.deviceID = self.Variable['device_id']
+        self.deviceID = self.Variable.device_id
         self.sfis_op = op
         self.TSP = 'Burnin'
             
@@ -137,8 +136,8 @@ class SFIS_Function():
                             self.SFIS_logger.debug(f'[SFIS check route] chekroute retry: {retry_times}')
                             continue
                         else:
-                            self.Variable['_sfis_error_msg'] += sfis_error_msg
-                            self.Variable['_sfis_upload_fail'] = True
+                            self.Variable.sfis_error_msg += sfis_error_msg
+                            self.Variable.sfis_upload_fail = True
                             raise Online_Fail
                             #return False
                             
@@ -151,8 +150,8 @@ class SFIS_Function():
                             self.SFIS_logger.debug(f'[SFIS check route] chekroute retry: {retry_times}')
                             continue
                         else:
-                            self.Variable['_sfis_error_msg'] += sfis_error_msg
-                            self.Variable['_sfis_upload_fail'] = True
+                            self.Variable.sfis_error_msg += sfis_error_msg
+                            self.Variable.sfis_upload_fail = True
                             raise Online_Fail
 
                     else:
@@ -163,8 +162,8 @@ class SFIS_Function():
                             self.SFIS_logger.debug(f'[SFIS check route] chekroute retry: {retry_times}')
                             continue
                         else:
-                            self.Variable['_sfis_error_msg'] += sfis_error_msg
-                            self.Variable['_sfis_upload_fail'] = True
+                            self.Variable.sfis_error_msg += sfis_error_msg
+                            self.Variable.sfis_upload_fail = True
                             raise Online_Fail 
             else:
                 sfis_error_msg = f'check route fail, sfis_data error: {sfis_data[1]}'
@@ -175,8 +174,8 @@ class SFIS_Function():
                     self.SFIS_logger.debug(f'[SFIS check route] chekroute retry: {retry_times}')
                     continue
                 else:
-                    self.Variable['_sfis_error_msg'] += sfis_error_msg
-                    self.Variable['_sfis_upload_fail'] = True
+                    self.Variable.sfis_error_msg += sfis_error_msg
+                    self.Variable.sfis_upload_fail = True
                     raise Online_Fail
 
     ''' def SFIS_Upload_Thread(self):
@@ -274,8 +273,8 @@ class SFIS_Function():
                             self.SFIS_logger.debug(f'[SFIS upload] upload retry: {retry_times}')
                             continue
                         else:
-                            self.Variable['_sfis_error_msg'] += sfis_error_msg
-                            self.Variable['_sfis_upload_fail'] = True
+                            self.Variable.sfis_error_msg += sfis_error_msg
+                            self.Variable.sfis_upload_fail = True
                             raise Online_Fail
                             #return False
                     else:
@@ -287,8 +286,8 @@ class SFIS_Function():
                             self.SFIS_logger.debug(f'[SFIS upload] upload retry: {retry_times}')
                             continue
                         else:
-                            self.Variable['_sfis_error_msg'] += sfis_error_msg
-                            self.Variable['_sfis_upload_fail'] = True
+                            self.Variable.sfis_error_msg += sfis_error_msg
+                            self.Variable.sfis_upload_fail = True
                             raise Online_Fail
                             #return False
             else:
@@ -300,7 +299,7 @@ class SFIS_Function():
                     self.SFIS_logger.debug(f'[SFIS upload] upload retry: {retry_times}')
                     continue
                 else:
-                    self.Variable['_sfis_error_msg'] += sfis_error_msg
-                    self.Variable['_sfis_upload_fail'] = True
+                    self.Variable.sfis_error_msg += sfis_error_msg
+                    self.Variable.sfis_upload_fail = True
                     raise Online_Fail
                     #return False

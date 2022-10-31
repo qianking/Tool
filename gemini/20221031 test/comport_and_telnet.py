@@ -84,18 +84,18 @@ class COM():
     def sys_exception(self, ex, l):
         #只有這三種錯誤式系統的exception，所以直接在UI彈出提示視窗   
         if 'FileNotFoundError' in str(ex):           #console連接錯誤 電腦找不到這個port口
-            l.sys_error_msg = 'Comport 找不到指定port口'
+            l.sys_error_msg.append('Comport 找不到指定port口')
                 
         elif 'PermissionError' in str(ex):             #console連接錯誤 port口被其他程式使
-            l.sys_error_msg = 'Comport Port口被占据'
+            l.sys_error_msg.append('Comport Port口被占据')
         
         elif 'WinError 10061' in str(ex):                    #telnet連接錯誤 telnet被占線
-            l.sys_error_msg = 'Telnet连线被占据'
+            l.sys_error_msg.append('Telnet连线被占据')
 
         else:
             error_msg = exceptions.error_dealer(ex)
             print(error_msg)
-            l.sys_error_msg = error_msg
+            l.sys_error_msg.append(error_msg)
 
     def check_connect(self):
         try:
@@ -167,7 +167,6 @@ class COM():
                         self.l.raw_log[test_name]['log'] = Tmp_data
                         self.l.tmp_log = Tmp_data
                         self.deal_result(False, test_name, self.l)
-                        print('timeout')
                         raise TimeOutError
                     
                     else:
@@ -346,7 +345,6 @@ class Telnet():
                                     buffer = self.tn.read_very_eager()
                                     #print('buffer:', buffer)
                                     time.sleep(0.1)
-                                    print('in comport:', id(self.l))
                                     self.l.raw_log[test_name]['log'] = Tmp_data
                                     self.l.tmp_log = Tmp_data
                                     self.deal_result(True, test_name, self.l)

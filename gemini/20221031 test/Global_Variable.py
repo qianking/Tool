@@ -450,7 +450,7 @@ def thread_local_set(local):
     local.form_log = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']]
     local.dut_info = dict()
     local.dut_test_fail = False
-    local.dut_error_code = str()
+    local.error_code = str()
     local.test_item_start_timer = float()
     local.ftp_local_path = str()
     local.ftp_remote_path = str()

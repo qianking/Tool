@@ -30,13 +30,13 @@ class Test_item_limit_Value():
         else:
             return lower_value, upper_value
 
-class myMetaClass(type):
+""" class myMetaClass(type):
     def __new__(cls, name, bases, local):
         for attr in local:
             value = local[attr]
             if not len(bases) and callable(value) and attr != '__init__':
                 local[attr] = Fail_Dealer()(value)
-        return super().__new__(cls, name, bases, local)
+        return super().__new__(cls, name, bases, local) """
 
 ''' class Fail_Dealer():
 
@@ -184,7 +184,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            power_address = self.l['_tmp_log'].split('\r\n')[1]
+            power_address = self.l.tmp_log.split('\r\n')[1]
 
             if power_address == '0x03':
                 tmp_log.append((True, None, (power_address, None, None)))
@@ -212,7 +212,7 @@ class Gemini_Test():
             self.upper_name = sys._getframe(1).f_code.co_name
 
             tmp_log = list()
-            power_address = self.l['_tmp_log'].split('\r\n')[1]
+            power_address = self.l.tmp_log.split('\r\n')[1]
 
             if power_address == '0x22':
                 tmp_log.append((True, None, (power_address, None, None)))
@@ -241,7 +241,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            power_address = self.l['_tmp_log'].split('\r\n')[1]
+            power_address = self.l.tmp_log.split('\r\n')[1]
 
             if power_address == '0x11':
                 tmp_log.append((True, None, (power_address, None, None)))
@@ -269,45 +269,48 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            HW_info = "Model name: FM6256-BNF"\
-                    "CPU: 8-core, Intel(R) Pentium(R) CPU D1517 @ 1.60GHz"\
-                    "MAC: Marvell Technology Group Ltd. Device 8400 , LnkSta: Speed 8GT/s , Width x2"\
-                    "DDR: 31.27 GB (32786348 kB)"\
-                    "SSD: ATA 256GB SATA Flash , 240GB"\
-                    "CPU Board : BDX-DE-BMC_NPU REV. 2.00"\
-                    "Main Board : GEMINI REV. 3.00"\
-                    "Fan Board : 5x40mm_FC_DB REV:2.00 , Maximum 5pcs Fan Modules ( FtB ) [ Board-ID : 0x57 ]"\
-                    "Fan Board EEPROM Info : 0x0957001f"
-            find = analyze_method.Extract_Method.Extract_Data('Hardware Information(.*)Firmware Version', self.l['_tmp_log'])
-            get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
-            if get_info != HW_info:
-                tmp_log.append((False, None, (None, None, None)))
-                flag = self.deal_result(tmp_log, self.l)
-                if not flag:
-                    raise TestItemFail
+            HW_info = ["Model name: FM6256-BNF",
+                    "CPU: 8-core, Intel(R) Pentium(R) CPU D1517 @ 1.60GHz",
+                    "MAC: Marvell Technology Group Ltd. Device 8400 , LnkSta: Speed 8GT/s , Width x2",
+                    "DDR: 31.27 GB",
+                    "SSD: ATA 256GB SATA Flash , 240GB",
+                    "CPU Board : BDX-DE-BMC_NPU REV. 2.00",
+                    "Main Board : GEMINI REV. 3.00",
+                    "Fan Board : 5x40mm_FC_DB REV:2.00 , Maximum 5pcs Fan Modules ( FtB ) [ Board-ID : 0x57 ]",
+                    "Fan Board EEPROM Info : 0x0957001f"]
+            find = analyze_method.Extract_Method.Extract_Data('Hardware Information(.*)Firmware Version', self.l.tmp_log)
+            get_info = [i.strip() for i in find.strip().split('\r\n')]
+            for i, info in enumerate(HW_info):
+                if info not in get_info[i]:
+                    tmp_log.append((False, None, (None, None, None)))
+                    flag = self.deal_result(tmp_log, self.l)
+                    if not flag:
+                        raise TestItemFail
+                
             
-            SW_info = "MFG: Gemini v0.2.7"\
-                    "SDK: Marvell CPSS 4.2.2020.3"\
-                    "Linux: 4.14.66-intel-pk-standard"\
-                    "BIOS: v5.11.1.3 , date: 01/25/2022"\
-                    "CPLD A (MB) - FW ver: 3  (HW ver value: 4 )"\
-                    "CPLD B (MB) - FW ver: 6  (HW ver value: 4 )"\
-                    "CPLD C (MB) - FW ver: 5  (HW ver value: 4 )"\
-                    "CPLD  (CPU) - FW ver: 6  (HW ver value: 3 )"\
-                    "MCU - Main Board: GEMINI (01001), ver. 0.11"\
-                    "MCU - Fan  Board: ver. 0.11"\
-                    "PMBus FW checksum (CPU 0x63) : 0x841e4474"\
-                    "PMBus FW checksum (CPU 0x64) : 0xd50129b2"\
-                    "PMBus FW checksum (MB  0x60) : 0x1b0ce447"\
-                    "PMBus FW checksum (MB  0x5F) : 0x1c51b6ac"\
+            SW_info = ["MFG: Gemini v0.2.7",
+                    "SDK: Marvell CPSS 4.2.2020.3",
+                    "Linux: 4.14.66-intel-pk-standard",
+                    "BIOS: v5.11.1.3 , date: 01/25/2022",
+                    "CPLD A (MB) - FW ver: 3  (HW ver value: 4 )",
+                    "CPLD B (MB) - FW ver: 6  (HW ver value: 4 )",
+                    "CPLD C (MB) - FW ver: 5  (HW ver value: 4 )",
+                    "CPLD  (CPU) - FW ver: 6  (HW ver value: 3 )",
+                    "MCU - Main Board: GEMINI (01001), ver. 0.11",
+                    "MCU - Fan  Board: ver. 0.11",
+                    "PMBus FW checksum (CPU 0x63) : 0x841e4474",
+                    "PMBus FW checksum (CPU 0x64) : 0xd50129b2",
+                    "PMBus FW checksum (MB  0x60) : 0x1b0ce447",
+                    "PMBus FW checksum (MB  0x5F) : 0x1c51b6ac"]
 
-            find = analyze_method.Extract_Method.Extract_Data('Firmware Version(.*)root@', self.l['_tmp_log'])            
-            get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
-            if get_info != SW_info:
-                tmp_log.append((False, None, (None, None, None)))
-                flag = self.deal_result(tmp_log, self.l)
-                if not flag:
-                    raise TestItemFail
+            find = analyze_method.Extract_Method.Extract_Data('Firmware Version(.*)root@', self.l.tmp_log)            
+            get_info = [i.strip() for i in find.strip().split('\r\n')]
+            for i, info in enumerate(SW_info):
+                if info not in get_info[i]:
+                    tmp_log.append((False, None, (None, None, None)))
+                    flag = self.deal_result(tmp_log, self.l)
+                    if not flag:
+                        raise TestItemFail
 
             tmp_log.append((True, None, (None, None, None)))
             
@@ -329,7 +332,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            find_year = int(analyze_method.Extract_Method.Extract_Data(' (\d{4}) ', self.l['_tmp_log']))
+            find_year = int(analyze_method.Extract_Method.Extract_Data(' (\d{4}) ', self.l.tmp_log))
             now_date = datetime.date.today()
 
             if find_year == now_date.year:
@@ -361,7 +364,7 @@ class Gemini_Test():
             count = 0
             check_item_name = 'adc'
             total_count = 9
-            ADC_info = analyze_method.Extract_Method.Extract_Data('{ ADC }(.*?)\r\n\r\n\t*', self.l['_tmp_log'])            
+            ADC_info = analyze_method.Extract_Method.Extract_Data('{ ADC }(.*?)\r\n\r\n\t*', self.l.tmp_log)            
             ADC_info = [i.strip() for i in ADC_info.split('\r\n') if i.strip() != '']
             for voltage_info in ADC_info:
                 count += 1
@@ -391,7 +394,7 @@ class Gemini_Test():
             count = 0
             check_item_name = 'fannormal'
             total_count = 10
-            Fan_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] R.P.M }(.*?){', self.l['_tmp_log']) 
+            Fan_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] R.P.M }(.*?){', self.l.tmp_log) 
             Fan_info = [i.strip() for i in Fan_info.split('\r\n') if i.strip() != '']
             for fan_info in Fan_info:
                 count += 1
@@ -418,7 +421,7 @@ class Gemini_Test():
             #找到風扇警告資料
             check_item_name = 'fanalert_count'
             total_count = 40
-            Fan_alert_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] Alert }(.*?)\r\n\r\n\t*', self.l['_tmp_log'])
+            Fan_alert_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] Alert }(.*?)\r\n\r\n\t*', self.l.tmp_log)
             count_N = len(re.findall(r'\sN\s', Fan_alert_info))
             if count_N == total_count:
                 tmp_log.append((True, check_item_name, (count_N, total_count, total_count)))
@@ -433,7 +436,7 @@ class Gemini_Test():
             count = 0
             check_item_name = 'npu_temperature'
             total_count = 4
-            Temperature_info = analyze_method.Extract_Method.Extract_Data('{ Temperature }(.*?)\r\n\r\n\t*', self.Variable.tmp_log)
+            Temperature_info = analyze_method.Extract_Method.Extract_Data('{ Temperature }(.*?)\r\n\r\n\t*', self.l.tmp_log)
             Temperature_info = [i.strip() for i in Temperature_info.split('\r\n') if i.strip() != '']
             for temp_info in Temperature_info:
                 count += 1
@@ -463,7 +466,7 @@ class Gemini_Test():
             count = 0  
             check_item_name = 'temperaturealert'
             total_count = 3
-            Temperature_alert_info = analyze_method.Extract_Method.Extract_Data('{ Temperature Alert }(.*?)\r\n\r\n\t*', self.l['_tmp_log'])
+            Temperature_alert_info = analyze_method.Extract_Method.Extract_Data('{ Temperature Alert }(.*?)\r\n\r\n\t*', self.l.tmp_log)
             count_Normal = len(re.findall(r'\sNormal\s*', Temperature_alert_info))
             if count_Normal == total_count:
                 tmp_log.append((True, check_item_name, (count_Normal, total_count, total_count)))
@@ -479,7 +482,7 @@ class Gemini_Test():
             check_item_name = 'cpucoretemperature'
             total_count = 4
             crit_temp_lower = 10
-            CPU_temperature_info = analyze_method.Extract_Method.Extract_Data('{ CPU core Temperature }(.*?)\r\n\r\n\t*', self.l['_tmp_log'])
+            CPU_temperature_info = analyze_method.Extract_Method.Extract_Data('{ CPU core Temperature }(.*?)\r\n\r\n\t*', self.l.tmp_log)
             CPU_temperature_info = [i.strip() for i in CPU_temperature_info.split('\r\n') if i.strip() != '']
             for cpu_temp in CPU_temperature_info:
                 count += 1
@@ -498,7 +501,7 @@ class Gemini_Test():
 
             #找到各警告資料
             check_item_name = 'alertstatuecheck'
-            Alert_status_info = analyze_method.Extract_Method.Extract_Data('\[MFG Msg\] PSU \(0x58\) Alert Status Check:(.*?)\r\n\r\n\t*', self.l['_tmp_log'])
+            Alert_status_info = analyze_method.Extract_Method.Extract_Data('\[MFG Msg\] PSU \(0x58\) Alert Status Check:(.*?)\r\n\r\n\t*', self.l.tmp_log)
             total_count = 32
             count_N = len(re.findall(r'---> N', Alert_status_info))
             if count_N == total_count:
@@ -531,7 +534,7 @@ class Gemini_Test():
             count = 0
             check_item_name = 'fan0%'
             total_count = 10
-            Fan_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] R.P.M }(.*?){', self.l['_tmp_log']) 
+            Fan_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] R.P.M }(.*?){', self.l.tmp_log) 
             Fan_info = [i.strip() for i in Fan_info.split('\r\n') if i.strip() != '']
             for fan_info in Fan_info:
                 count += 1
@@ -577,7 +580,7 @@ class Gemini_Test():
             count = 0
             check_item_name = 'fan100%'
             total_count = 10
-            Fan_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] R.P.M }(.*?){', self.l['_tmp_log']) 
+            Fan_info = analyze_method.Extract_Method.Extract_Data('{ \[Fan 1\] - \[Fan 5\] R.P.M }(.*?){', self.l.tmp_log) 
             Fan_info = [i.strip() for i in Fan_info.split('\r\n') if i.strip() != '']
             for fan_info in Fan_info:
                 count += 1
@@ -619,7 +622,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            if 'DRAM Test PASS' not in self.l['_tmp_log']:
+            if 'DRAM Test PASS' not in self.l.tmp_log:
                 tmp_log.append((False, None, (None, None, None)))
                 flag = self.deal_result(tmp_log, self.l)
                 if not flag:
@@ -645,7 +648,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            if 'SSD Test PASS' not in self.l['_tmp_log']:
+            if 'SSD Test PASS' not in self.l.tmp_log:
                 tmp_log.append((False, None, (None, None, None))) 
                 flag = self.deal_result(tmp_log, self.l)
                 if not flag:
@@ -671,7 +674,7 @@ class Gemini_Test():
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
             total_count = 56
-            signal_count = len(re.findall(r'All signal check OK', self.l['_tmp_log']))
+            signal_count = len(re.findall(r'All signal check OK', self.l.tmp_log))
             if signal_count != total_count:
                 tmp_log.append((False, None, (signal_count, None, None)))
                 flag = self.deal_result(tmp_log, self.l)
@@ -707,7 +710,7 @@ class Gemini_Test():
                         "Port 55 power is set to 0x1f (3.5 Watt)"\
                         "Port 56 power is set to 0x1f (3.5 Watt)"
 
-            find = analyze_method.Extract_Method.Extract_Data('Module Power Setting ...(.*)root', self.l['_tmp_log'])
+            find = analyze_method.Extract_Method.Extract_Data('Module Power Setting ...(.*)root', self.l.tmp_log)
             get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
 
             if get_info != power_info:
@@ -736,7 +739,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            if 'PEGATRON MFG Initial Ready' not in self.l['_tmp_log']:
+            if 'PEGATRON MFG Initial Ready' not in self.l.tmp_log:
                 tmp_log.append((False, None, (None, None, None)))
                 flag = self.deal_result(tmp_log, self.l)
                 if not flag:
@@ -762,7 +765,7 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            if 'TOTAL TRAFFIC TEST RESULT: PASS' not in self.l['_tmp_log']:
+            if 'TOTAL TRAFFIC TEST RESULT: PASS' not in self.l.tmp_log:
                 tmp_log.append((False, None, (None, None, None)))
                 flag = self.deal_result(tmp_log, self.l)
                 if not flag:

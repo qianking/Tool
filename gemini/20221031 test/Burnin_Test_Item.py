@@ -19,33 +19,106 @@ class Terminal_Server_Test_Item():
 
     def __init__(self, l, **args):
         self.l = l
-        self.l.debug_logger= self.G.main_debug_logger
-        self.connect = COM(args['port'], args['baud'], self.l['_debug_logger'], self.l)
+        self.l.debug_logger = self.G.main_debug_logger
+        self.connect = COM(args['port'], args['baud'], self.l.debug_logger, self.l)
         self.l.debug_logger.debug(f"{'In Terminal Server':-^50}")
+    
+    def sys_exception(self, ex, l):
+        error_msg = exceptions.error_dealer(ex)
+        l.sys_error_msg.append(error_msg)
+        print(error_msg)
 
     def Check_Comport(self): 
         """
         開啟並確認是否能連上Terminal server
         """
-        self.connect.check_connect()
+        test_item = 'Check_Comport'
+        self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+        self.l.test_item_start_timer = time.time()
+        self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        try:
+            self.connect.check_connect()
+        
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            return False
+            
+        #當發生系統性的錯誤時會進到這裡
+        except Exception as ex:
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
+            raise Exception
+        
+        else:
+            return True
+        
+        finally:
+            self.l.raw_log[test_item]['end_time'] = datetime.now()
+            self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
         
 
     def Enter_en_Mode(self):
         """
         進入Router#，如果有密碼就打密碼:pega123
         """
-        self.connect.send_and_receive('', 'Router', 100, 'Password:')
-        if analyze_method.Find_Method.FindString(self.l['_tmp_log'], 'Password:'):
-            self.connect.send_and_receive('pega123', 'Router>', 5)            
-        self.connect.send_and_receive('en', 'Router#', 5)
+        test_item = 'Enter_en_Mode'
+        self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+        self.l.test_item_start_timer = time.time()
+        self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        try:
+            self.connect.send_and_receive('', 'Router', 100, 'Password:')
+            if analyze_method.Find_Method.FindString(self.l.tmp_log, 'Password:'):
+                self.connect.send_and_receive('pega123', 'Router>', 5)            
+            self.connect.send_and_receive('en', 'Router#', 5)
+        
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            return False
+        
+        except Exception as ex:
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
+            raise Exception
+        
+        else:
+            return True
+        
+        finally:
+            self.l.raw_log[test_item]['end_time'] = datetime.now()
+            self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
+        
 
     def Clear_Port_on_Terminal(self, line_start, line_end):
         """
         清除 line
         """
-        for line in range(line_start, line_end):
-            self.connect.send_and_receive(f'clear line {line}', '[confirm]', 5)
-            self.connect.send_and_receive('', 'Router#', 5)
+        test_item = 'Clear_Port_on_Terminal'
+        self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+        self.l.test_item_start_timer = time.time()
+        self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        try:
+            for line in range(line_start, line_end):
+                self.connect.send_and_receive(f'clear line {line}', '[confirm]', 5)
+                self.connect.send_and_receive('', 'Router#', 5)
+            
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            return False
+        
+        except Exception as ex:
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
+            raise Exception
+        
+        else:
+            return True
+        
+        finally:
+            self.l.raw_log[test_item]['end_time'] = datetime.now()
+            self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
+
+
+
 
 
 class Gemini_Test_Item():
@@ -58,10 +131,11 @@ class Gemini_Test_Item():
         self.port = args['port']
         self.root_word = 'root@intel-corei7-64:~/mfg#'
 
-        self.l.debug_logger.debug(f"{1:-^50}")
+        self.l.debug_logger.debug(f"{self.l.run_times:-^50}")
 
-    def sys_exception(self, ex):
+    def sys_exception(self, ex, l):
         error_msg = exceptions.error_dealer(ex)
+        l.sys_error_msg.append(error_msg)
         print(error_msg)
 
     def Check_Telnet_Connect(self):
@@ -78,16 +152,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False,
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -107,16 +181,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -136,16 +210,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -166,16 +240,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -191,6 +265,7 @@ class Gemini_Test_Item():
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
         try:
+            
             self.connect.send_and_receive('i2cset -y 0 0x73 0x0 0x2', self.root_word, 5)
             self.connect.send_and_receive('i2cget -y 0 0x75 0x15', self.root_word, 5)
             self.check_test.check_two_power_address()
@@ -199,16 +274,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -234,16 +309,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -270,16 +345,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -299,17 +374,17 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
-        
+            return True
+
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
             self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
@@ -329,16 +404,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -359,16 +434,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -391,16 +466,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -424,16 +499,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -456,16 +531,16 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -485,16 +560,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -515,16 +590,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -546,16 +621,16 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False, self.l
+            return False
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -572,15 +647,19 @@ class Gemini_Test_Item():
         try:
             self.connect.send_and_receive('./appDemo', 'Console#', 120)
             self.check_test.check_traffic_test()
+        
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            return False
 
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()
@@ -600,14 +679,18 @@ class Gemini_Test_Item():
             self.connect.send_and_receive('CLIexit', '->', 5)
             self.connect.send_and_receive('exit', self.root_word, 5) 
         
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            return False
+        
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
-            print(ex)
-            self.sys_exception(ex)
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
             raise Exception
         
         else:
-            return True, self.l
+            return True
         
         finally:
             self.l.raw_log[test_item]['end_time'] = datetime.now()

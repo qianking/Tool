@@ -12,12 +12,12 @@ class DrawStringLogWithChinese():
 
     G = SingleTon_Global()
 
-    def __init__(self):
+    def __init__(self, local):
         """
         畫圖表(可使用中文字體)，回傳String
         """
-        self.l = self.p[threading.get_ident()]
-        self.raw_data_list = self.l['_form_log']
+        self.l = local
+        self.raw_data_list = self.l.form_log
 
     def _StringLengthCount(self, InputString):
         """
@@ -84,17 +84,17 @@ class Log_Title():
     
     G = SingleTon_Global()
 
-    def __init__(self):
+    def __init__(self, local):
         """
         傳回log title的資料
         """
-        self.l = self.p[threading.get_ident()]
+        self.l = local
         self._title_data = {'program_version' : self.G.VERSION, 
-                    'test_result' : "PASS" if not self.l['_dut_test_fail'] else "FAIL",
-                    'error_code' : self.l['_dut_error_code'],
-                    'csn' : self.l['_dut_info'].get('SN'),
-                    'start_time' : self.l['_test_start_time'],
-                    'end_time' : self.l['_test_end_time']}
+                    'test_result' : "PASS" if not self.l.dut_test_fail else "FAIL",
+                    'error_code' : self.l.error_code,
+                    'csn' : self.l.dut_info.get('SN'),
+                    'start_time' : self.l.test_start_time,
+                    'end_time' : self.l.test_end_time,}
         
 
     def __str__(self):
@@ -107,53 +107,53 @@ class Log_Title():
 class Gearate_log():
 
 
-    def __init__(self):
-        self.l = self.p[threading.get_ident()]
+    def __init__(self, local):
+        self.l = local
         self.total_log = str()
         self.seperate = f"{'-'*50}\r\n"
         self.sfis_seperate = f"{'SFIS':-^50}\r\n"
         self.iplas_separate = f"{'IPLAS':-^50}\r\n"
         
     def __str__(self):
-        self.total_log += f"{Log_Title()}\r\n"
+        self.total_log += f"{Log_Title(self.l)}\r\n"
         self.total_log += self.seperate
-        self.total_log += f"{DrawStringLogWithChinese()}\r\n"
+        self.total_log += f"{DrawStringLogWithChinese(self.l)}\r\n"
         self.total_log += self.seperate
-        self.total_log += f"{self.l['_log']}\r\n"
+        self.total_log += f"{self.l.log}\r\n"
         self.total_log += self.sfis_seperate
-        self.total_log += f"{self.l['_sfis_log']}\r\n"
+        self.total_log += f"{self.l.sfis_log}\r\n"
         self.total_log += self.iplas_separate
-        self.total_log += f"{self.l['_iplas_log']}\r\n"
+        self.total_log += f"{self.l.iplas_log}\r\n"
 
         return self.total_log
 
 
 def transfer_log(l):
     G = SingleTon_Global()
-    l['_log'] += G.log_model(l['_log_raw_data'])
-    l['_sfis_log'] += Upload_Log_Tranfer.transfer_to_sfis(l['_upload_data'])
-    l['_iplas_log'] += Upload_Log_Tranfer.transfer_to_iplas(l['_upload_data'])
-    l['_form_log'] += Upload_Log_Tranfer.transfer_to_form(l['_upload_data'])
+    l.log += G.log_model(l.raw_log)
+    l.sfis_log += Upload_Log_Tranfer.transfer_to_sfis(l.upload_log)
+    l.iplas_log += Upload_Log_Tranfer.transfer_to_iplas(l.upload_log)
+    l.form_log += Upload_Log_Tranfer.transfer_to_form(l.upload_log)
 
 
-def generate_log():
-    l = p[threading.get_ident()]
+def generate_log(local):
+    
     G = SingleTon_Global()
-    transfer_log(l)
+    transfer_log(local)
 
     if_sfif = 'On SFIS' if G.online_function else 'Off SFIS'
-    now_day = datetime.now().strftime("%m/%d")
+    now_day = datetime.now().strftime("%m-%d")
 
-    if l['_dut_info'].get('SN'):
+    if local.dut_info.get('SN'):
         log_path = fr"{G.log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}"
-        if not l['_dut_test_fail']:
-            log_name = fr"{l['_dut_info'].get('SN')}_[{l['device_id']}]_BURNIN_{l['run_times']}_{G.VERSION}_[PASS]"
+        if not local.dut_test_fail:
+            log_name = fr"{local.dut_info.get('SN')}_[{local.device_id}]_BURNIN_{local.run_times}_{G.VERSION}_[PASS]"
         else:
-            log_name = fr"{l['_dut_info'].get('SN')}_[{l['device_id']}]_BURNIN_{l['run_times']}_{G.VERSION}_[FAIL][{l['_dut_error_code']}]"
+            log_name = fr"{local.dut_info.get('SN')}_[{local.device_id}]_BURNIN_{local.run_times}_{G.VERSION}_[FAIL][{local.error_code}]"
     
     else:
         log_path = fr"{G.log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}\unsort log"
-        log_name = fr"{l['telnet_port']}_[{l['device_id']}]_BURNIN_{l['run_times']}_{G.VERSION}_[FAIL][{l['_dut_error_code']}]"
+        log_name = fr"{local.telnet_port}_[{local.device_id}]_BURNIN_{local.run_times}_{G.VERSION}_[FAIL][{local.error_code}]"
 
     os.makedirs(log_path, exist_ok=True)
 
@@ -168,7 +168,7 @@ def generate_log():
             break
     
     with open(final_path, 'w+', newline='', encoding="utf-8") as f:
-        f.write(str(Gearate_log()))
+        f.write(str(Gearate_log(local)))
     
     ftp_path = "/".join(log_path.split('\\')[len(log_root_path.split('\\')):-1])
     ftp_path = f"{G.ftp_upload_path}/{ftp_path}"
@@ -181,9 +181,9 @@ def generate_log():
     shutil.copyfile(final_path, iplas_log_path)
 
 
-    l['_ftp_local_path'] = final_path
-    l['_ftp_remote_path'] = ftp_path
-    l['_iplas_log_path'] = iplas_log_path
+    local.ftp_local_path = final_path
+    local.ftp_remote_path = ftp_path
+    local.iplas_log_path = iplas_log_path
 
 
 
