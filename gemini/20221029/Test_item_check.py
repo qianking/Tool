@@ -12,7 +12,7 @@ from error_code import Error_Code
 from exceptions import TimeOutError
 from Global_Variable import SingleTone_local, SingleTon_Global
 
-
+lock = threading.Lock()
 value_config_path = r"D:\Qian\python\NPI\Gemini\value_config.ini"
 
 class Test_item_limit_Value():
@@ -43,8 +43,7 @@ class Fail_Dealer():
     p = SingleTone_local()
 
     def __init__(self):
-        ident = threading.get_ident()
-        self.l = self.p._variable[ident]
+        self.l = self.p[threading.get_ident()]
         self.ERROR = Error_Code()
 
     def sys_exception(self, ex):
@@ -62,7 +61,9 @@ class Fail_Dealer():
                 test_name = self.upper_name
 
             if result[0]: #如果為PASS
-                self.l['_upload_data'][test_name] = (1, result[2][0], result[2][1], result[2][2], None, None)
+                temp = self.l['_upload_data'].get(test_name) #先接原有的log值出來
+                temp = None if not temp else temp[5] #如果有值，那就將其設為test time (temp[5])
+                self.l['_upload_data'][test_name] = (1, result[2][0], result[2][1], result[2][2], None, temp)
             else:
                 flag = False
                 self.l['dut_been_test_fail'] = True
@@ -78,17 +79,23 @@ class Fail_Dealer():
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
-          
+            
             try:
                 self.upper_name = sys._getframe(1).f_code.co_name
                 results = func(*args, **kwargs)
+
+                self.l = self.p[threading.get_ident()]
                 flag = self.deal_result(results)  
                 
                 if not flag:
                     raise TestItemFail
 
+            except TestItemFail:
+                raise TestItemFail
+
             except Exception as ex:
                 """系統錯誤"""
+                print(ex)
                 self.sys_exception(ex)
                 raise Exception 
 
@@ -98,17 +105,45 @@ class Fail_Dealer():
 
 
 
-class Gemini_Test(metaclass = myMetaClass):
+class Gemini_Test():
 
     G = SingleTon_Global()
     p = SingleTone_local()
 
     def __init__(self):
-        ident = threading.get_ident()
-        self.l = self.p._variable[ident]
-
+        self.ERROR = Error_Code()
         self.erro_msg = str()
         self.limit_value = Test_item_limit_Value(self.G.value_config_path)
+    
+    def sys_exception(self, ex):
+        error_msg = exceptions.error_dealer(ex)
+        print(error_msg)
+        self.l['_sys_error_msg'].append(error_msg)
+        self.upper_name = None
+    
+    def deal_result(self, l, results):
+        flag = True
+        
+        for result in results:
+            test_name = result[1]
+            if not result[1]:  #如果test name為None，代表要使用上一層的func name
+                test_name = self.upper_name
+
+            if result[0]: #如果為PASS
+                temp = l['_upload_data'].get(test_name) #先接原有的log值出來
+                temp = None if not temp else temp[5] #如果有值，那就將其設為test time (temp[5])
+                l['_upload_data'][test_name] = (1, result[2][0], result[2][1], result[2][2], None, temp)
+            else:
+                flag = False
+                l['dut_been_test_fail'] = True
+                l['_dut_test_fail'] = True
+                l['_dut_error_code'] = self.ERROR[test_name]
+                temp = l['_upload_data'].get(test_name) #先接原有的log值出來
+                temp = None if not temp else temp[5] #如果有值，那就將其設為test time (temp[5])
+                l['_upload_data'][test_name] = (0, result[2][0], result[2][1], result[2][2], self.ERROR[test_name], temp)
+
+        return flag
+
     
     @staticmethod
     def _deal_test_name(test_name):
@@ -121,14 +156,19 @@ class Gemini_Test(metaclass = myMetaClass):
     def _get_function_name():
         return traceback.extract_stack(None, 2)[0][2]
 
+
     def get_SN(self):
+        l = self.p[threading.get_ident()]
+        self.upper_name = sys._getframe(1).f_code.co_name
         tmp_log = list()
-        SN = self.l['_tmp_log'].split('\r\n')[1]
+        SN = l['_tmp_log'].split('\r\n')[1]
         SN = SN.split(':')[1].strip()
-        self.l['_dut_info']['SN'] = SN
+        l['_dut_info']['SN'] = SN
 
         tmp_log.append((True, None, (SN, None, None)))
-        return tmp_log
+        flag = self.deal_result(l, tmp_log)  
+        if not flag:
+            raise TestItemFail
 
 
     def check_two_power_address(self):
@@ -164,15 +204,15 @@ class Gemini_Test(metaclass = myMetaClass):
 
     def check_HW_SW(self):
         tmp_log = list()
-        HW_info = "Model name: FM6256-BNF"\
-                "CPU: 8-core, Intel(R) Pentium(R) CPU D1517 @ 1.60GHz"\
-                "MAC: Marvell Technology Group Ltd. Device 8400 , LnkSta: Speed 8GT/s , Width x2"\
-                "DDR: 31.27 GB (32786348 kB)"\
-                "SSD: ATA 256GB SATA Flash , 240GB"\
-                "CPU Board : BDX-DE-BMC_NPU REV. 2.00"\
-                "Main Board : GEMINI REV. 3.00"\
-                "Fan Board : 5x40mm_FC_DB REV:2.00 , Maximum 5pcs Fan Modules ( FtB ) [ Board-ID : 0x57 ]"\
-                "Fan Board EEPROM Info : 0x0957001f"
+        HW_info = ["Model name: FM6256-BNF",
+                "CPU: 8-core, Intel(R) Pentium(R) CPU D1517 @ 1.60GHz",
+                "MAC: Marvell Technology Group Ltd. Device 8400 , LnkSta: Speed 8GT/s , Width x2",
+                "DDR: 31.27 GB (32786348 kB)",
+                "SSD: ATA 256GB SATA Flash , 240GB",
+                "CPU Board : BDX-DE-BMC_NPU REV. 2.00",
+                "Main Board : GEMINI REV. 3.00",
+                "Fan Board : 5x40mm_FC_DB REV:2.00 , Maximum 5pcs Fan Modules ( FtB ) [ Board-ID : 0x57 ]",
+                "Fan Board EEPROM Info : 0x0957001f"]
         find = analyze_method.Extract_Method.Extract_Data('Hardware Information(.*)Firmware Version', self.l['_tmp_log'])
         get_info = ''.join([i.strip() for i in find.strip().split('\r\n')])
         if get_info != HW_info:
@@ -203,7 +243,7 @@ class Gemini_Test(metaclass = myMetaClass):
         tmp_log.append((True, None, (None, None, None)))
         return tmp_log
 
-    
+    @Fail_Dealer()
     def check_RTC(self):
         tmp_log = list()
         find_year = int(analyze_method.Extract_Method.Extract_Data(' (\d{4}) ', self.l['_tmp_log']))
@@ -232,7 +272,7 @@ class Gemini_Test(metaclass = myMetaClass):
 
             check_limit = self.limit_value[self._get_function_name(), vol_name]
 
-            if vol_num in range(check_limit[0], check_limit[1]):
+            if vol_num > check_limit[0] and vol_num < check_limit[1]:
                 tmp_log.append((True, vol_name, (vol_num, check_limit[0], check_limit[1])))
             else:
                 tmp_log.append((False, vol_name, (vol_num, check_limit[0], check_limit[1])))
@@ -257,7 +297,7 @@ class Gemini_Test(metaclass = myMetaClass):
             fan_name = f"{check_item_name}_{self._deal_test_name(fan_name)}"
 
             check_limit = self.limit_value[self._get_function_name(), fan_name]
-            if fan_num in range(check_limit[0], check_limit[1]):
+            if fan_num > check_limit[0] and fan_num < check_limit[1]:
                 tmp_log.append((True, fan_name, (fan_num, check_limit[0], check_limit[1])))
             else:
                 tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
@@ -367,7 +407,7 @@ class Gemini_Test(metaclass = myMetaClass):
             fan_name = f"{check_item_name}_{self._deal_test_name(fan_name)}"
 
             check_limit = self.limit_value['Fan_Test', fan_name]
-            if fan_num in range(check_limit[0], check_limit[1]):
+            if fan_num > check_limit[0] and fan_num < check_limit[1]:
                 tmp_log.append((True, fan_name, (fan_num, check_limit[0], check_limit[1])))
             else:
                 tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))
@@ -394,7 +434,7 @@ class Gemini_Test(metaclass = myMetaClass):
             fan_name = f"{check_item_name}_{self._deal_test_name(fan_name)}"
 
             check_limit = self.limit_value['Fan_Test', fan_name]
-            if fan_num in range(check_limit[0], check_limit[1]):
+            if fan_num > check_limit[0] and fan_num < check_limit[1]:
                 tmp_log.append((True, fan_name, (fan_num, check_limit[0], check_limit[1])))
             else:
                 tmp_log.append((False, fan_name, (fan_num, check_limit[0], check_limit[1])))

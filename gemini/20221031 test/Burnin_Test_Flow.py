@@ -9,11 +9,11 @@ import create_log as create_log
 from concurrent.futures import ThreadPoolExecutor
 from exceptions import Test_Fail, Online_Fail
 from Upload_Functions import Upload_FTP, SFIS_Function
-from Global_Variable import SingleTone_local, SingleTon_Global
+from Global_Variable import SingleTon_Global, variable_setter, thread_local_set
 from Log_Dealer import Log_Model
-import Generate_Log
+#import Generate_Log
 
-
+local = threading.local()
 ui_lock = threading.Lock()
 
 #region 接入從controller下達的參數
@@ -80,70 +80,36 @@ class UI_Contol():
 #endregion
 
 
-class Flow_MetaClass(type):
-    def __new__(cls, name, bases, local):
-        if len(bases):
-            for attr in local:
-                value = local[attr]
-                if callable(value) and attr != '__init__':
-                    local[attr] = Fail_Dealer()(value)
-        return super().__new__(cls, name, bases, local)
-
-
 class Fail_Dealer():
-
-    p = SingleTone_local()
 
     def __init__(self):
         pass
-    
-    def error_logger(self):
-        if len(self.l['_sys_error_msg']):
-            self.l['sys_debug_logger'].debug(f"{self.l['run_times']:-^50}")
-            for msg in self.l['_sys_error_msg']:
-                self.l['sys_debug_logger'].debug(msg)
         
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            self.l = self.p[threading.get_ident()]
             try: 
                 func(*args, **kwargs)
 
-            except Test_Fail:
-                """測試錯誤，進入後續處理function"""
-                return True  #設定為True代表會繼續下一輪的測試，會先跑到test end function
-            
-            except Online_Fail:
-                return False
-
             except Exception as ex:
                 print(ex)
-                print('sys_error_msg:', self.l['_sys_error_msg'])
-                self.error_logger()
                 """系統錯誤，基本上不應該出現，設定彈窗提示，並且停下來"""
                 return False  
 
             else:
                 return True
-            finally:
-                print('upload_log:', self.l['_upload_data'])
         return decorated
 
 
-class Flow(metaclass = Flow_MetaClass):
-    pass
-
-class mChild(type(Flow), type(Test_Item.Terminal_Server_Test_Item)):
-    pass 
        
-class TerminalFlow(Flow, Test_Item.Terminal_Server_Test_Item, metaclass = mChild):
+class TerminalFlow(Test_Item.Terminal_Server_Test_Item):
 
     G = SingleTon_Global()
 
     def __init__(self):
+        self.l = local
         self.baud = '9600'
-        Test_Item.Terminal_Server_Test_Item.__init__(self, port = self.G.terminal_comport, baud = self.baud)  
+        Test_Item.Terminal_Server_Test_Item.__init__(self, self.l, port = self.G.terminal_comport, baud = self.baud)  
         
 
     def Check_ALL_Comport(self):
@@ -157,12 +123,11 @@ class TerminalFlow(Flow, Test_Item.Terminal_Server_Test_Item, metaclass = mChild
         terminal server清線
         """
         self.Enter_en_Mode()
-        self.Clear_Port_on_Terminal(2, 10)
+        self.Clear_Port_on_Terminal(2, 5)
 
 
 class Online_Flow(Upload_FTP, SFIS_Function):
     
-    p = SingleTone_local()
     G = SingleTon_Global()
 
     def __init__(self):
@@ -200,25 +165,37 @@ class Online_Flow(Upload_FTP, SFIS_Function):
                 pass
 
 
-class mChild(type(Flow), type(Test_Item.Gemini_Test_Item)):
-    pass 
 
-class MainFlow(Flow, Test_Item.Gemini_Test_Item, Online_Flow, metaclass = mChild):
+class MainFlow():
 
-    p = SingleTone_local()
+    G = SingleTon_Global()
 
-    def __init__(self):
-        self.l = self.p[threading.get_ident()]
-        Test_Item.Gemini_Test_Item.__init__(self, ip = self.G.telnet_ip, port = self.l['telnet_port'])
-        
+    def __init__(self, device_ID, telnet_port):
+        self.l = local
+        print('in ain flow:', id(self.l))
+        self.l.device_id = device_ID
+        self.l.telnet_port = telnet_port
+        now_day = datetime.now().strftime("%m-%d")
+        today_logger_path = fr"{self.G.logger_path}\{now_day}\{telnet_port}"
 
+        self.l.dut_debug_logger = create_log.create_logger(today_logger_path, f"Gemini {telnet_port}_log")
+        self.test = Test_Item.Gemini_Test_Item(self.l, ip = self.G.telnet_ip, port = telnet_port)
+ 
+    @Fail_Dealer()
     def Gemini_BurnIn(self):
         """
         Gemini測試流程
         """
-        self.Check_Telnet_Connect()
+        #self.Check_Telnet_Connect()
         #self.Boot_Up()
-        self.Get_SN()
+        result = self.test.Get_SN()
+        print(local.upload_log)
+        print(local.dut_info)
+        if not result:
+            return False
+        
+        
+            
         #self.SFIS_Check_Route()
         #self.Set_Power()
         #self.Check_HW_SW_Ver()
@@ -268,71 +245,61 @@ def Terminal_Flow():
     return True
     
 
-def Create_Debug_Log(l, logger_path):
-    port = l['telnet_port']
+def Create_Debug_Log(logger_path):
+    port = local.telnet_port
     now_day = datetime.now().strftime("%m-%d")
     today_logger_path = fr"{logger_path}\{now_day}\{port}"
 
-    l['dut_debug_logger'] = create_log.create_logger(today_logger_path, f"Gemini {port}_log")
-    l['upload_debug_logger'] = create_log.create_logger(today_logger_path, f"Upload_{port}_log")
-    l['sys_debug_logger'] = create_log.create_logger(today_logger_path, f"System_{port}_log")
+    local.dut_debug_logger = create_log.create_logger(today_logger_path, f"Gemini {port}_log")
+    local.upload_debug_logger = create_log.create_logger(today_logger_path, f"Upload_{port}_log")
+    local.sys_debug_logger = create_log.create_logger(today_logger_path, f"System_{port}_log")
 
 
 def Gemini_Burn_In_Flow(telnet_port, device_ID):
-    p = SingleTone_local()
-    p.create_variable()
-    l = p[threading.get_ident()]
     G = SingleTon_Global()
-
-    l['device_id'] = device_ID
-    l['telnet_port'] = telnet_port
-
-    Create_Debug_Log(l, G.logger_path)
+    variable_setter(local)
+    Create_Debug_Log(G.logger_path)
     
     condition = True
     while condition:
-        Main_Flow = MainFlow()
-        l['_test_start_time'] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        Main_Flow = MainFlow(device_ID, telnet_port)
         
         result = Main_Flow.Gemini_BurnIn()
 
-        l['_test_end_time'] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-
-        if result:
+        if not result:
+            print('end')
 
             """改變UI狀態，如果有error code，就顯示紅燈"""
-            if len(l['_dut_error_code']):
+            ''' if len(l.error_code):
                 G.UI_Signal.single_status(l['telnet_port'], 'fail')
-
+ '''
             """改變UI狀態，顯示紅燈"""
-            if not Test_End_Function():#任何上傳失敗
-                G.UI_Signal.single_status(l['telnet_port'], 'fail')
+            ''' if not Test_End_Function():#任何上傳失敗
+                G.UI_Signal.single_status(l['telnet_port'], 'fail') '''
                 
         
-        else: #system exception
+        ''' else: #system exception
             """顯示紅燈，跳出提示視窗並結束測試"""    
             G.UI_Signal.single_status(l['telnet_port'], 'fail')
             G.UI_Signal.error_box('sys exception', l['_sys_error_msg'])
             p.init_variable()
-            break
+            break '''
 
-        p.init_variable()
-        l['run_times'] += 1
+        local.run_time += 1
 
-        if l['run_times'] > G.total_run_times:
+        if local.run_time > G.total_run_times:
             G.UI_Signal.test_finish()
             condition = False
     
 
 def Main_Test_Flow(**awags):
     G = SingleTon_Global()
-    l = SingleTone_local()
-    l.create_variable()
+    variable_setter(local)
     get_veriable_from_controller(**awags)
     G.UI_Signal = UI_Contol(**awags)
 
     G.log_model = Log_Model.only_name
-    G.main_debug_logger = create_log.create_logger(fr"{G.logger_path}\{datetime.now().strftime('%m-%d')}", f"Main_log")
+    G.main_debug_logger = create_log.create_logger(fr"{G.logger_path}", f"Main_log")
 
     if not Terminal_Flow():
         """UI跳視窗並停止"""
@@ -341,22 +308,16 @@ def Main_Test_Flow(**awags):
     
     #Gemini_Burn_In_Flow(2002, '992632')
 
-    threads = list()
-    for i, telent_port in enumerate(G.open_station):
-        if telent_port:
-            threads.append(threading.Thread(target = Gemini_Burn_In_Flow, args = (telent_port, G.sfis_deviceID_list[i],)))
-            threads[i].start()
-            time.sleep(0.5)
-    ''' with ThreadPoolExecutor(max_workers=get_thread_num(G.open_station)) as executor:
+    thread_list = list()
+    with ThreadPoolExecutor(max_workers=get_thread_num(G.open_station)) as executor:
         for i, telent_port in enumerate(G.open_station):
             if telent_port:
                 futures = executor.submit(Gemini_Burn_In_Flow, telent_port, G.sfis_deviceID_list[i])
-                time.sleep(1)
     
     for future in thread_list:
         if future.exception():
             print(future.exception())
-            G.main_debug_logger.exception(f"exeption:{future.exception()}")  '''
+            G.main_debug_logger.exception(f"exeption:{future.exception()}") 
 
 
 

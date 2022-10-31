@@ -1,7 +1,7 @@
 import os 
 from datetime import datetime
 import threading
-from Global_Variable import SingleTone_local, SingleTon_Global
+from Global_Variable import SingleTon_Global
 from Log_Dealer import Upload_Log_Tranfer
 import shutil
 
@@ -11,7 +11,6 @@ log_root_path = r'.\log'
 class DrawStringLogWithChinese():
 
     G = SingleTon_Global()
-    p = SingleTone_local()
 
     def __init__(self):
         """
@@ -33,7 +32,6 @@ class DrawStringLogWithChinese():
         return count
 
     def __str__(self):
-        self.l = self.p[threading.get_ident()]
         LinesItemLen = len(self.raw_data_list)  # 找出總共有多少行
         LineItemLen = len(self.raw_data_list[0])  # 找出第一行共有幾個項目
         ItemMaxLength = []
@@ -85,7 +83,6 @@ class DrawStringLogWithChinese():
 class Log_Title():
     
     G = SingleTon_Global()
-    p = SingleTone_local()
 
     def __init__(self):
         """
@@ -109,7 +106,6 @@ class Log_Title():
 
 class Gearate_log():
 
-    p = SingleTone_local()
 
     def __init__(self):
         self.l = self.p[threading.get_ident()]
@@ -119,7 +115,6 @@ class Gearate_log():
         self.iplas_separate = f"{'IPLAS':-^50}\r\n"
         
     def __str__(self):
-        self.l = self.p[threading.get_ident()]
         self.total_log += f"{Log_Title()}\r\n"
         self.total_log += self.seperate
         self.total_log += f"{DrawStringLogWithChinese()}\r\n"
@@ -142,13 +137,12 @@ def transfer_log(l):
 
 
 def generate_log():
-    p = SingleTone_local()
     l = p[threading.get_ident()]
     G = SingleTon_Global()
     transfer_log(l)
 
     if_sfif = 'On SFIS' if G.online_function else 'Off SFIS'
-    now_day = datetime.now().strftime("%m-%d")
+    now_day = datetime.now().strftime("%m/%d")
 
     if l['_dut_info'].get('SN'):
         log_path = fr"{G.log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}"
@@ -176,7 +170,7 @@ def generate_log():
     with open(final_path, 'w+', newline='', encoding="utf-8") as f:
         f.write(str(Gearate_log()))
     
-    ftp_path = "/".join(log_path.split('\\')[len(log_root_path.split('\\')):])
+    ftp_path = "/".join(log_path.split('\\')[len(log_root_path.split('\\')):-1])
     ftp_path = f"{G.ftp_upload_path}/{ftp_path}"
 
 

@@ -1,0 +1,11 @@
+[2022-10-31 18:22:48,144 DEBUG]: ------------------------1-------------------------
+[2022-10-31 18:22:48,145 DEBUG]: >>>>> In [Check_Telnet_Connect] <<<<<
+[2022-10-31 18:22:48,145 DEBUG]: port [2002] self.tn is none
+[2022-10-31 18:22:48,249 DEBUG]: port [2002] close port
+[2022-10-31 18:22:48,249 DEBUG]: >>>>> Out [Check_Telnet_Connect] <<<<<
+[2022-10-31 18:22:48,249 DEBUG]: >>>>> In [Get_SN] <<<<<
+[2022-10-31 18:22:48,892 DEBUG]: port [2002] COMMAND: ./mfg_sources/mb_eeprom_rw.sh r serial_number
+[2022-10-31 18:22:49,014 DEBUG]: port [2002] RECEIVE : ./mfg_sources/mb_eeprom_rw.sh r serial_number
+[2022-10-31 18:22:50,978 DEBUG]: port [2002] RECEIVE : # S/N number : pega-1234-567890
+[2022-10-31 18:22:51,599 DEBUG]: port [2002] RECEIVE : root@intel-corei7-64:~/mfg#
+[2022-10-31 18:22:51,709 DEBUG]: >>>>> Out [Get_SN] <<<<<

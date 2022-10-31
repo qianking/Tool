@@ -1,0 +1,7 @@
+[2022-10-31 22:52:17,483 DEBUG]: ------------------------1-------------------------
+[2022-10-31 22:52:17,486 DEBUG]: >>>>> In [Get_SN] <<<<<
+[2022-10-31 22:52:17,597 DEBUG]: port [2002] COMMAND: ./mfg_sources/mb_eeprom_rw.sh r serial_number
+[2022-10-31 22:52:17,708 DEBUG]: port [2002] RECEIVE : ./mfg_sources/mb_eeprom_rw.sh r serial_number
+[2022-10-31 22:52:19,695 DEBUG]: port [2002] RECEIVE : # S/N number : pega-1234-567890
+[2022-10-31 22:52:20,328 DEBUG]: port [2002] RECEIVE : root@intel-corei7-64:~/mfg#
+[2022-10-31 22:52:20,433 DEBUG]: >>>>> Out [Get_SN] <<<<<

@@ -11,7 +11,7 @@ class _log_dealer():
         """
         tmp_log = str()
         for test_name, test_data in data.items():
-            tmp_log += test_data['log']
+            tmp_log += test_data[1]
         return tmp_log
         
     @staticmethod
@@ -22,7 +22,7 @@ class _log_dealer():
         tmp_log = str()
         for test_name, test_data in data.items():
             temp_title = f"{test_name:-^60}\n"
-            tmp_log += f"{temp_title}{test_data['log'].strip()}\n"
+            tmp_log += f"{temp_title}{test_data[1].strip()}\n"
         return tmp_log
 
     @staticmethod
@@ -32,12 +32,12 @@ class _log_dealer():
         """
         tmp_log = str()
         for test_name, test_data in data.items():
-            start_time = test_data['start_time'].strftime("%H:%M:%S")
-            end_time = test_data['end_time'].strftime("%H:%M:%S")
+            start_time = test_data[0].strftime("%H:%M:%S")
+            end_time = test_data[2].strftime("%H:%M:%S")
             temp = f"{test_name} {start_time}"
             start_title = f"{temp:-^60}\n"
             end_title = f"{end_time:-^60}\n"
-            tmp_log += f"{start_title}{test_data['log'].strip()}\n{end_title}"
+            tmp_log += f"{start_title}{test_data[1].strip()}\n{end_title}"
         return tmp_log
 
 

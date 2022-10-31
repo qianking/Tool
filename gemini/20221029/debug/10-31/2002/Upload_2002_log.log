@@ -1,0 +1,7 @@
+[2022-10-31 18:22:51,716 DEBUG]: ------------------------1-------------------------
+[2022-10-31 18:22:52,117 INFO]: [FTP Open FTP Folder] open FTP folder: SWITCH
+[2022-10-31 18:22:52,180 INFO]: [FTP Open FTP Folder] open FTP folder: GEMINI
+[2022-10-31 18:22:52,253 INFO]: [FTP Open FTP Folder] open FTP folder: BURN IN
+[2022-10-31 18:22:52,319 INFO]: [FTP Open FTP Folder] open FTP folder: OFF SFIS
+[2022-10-31 18:22:52,382 INFO]: [FTP Open FTP Folder] open FTP folder: 10-31
+[2022-10-31 18:22:52,645 INFO]: [FTP Upload] pega-1234-567890_[992632]_BURNIN_1_V0.00.01_[PASS]_6.txt upload finished

@@ -27,8 +27,6 @@ class Fail_Dealer():
     p = SingleTone_local()
 
     def __init__(self):
-        ident = threading.get_ident()
-        self.l = self.p._variable[ident]
         self.ERROR = Error_Code()
          
 
@@ -69,16 +67,17 @@ class Fail_Dealer():
     def __call__(self, func):
         @wraps(func)
         def decorated(*args, **kwargs):
+            self.l = self.p[threading.get_ident()]
             try:
-                test_name = sys._getframe(1).f_code.co_name
                 
+                test_name = sys._getframe(1).f_code.co_name
                 result, data = func(*args, **kwargs)
 
-                self.l['_log_raw_data'][test_name]['log'] += data
-                self.l['_tmp_log'] = data
-                self.deal_result(result, test_name)
                 if not result:   
                     raise TimeOutError
+
+            except TimeOutError:
+                raise TimeOutError
 
             except Exception as ex:
                 print(ex)
@@ -95,7 +94,11 @@ class Fail_Dealer():
 
 class COM():
 
+    p = SingleTone_local()
+
     def __init__(self, port, baud, debug_logger, **awags):
+        self.ERROR = Error_Code()
+        self.l = self.p[threading.get_ident()]
         self.debug_logger = debug_logger
         self.port = port
         self.baud = int(baud)
@@ -104,6 +107,11 @@ class COM():
         self.parity = 'N' if not awags.get('parity') else awags.get('parity')
         self.com = None
         self.ports_list = []
+    
+    def get_runtime(self):
+        runtime = str(time.time() - self.l['_test_item_start_timer'])
+        runtime = int(runtime.split('.')[0])
+        return runtime
 
     @Fail_Dealer()
     def check_connect(self):
@@ -119,6 +127,17 @@ class COM():
         if self.com is not None and self.com.isOpen:
             self.com.close()
         
+    def deal_result(self, result, test_name):
+        if result:   
+            self.l['_upload_data'][test_name] = (1, None, None, None, None, self.get_runtime())
+        else:       #timeout fail
+            self.l['dut_been_test_fail'] = True
+            self.l['_dut_test_fail'] = True
+            self.l['_dut_error_code'] = self.ERROR[test_name]
+            error_msg = f"[{test_name}] time out"
+            self.l['_test_error_msg'] += error_msg
+            self.l['_debug_logger'].debug(f"{error_msg:*^100}")
+            self.l['_upload_data'][test_name] = (0, None, None, None, self.ERROR[test_name], self.get_runtime())
     
     def open_com(self):
         if self.com is not None and self.com.isOpen:
@@ -134,7 +153,6 @@ class COM():
     def to_bytes(command):
         return f"{command}\r\n".encode("utf-8")
 
-    @Fail_Dealer()
     def send_and_receive(self, command, goal_word, timeout, *goal_array:tuple):
         """
         參數(指令、目標字、timout, *goal_array(多個目標))
@@ -144,6 +162,8 @@ class COM():
         """
         Tmp_data = str()
         with serial.Serial(port = self.port, baudrate = self.baud, bytesize=self.bytesize, parity = self.parity, timeout=1, stopbits=self.stopbits) as self.com:
+            self.l = self.p[threading.get_ident()]
+            test_name = sys._getframe(1).f_code.co_name
             time.sleep(0.1)
             buffer = self.com.read(self.com.inWaiting())
             #print('buffer:', buffer)
@@ -160,8 +180,12 @@ class COM():
                         self.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
 
                         buffer = self.com.read(self.com.inWaiting())
+
+                        self.l['_log_raw_data'][test_name]['log'] += Tmp_data
+                        self.l['_tmp_log'] = Tmp_data
+                        self.deal_result(False, test_name)
                         #print('buffer:', buffer)
-                        return False, Tmp_data
+                        raise TimeOutError
                     
                     else:
                         if data != '':
@@ -173,20 +197,33 @@ class COM():
                                     if (goal_word in data.strip()) or (word in data.strip()):
                                         
                                         buffer = self.com.read(self.com.inWaiting())
+                                        self.l['_log_raw_data'][test_name]['log'] += Tmp_data
+                                        self.l['_tmp_log'] = Tmp_data
+                                        self.deal_result(True, test_name)
                                         #print('buffer:', buffer)
                                         time.sleep(0.1)
-                                        return True, Tmp_data
+                                        return True
                                     
                             else:
                                 if goal_word in data.strip():
                         
                                     buffer = self.com.read(self.com.inWaiting())
+                                    self.l['_log_raw_data'][test_name]['log'] += Tmp_data
+                                    self.l['_tmp_log'] = Tmp_data
+                                    self.deal_result(True, test_name)
+
                                     #print('buffer:', buffer)
                                     time.sleep(0.1)
                                     return True, Tmp_data
-                                      
+      
+                                
 class Telnet():
+
+    p = SingleTone_local()
+
     def __init__(self, host, port, debug_logger):
+        self.ERROR = Error_Code()
+        self.l = self.p[threading.get_ident()]
         self.debug_logger = debug_logger
         self.host = str(host)
         self.port = port
@@ -195,6 +232,23 @@ class Telnet():
     @staticmethod
     def to_bytes(command):
         return f"{command}\r\n".encode("utf-8")
+    
+    def get_runtime(self):
+        runtime = str(time.time() - self.l['_test_item_start_timer'])
+        runtime = int(runtime.split('.')[0])
+        return runtime
+    
+    def deal_result(self, result, test_name):
+        if result:   
+            self.l['_upload_data'][test_name] = (1, None, None, None, None, self.get_runtime())
+        else:       #timeout fail
+            self.l['dut_been_test_fail'] = True
+            self.l['_dut_test_fail'] = True
+            self.l['_dut_error_code'] = self.ERROR[test_name]
+            error_msg = f"[{test_name}] time out"
+            self.l['_test_error_msg'] += error_msg
+            self.l['_debug_logger'].debug(f"{error_msg:*^100}")
+            self.l['_upload_data'][test_name] = (0, None, None, None, self.ERROR[test_name], self.get_runtime())
     
     @Fail_Dealer()
     def check_connect(self):
@@ -281,7 +335,6 @@ class Telnet():
                                             
                 return self.Tmp_data'''
 
-    @Fail_Dealer()
     def send_and_receive(self, command, goal_word, timeout, *goal_array:tuple):
         """
         送指令跟收特定的字，收字必須一定要使用最後一個字，不然DUT可能會收到奇怪的指令而壞掉
@@ -290,13 +343,16 @@ class Telnet():
         如果goal_array只有一個，請再最後加',' (command, goal_word, timeout, goal_2,)
         exception為:系統找不到port口、port口被占用、timout三種
         """
+        
         Tmp_data = str()
         with telnetlib.Telnet(host=self.host, port=self.port) as self.tn:
+            test_name = sys._getframe(1).f_code.co_name
+            self.l = self.p[threading.get_ident()]
             buffer = self.tn.read_very_eager()
             if command != None: 
                 time.sleep(0.1) 
                 self.debug_logger.debug(f"port [{self.port}] COMMAND: {command}")                            
-                self.tn.write(self.to_bytes())
+                self.tn.write(self.to_bytes(command))
                 
             if goal_word != None:
                 start_time = time.time()
@@ -310,8 +366,11 @@ class Telnet():
                         time.sleep(0.1)                     #必須休息一小段時間
                         self.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
                         buffer = self.tn.read_very_eager()
-                        self.Variable.raw_log = {'log': Tmp_data}
-                        return False, Tmp_data
+                        self.l['_log_raw_data'][test_name]['log'] += Tmp_data
+                        self.l['_tmp_log'] = Tmp_data
+                        self.deal_result(False, test_name)
+                        #print('buffer:', buffer)
+                        raise TimeOutError
                             
                     else:
                         if data != '':
@@ -322,16 +381,22 @@ class Telnet():
                                 for word in goal_array:
                                     if (goal_word in data.strip()) or (word in data.strip()):     
                                         buffer = self.tn.read_very_eager()
+                                        self.l['_log_raw_data'][test_name]['log'] += Tmp_data
+                                        self.l['_tmp_log'] = Tmp_data
+                                        self.deal_result(True, test_name)
                                         #print('buffer:', buffer)
                                         time.sleep(0.1)
-                                        return True, Tmp_data           
+                                        return True        
                                     
                             else:
                                 if goal_word in data.strip():
                                     buffer = self.tn.read_very_eager()
+                                    self.l['_log_raw_data'][test_name]['log'] += Tmp_data
+                                    self.l['_tmp_log'] = Tmp_data
+                                    self.deal_result(True, test_name)
                                     #print('buffer:', buffer)
                                     time.sleep(0.1)
-                                    return True, Tmp_data    
+                                    return True 
                                      
 
 

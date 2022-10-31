@@ -24,17 +24,14 @@ class log_deco():
     p = SingleTone_local()
 
     def __init__(self):
-        ident = threading.get_ident()
-        self.l = self.p._variable[ident]
+        pass
 
     def __call__(self, func):
+        
         @wraps(func)
         def decorated(*args, **kwargs):
-            ''' test_item = func.__name__
-            self.v.Variable.raw_log = {'name': test_item, 'start_time': datetime.now()}
-            func(*args, **kwargs)
-            self.v.Variable.raw_log = {'end_time': datetime.now()}
-            return True '''
+            self.l = self.p[threading.get_ident()]
+
             test_item = func.__name__
             self.l['_debug_logger'].debug(f'>>>>> In [{test_item}] <<<<<')
             self.l['_test_item_start_timer'] = time.time()
@@ -50,6 +47,7 @@ class log_deco():
                
             #當發生系統性的錯誤時會進到這裡
             except Exception as ex:
+                print(ex)
                 self.sys_exception(ex)
                 raise Exception
             
@@ -63,7 +61,7 @@ class log_deco():
     def sys_exception(self, ex):
         error_msg = exceptions.error_dealer(ex)
         print(error_msg)
-        self.p['_sys_error_msg'].append(error_msg)
+        self.l['_sys_error_msg'].append(error_msg)
 
           
 class Terminal_Server_Test_Item(metaclass = myMetaClass):
@@ -72,10 +70,9 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
     p = SingleTone_local()
 
     def __init__(self, **args):
-        ident = threading.get_ident()
-        self.l = self.p._variable[ident]
+        self.l = self.p[threading.get_ident()]
 
-        self.l['_debug_logger'] = self.l['main_debug_logger']
+        self.l['_debug_logger'] = self.G.main_debug_logger
         self.connect = COM(args['port'], args['baud'], self.l['_debug_logger'])
         self.l['_debug_logger'].debug(f"{'In Terminal Server':-^50}")
 
@@ -90,7 +87,7 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
         """
         進入Router#，如果有密碼就打密碼:pega123
         """
-        self.connect.send_and_receive('', 'Router', 5, 'Password:')
+        self.connect.send_and_receive('', 'Router', 100, 'Password:')
         if analyze_method.Find_Method.FindString(self.l['_tmp_log'], 'Password:'):
             self.connect.send_and_receive('pega123', 'Router>', 5)            
         self.connect.send_and_receive('en', 'Router#', 5)
@@ -104,14 +101,13 @@ class Terminal_Server_Test_Item(metaclass = myMetaClass):
             self.connect.send_and_receive('', 'Router#', 5)
 
 
-class Gemini_Test_Item(metaclass = myMetaClass):
+class Gemini_Test_Item():
 
     G = SingleTon_Global()
     p = SingleTone_local()
 
     def __init__(self, **args):
-        ident = threading.get_ident()
-        self.l = self.p._variable[ident]
+        self.l = self.p[threading.get_ident()]
 
         self.l['_debug_logger'] = self.l['dut_debug_logger']
         self.connect = Telnet(args['ip'], args['port'], self.l['_debug_logger'])
@@ -121,20 +117,21 @@ class Gemini_Test_Item(metaclass = myMetaClass):
 
         self.l['_debug_logger'].debug(f"{self.l['run_times']:-^50}")
 
-
+    @log_deco()
     def Check_Telnet_Connect(self):
         """
         確認是否能連上dut
         """
         self.connect.check_connect()
     
-    
+    @log_deco()
     def Boot_Up(self):
         """
         dut開機
         """
         self.connect.send_and_receive(None, self.root_word, 150)
 
+    @log_deco()
     def Rebbot(self):
         """
         dut 重開機
@@ -145,9 +142,34 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         """
         拿取機台SN
         """
-        self.connect.send_and_receive('./mfg_sources/mb_eeprom_rw.sh r serial_number', self.root_word, 10)
-        self.check_test.get_SN()
+        l = self.p[threading.get_ident()]
+        test_item = 'Get_SN'
+        l['_debug_logger'].debug(f'>>>>> In [{test_item}] <<<<<')
+        l['_test_item_start_timer'] = time.time()
+        l['_log_raw_data'][test_item] = {'start_time': datetime.now(), 'log':'', 'end_time': None}
+        try:
+            self.connect.send_and_receive('./mfg_sources/mb_eeprom_rw.sh r serial_number', self.root_word, 10)
+            self.check_test.get_SN()
+        except (TimeOutError,TestItemFail) :
+                l = self.p[threading.get_ident()]
+                l['_debug_logger'].debug(f'>>>>> Failed In [{test_item}] <<<<<')
+                raise Test_Fail  
     
+        #當發生系統性的錯誤時會進到這裡
+        except Exception as ex:
+            print(ex)
+            error_msg = exceptions.error_dealer(ex)
+            print(error_msg)
+            l = self.p[threading.get_ident()]
+            l['_sys_error_msg'].append(error_msg)
+            raise Exception
+        
+        finally:
+            l = self.p[threading.get_ident()]
+            l['_debug_logger'].debug(f'>>>>> Out [{test_item}] <<<<<')
+            l['_log_raw_data'][test_item]['end_time'] = datetime.now()
+
+    @log_deco()
     def Set_Two_Power(self):
         """
         切換雙電源供電
@@ -193,13 +215,14 @@ class Gemini_Test_Item(metaclass = myMetaClass):
         self.connect.send_and_receive('./show_version', self.root_word, 30)
         self.check_test.check_HW_SW()
     
+    @log_deco()
     def Check_RTC(self):
         """
         檢查RTC資訊
         """
         self.connect.send_and_receive('hwclock', self.root_word, 5)
         self.check_test.check_RTC()
-    
+    @log_deco()
     def Check_HW_Monitor(self):
         """
         檢查HW monitor(電壓, 風扇轉速, 風扇Alert, Temperature, Temperature Alert, CPU core Temperature PSU (0x58) Alert Status Check, PSU (0x59) Alert Status Check)
