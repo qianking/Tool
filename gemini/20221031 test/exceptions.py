@@ -21,6 +21,8 @@ class Online_Fail(Exception):
     pass
 
 
+class CheckRoute_Fail(Exception):
+    pass
 
 def error_dealer(ex):
     error_class = ex.__class__.__name__ #取得錯誤類型

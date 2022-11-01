@@ -6,23 +6,22 @@ import logging.handlers
 def create_logger(dir_path, filename):
     filename = filename + '.log'
     filepath = os.path.join(dir_path, filename)
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
     
-    consoleHandler = logging.StreamHandler()
-    fileHandler = logging.FileHandler(filepath, 'w', 'utf-8')
+    logger = logging.getLogger(filename)
+    logger.setLevel(logging.DEBUG) 
 
-    formatter = logging.Formatter('[%(asctime)s %(levelname)s]: %(message)s')
+    fileHandler = logging.FileHandler(filepath, 'w', 'utf-8')
+    fileHandler.setLevel(logging.DEBUG)
+
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.WARNING) 
+    
+    formatter = logging.Formatter('%(asctime)s - [line:%(lineno)d] - %(levelname)s: %(message)s')
     fileHandler.setFormatter(formatter)
     consoleHandler.setFormatter(formatter)
     
-    fileHandler.setLevel(logging.DEBUG)
-    consoleHandler.setLevel(logging.DEBUG) 
-     
-    logger = logging.getLogger(filename)
-    
-    logger.setLevel(logging.DEBUG) 
     logger.addHandler(fileHandler)
+    logger.addHandler(consoleHandler)  #將log印到螢幕上
     #logger.addHandler(consoleHandler)  #將logger印到終端機上
 
     return logger

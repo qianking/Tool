@@ -1,0 +1,396 @@
+2022-11-01 17:29:37,929 - [line:135] - DEBUG: ------------------------1-------------------------
+2022-11-01 17:29:37,945 - [line:147] - DEBUG: >>>>> In [Check_Telnet_Connect] <<<<<
+2022-11-01 17:29:37,945 - [line:289] - DEBUG: port [2002] self.tn is none
+2022-11-01 17:29:38,076 - [line:287] - DEBUG: port [2002] close port
+2022-11-01 17:29:38,077 - [line:169] - DEBUG: >>>>> Out [Check_Telnet_Connect] <<<<<
+2022-11-01 17:29:38,077 - [line:428] - DEBUG: >>>>> In [Check_HW_Monitor] <<<<<
+2022-11-01 17:29:38,702 - [line:305] - DEBUG: port [2002] COMMAND: ./hw_monitor
+2022-11-01 17:29:38,812 - [line:331] - DEBUG: port [2002] RECEIVE : ./hw_monitor
+2022-11-01 17:29:38,919 - [line:331] - DEBUG: port [2002] RECEIVE : [MFG] Hardware Monitor Information:
+2022-11-01 17:29:39,393 - [line:331] - DEBUG: port [2002] RECEIVE : { ADC }
+2022-11-01 17:29:39,501 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.1 (12V)]:	12061 mV
+2022-11-01 17:29:39,616 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.2 (3.3V)]:	3319 mV
+2022-11-01 17:29:39,736 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.6 (1.8V)]:	1805 mV
+2022-11-01 17:29:39,850 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.7 (0.88V)]:	890 mV
+2022-11-01 17:29:39,951 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.0 (0.8V)]:	803 mV
+2022-11-01 17:29:40,077 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.1 (0.9V_PLL)]:	904 mV
+2022-11-01 17:29:40,185 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.2 (3.3V_STB)]:	3344 mV
+2022-11-01 17:29:40,302 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.5 (0.9V_VDDA)]:	931 mV
+2022-11-01 17:29:40,417 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.6 (1.1V)]:	1103 mV
+2022-11-01 17:29:40,611 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:41,015 - [line:331] - DEBUG: port [2002] RECEIVE : Fan PWM:	41 (percent)
+2022-11-01 17:29:41,135 - [line:331] - DEBUG: port [2002] RECEIVE : SmartFan:	Enable
+2022-11-01 17:29:41,251 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:41,357 - [line:331] - DEBUG: port [2002] RECEIVE : AlertMode:	Auto Clear
+2022-11-01 17:29:41,466 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:41,568 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] R.P.M }
+2022-11-01 17:29:41,683 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1] Inner R.P.M:	10005 rpm
+2022-11-01 17:29:41,785 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2] Inner R.P.M:	9960 rpm
+2022-11-01 17:29:41,896 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3] Inner R.P.M:	9945 rpm
+2022-11-01 17:29:42,000 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4] Inner R.P.M:	10065 rpm
+2022-11-01 17:29:42,108 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5] Inner R.P.M:	10020 rpm
+2022-11-01 17:29:42,218 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:42,334 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1] Outer R.P.M:	9870 rpm
+2022-11-01 17:29:42,450 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2] Outer R.P.M:	9795 rpm
+2022-11-01 17:29:42,567 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3] Outer R.P.M:	9855 rpm
+2022-11-01 17:29:42,683 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4] Outer R.P.M:	9825 rpm
+2022-11-01 17:29:42,800 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5] Outer R.P.M:	9810 rpm
+2022-11-01 17:29:42,902 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:43,017 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] Status }
+2022-11-01 17:29:43,134 - [line:331] - DEBUG: port [2002] RECEIVE : [Present]   [Enable]   [LED Auto]   [LED Green]   [LED Amber]   [Airflow]   [Fan Alert]
+2022-11-01 17:29:43,250 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:29:43,367 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:29:43,484 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:29:43,601 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:29:43,717 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:29:43,833 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:43,941 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] Alert }
+2022-11-01 17:29:44,050 - [line:331] - DEBUG: port [2002] RECEIVE : [Not Connect]  [In rpm Zero]  [In rpm Under]  [In rpm Over]  [Out rpm Zero]  [Out rpm Under]  [Out rpm Over]  [Wrong Airflow]
+2022-11-01 17:29:44,151 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1]     N              N              N             N                N               N                N               N
+2022-11-01 17:29:44,267 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2]     N              N              N             N                N               N                N               N
+2022-11-01 17:29:44,369 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3]     N              N              N             N                N               N                N               N
+2022-11-01 17:29:44,484 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4]     N              N              N             N                N               N                N               N
+2022-11-01 17:29:44,585 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5]     N              N              N             N                N               N                N               N
+2022-11-01 17:29:44,700 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:44,818 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] Right FTM }
+2022-11-01 17:29:44,934 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1]     N  need 0x57 but using 0xfe
+2022-11-01 17:29:45,052 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2]     N  need 0x57 but using 0xfe
+2022-11-01 17:29:45,199 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3]     N  need 0x57 but using 0xfe
+2022-11-01 17:29:45,521 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4]     N  need 0x57 but using 0xfe
+2022-11-01 17:29:45,854 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5]     N  need 0x57 but using 0xfe
+2022-11-01 17:29:46,076 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:46,248 - [line:331] - DEBUG: port [2002] RECEIVE : { Temperature }
+2022-11-01 17:29:46,807 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[NPU (Addr:0x4A)]:		37.5 degrees Celsius.
+2022-11-01 17:29:47,028 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x48)]:		36.0 degrees Celsius.
+2022-11-01 17:29:47,151 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x49)]:		35.0 degrees Celsius.
+2022-11-01 17:29:47,268 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[FanBoard (Addr:0x4A)]:	30.0 degrees Celsius.
+2022-11-01 17:29:47,384 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:47,500 - [line:331] - DEBUG: port [2002] RECEIVE : { Temperature Alert }
+2022-11-01 17:29:47,617 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x48)]:		Normal
+2022-11-01 17:29:47,734 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x49)]:		Normal
+2022-11-01 17:29:47,835 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[FanBoard (Addr:0x4A)]:	Normal
+2022-11-01 17:29:47,952 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:48,067 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:48,170 - [line:331] - DEBUG: port [2002] RECEIVE : { CPU core Temperature }
+2022-11-01 17:29:48,284 - [line:331] - DEBUG: port [2002] RECEIVE : Core 0: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:29:48,401 - [line:331] - DEBUG: port [2002] RECEIVE : Core 1: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:29:48,517 - [line:331] - DEBUG: port [2002] RECEIVE : Core 2: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:29:48,634 - [line:331] - DEBUG: port [2002] RECEIVE : Core 3: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:29:48,736 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:48,851 - [line:331] - DEBUG: port [2002] RECEIVE : { Multiphase Controller Information }
+2022-11-01 17:29:48,969 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:49,085 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (MB  0x60) Info :
+2022-11-01 17:29:49,200 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 12.000 (V)
+2022-11-01 17:29:49,302 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 0.134 (A)
+2022-11-01 17:29:49,418 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 39.06 (Celsius degree)
+2022-11-01 17:29:49,519 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 0.000 (W)
+2022-11-01 17:29:49,635 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 2.199 (W)
+2022-11-01 17:29:49,751 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 0.930 (V)
+2022-11-01 17:29:49,867 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:29:49,970 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:29:50,085 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 1.100 (V)
+2022-11-01 17:29:50,201 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.000 (A)
+2022-11-01 17:29:50,303 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.000 (A)
+2022-11-01 17:29:50,417 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:50,535 - [line:331] - DEBUG: port [2002] RECEIVE : TPS40428 (MB  0x09) Info :
+2022-11-01 17:29:50,651 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 3.314 (V)
+2022-11-01 17:29:50,768 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A) : 10.625 (A)
+2022-11-01 17:29:50,885 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 0.000 (V)
+2022-11-01 17:29:51,000 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B) : 10.000 (A)
+2022-11-01 17:29:51,102 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-2  (Simul Ch-A & Ch-B) : 61.75 (Celsius degree)
+2022-11-01 17:29:51,218 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:51,334 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (MB  0x5F) Info :
+2022-11-01 17:29:51,451 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 12.031 (V)
+2022-11-01 17:29:51,567 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 3.046 (A)
+2022-11-01 17:29:51,670 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 41.75 (Celsius degree)
+2022-11-01 17:29:51,784 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 13.750 (W)
+2022-11-01 17:29:51,901 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 34.937 (W)
+2022-11-01 17:29:52,018 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 0.880 (V)
+2022-11-01 17:29:52,198 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 7.875 (A)
+2022-11-01 17:29:52,427 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 15.656 (A)
+2022-11-01 17:29:52,645 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 0.800 (V)
+2022-11-01 17:29:52,863 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 13.000 (A)
+2022-11-01 17:29:53,094 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 13.218 (A)
+2022-11-01 17:29:53,218 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:53,335 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (NPU 0x63) Info :
+2022-11-01 17:29:53,452 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 11.968 (V)
+2022-11-01 17:29:53,568 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 1.593 (A)
+2022-11-01 17:29:53,670 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 40.31 (Celsius degree)
+2022-11-01 17:29:53,784 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 10.234 (W)
+2022-11-01 17:29:53,900 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 18.500 (W)
+2022-11-01 17:29:54,112 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 1.800 (V)
+2022-11-01 17:29:54,344 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 5.984 (A)
+2022-11-01 17:29:54,563 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 5.554 (A)
+2022-11-01 17:29:54,794 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 1.050 (V)
+2022-11-01 17:29:55,013 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 1.220 (A)
+2022-11-01 17:29:55,308 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 1.205 (A)
+2022-11-01 17:29:55,419 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:55,535 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (NPU 0x64) Info :
+2022-11-01 17:29:55,637 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 11.890 (V)
+2022-11-01 17:29:55,753 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 0.396 (A)
+2022-11-01 17:29:55,868 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 38.31 (Celsius degree)
+2022-11-01 17:29:55,985 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 0.000 (W)
+2022-11-01 17:29:56,102 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 5.007 (W)
+2022-11-01 17:29:56,265 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 0.000 (V)
+2022-11-01 17:29:56,495 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:29:56,711 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:29:56,944 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 1.200 (V)
+2022-11-01 17:29:57,162 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.732 (A)
+2022-11-01 17:29:57,394 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.534 (A)
+2022-11-01 17:29:57,502 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:57,603 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:57,937 - [line:331] - DEBUG: port [2002] RECEIVE : { PSU CPLD Information }
+2022-11-01 17:29:58,053 - [line:331] - DEBUG: port [2002] RECEIVE : @ PSU-A (PS1)
+2022-11-01 17:29:58,170 - [line:331] - DEBUG: port [2002] RECEIVE : Existance    : insert
+2022-11-01 17:29:58,287 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power : OK
+2022-11-01 17:29:58,403 - [line:331] - DEBUG: port [2002] RECEIVE : @ PSU-B (PS2)
+2022-11-01 17:29:58,518 - [line:331] - DEBUG: port [2002] RECEIVE : Existance    : insert
+2022-11-01 17:29:58,636 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power : NOT OK
+2022-11-01 17:29:58,737 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:29:58,852 - [line:331] - DEBUG: port [2002] RECEIVE : { PSU-A (PS1) Information }
+2022-11-01 17:29:58,954 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_in:       118.250
+2022-11-01 17:29:59,068 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_out:      12.028
+2022-11-01 17:29:59,170 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_in:       1.601
+2022-11-01 17:29:59,285 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_out:      14.277
+2022-11-01 17:29:59,387 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_in:       189.250
+2022-11-01 17:29:59,502 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_out:      172.000
+2022-11-01 17:29:59,603 - [line:331] - DEBUG: port [2002] RECEIVE : READ Speed_fan:  6112
+2022-11-01 17:29:59,718 - [line:331] - DEBUG: port [2002] RECEIVE : READ Temp_1:     36.500
+2022-11-01 17:29:59,835 - [line:331] - DEBUG: port [2002] RECEIVE : READ Temp_2:     50.000
+2022-11-01 17:29:59,937 - [line:331] - DEBUG: port [2002] RECEIVE : READ Temp_3:     29.000
+2022-11-01 17:30:00,052 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:00,153 - [line:331] - DEBUG: port [2002] RECEIVE : { PSU-B (PS2) Information }
+2022-11-01 17:30:00,268 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_in:       0.000
+2022-11-01 17:30:00,385 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_out:      0.000
+2022-11-01 17:30:00,502 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_in:       0.000
+2022-11-01 17:30:00,619 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_out:      0.000
+2022-11-01 17:30:00,736 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_in:       0.000
+2022-11-01 17:30:00,852 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_out:      0.000
+2022-11-01 17:30:00,954 - [line:331] - DEBUG: port [2002] RECEIVE : READ Speed_fan:    0
+2022-11-01 17:30:01,070 - [line:331] - DEBUG: port [2002] RECEIVE : Skip detect Temperature data
+2022-11-01 17:30:01,186 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:01,302 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:01,419 - [line:331] - DEBUG: port [2002] RECEIVE : [MFG Msg] PSU (0x58) Alert Status Check:
+2022-11-01 17:30:01,539 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Over Voltage Fault ---> N
+2022-11-01 17:30:01,652 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Over Voltage Warning ---> N
+2022-11-01 17:30:01,771 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Under Voltage Warning ---> N
+2022-11-01 17:30:01,887 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Under Voltage Fault ---> N
+2022-11-01 17:30:02,001 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:02,104 - [line:331] - DEBUG: port [2002] RECEIVE : Iout Over Current Fault ---> N
+2022-11-01 17:30:02,219 - [line:331] - DEBUG: port [2002] RECEIVE : Iout Over Current Warning ---> N
+2022-11-01 17:30:02,336 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:02,451 - [line:331] - DEBUG: port [2002] RECEIVE : Vin Under Voltage Warning ---> N
+2022-11-01 17:30:02,569 - [line:331] - DEBUG: port [2002] RECEIVE : Vin Under Voltage Fault ---> N
+2022-11-01 17:30:02,686 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:02,802 - [line:331] - DEBUG: port [2002] RECEIVE : Over Temperature Fault ---> N
+2022-11-01 17:30:02,905 - [line:331] - DEBUG: port [2002] RECEIVE : Over Temperature Warning ---> N
+2022-11-01 17:30:03,019 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:03,136 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 1 Fault ---> N
+2022-11-01 17:30:03,252 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 1 Warning ---> N
+2022-11-01 17:30:03,369 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 1 Speed Overridden ---> N
+2022-11-01 17:30:03,471 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 2 Fault ---> N
+2022-11-01 17:30:03,585 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 2 Warning ---> N
+2022-11-01 17:30:03,688 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 2 Speed Overridden ---> N
+2022-11-01 17:30:03,802 - [line:331] - DEBUG: port [2002] RECEIVE : [MFG Msg] PSU (0x59) power not ok !!!
+2022-11-01 17:30:03,918 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:04,537 - [line:331] - DEBUG: port [2002] RECEIVE : root@intel-corei7-64:~/mfg#
+2022-11-01 17:30:04,684 - [line:437] - DEBUG: >>>>> Failed In [Check_HW_Monitor] <<<<<
+2022-11-01 17:30:04,684 - [line:451] - DEBUG: >>>>> Out [Check_HW_Monitor] <<<<<
+2022-11-01 17:30:05,849 - [line:135] - DEBUG: ------------------------2-------------------------
+2022-11-01 17:30:05,849 - [line:147] - DEBUG: >>>>> In [Check_Telnet_Connect] <<<<<
+2022-11-01 17:30:05,849 - [line:289] - DEBUG: port [2002] self.tn is none
+2022-11-01 17:30:05,966 - [line:287] - DEBUG: port [2002] close port
+2022-11-01 17:30:05,966 - [line:169] - DEBUG: >>>>> Out [Check_Telnet_Connect] <<<<<
+2022-11-01 17:30:05,966 - [line:428] - DEBUG: >>>>> In [Check_HW_Monitor] <<<<<
+2022-11-01 17:30:06,591 - [line:305] - DEBUG: port [2002] COMMAND: ./hw_monitor
+2022-11-01 17:30:06,700 - [line:331] - DEBUG: port [2002] RECEIVE : ./hw_monitor
+2022-11-01 17:30:06,803 - [line:331] - DEBUG: port [2002] RECEIVE : [MFG] Hardware Monitor Information:
+2022-11-01 17:30:07,295 - [line:331] - DEBUG: port [2002] RECEIVE : { ADC }
+2022-11-01 17:30:07,418 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.1 (12V)]:	12057 mV
+2022-11-01 17:30:07,536 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.2 (3.3V)]:	3319 mV
+2022-11-01 17:30:07,653 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.6 (1.8V)]:	1805 mV
+2022-11-01 17:30:07,770 - [line:331] - DEBUG: port [2002] RECEIVE : [P0.7 (0.88V)]:	891 mV
+2022-11-01 17:30:07,888 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.0 (0.8V)]:	801 mV
+2022-11-01 17:30:07,996 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.1 (0.9V_PLL)]:	903 mV
+2022-11-01 17:30:08,108 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.2 (3.3V_STB)]:	3344 mV
+2022-11-01 17:30:08,215 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.5 (0.9V_VDDA)]:	931 mV
+2022-11-01 17:30:08,325 - [line:331] - DEBUG: port [2002] RECEIVE : [P1.6 (1.1V)]:	1102 mV
+2022-11-01 17:30:08,499 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:08,906 - [line:331] - DEBUG: port [2002] RECEIVE : Fan PWM:	41 (percent)
+2022-11-01 17:30:09,019 - [line:331] - DEBUG: port [2002] RECEIVE : SmartFan:	Enable
+2022-11-01 17:30:09,139 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:09,247 - [line:331] - DEBUG: port [2002] RECEIVE : AlertMode:	Auto Clear
+2022-11-01 17:30:09,352 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:09,460 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] R.P.M }
+2022-11-01 17:30:09,571 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1] Inner R.P.M:	10005 rpm
+2022-11-01 17:30:09,674 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2] Inner R.P.M:	9945 rpm
+2022-11-01 17:30:09,787 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3] Inner R.P.M:	9945 rpm
+2022-11-01 17:30:09,903 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4] Inner R.P.M:	10065 rpm
+2022-11-01 17:30:10,004 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5] Inner R.P.M:	10035 rpm
+2022-11-01 17:30:10,120 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:10,222 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1] Outer R.P.M:	9885 rpm
+2022-11-01 17:30:10,336 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2] Outer R.P.M:	9795 rpm
+2022-11-01 17:30:10,453 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3] Outer R.P.M:	9870 rpm
+2022-11-01 17:30:10,554 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4] Outer R.P.M:	9825 rpm
+2022-11-01 17:30:10,670 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5] Outer R.P.M:	9795 rpm
+2022-11-01 17:30:10,771 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:10,886 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] Status }
+2022-11-01 17:30:10,988 - [line:331] - DEBUG: port [2002] RECEIVE : [Present]   [Enable]   [LED Auto]   [LED Green]   [LED Amber]   [Airflow]   [Fan Alert]
+2022-11-01 17:30:11,103 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:30:11,220 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:30:11,337 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:30:11,454 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:30:11,571 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5]     Y           Y          Y            On            Off           FtB         N
+2022-11-01 17:30:11,687 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:11,803 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] Alert }
+2022-11-01 17:30:11,905 - [line:331] - DEBUG: port [2002] RECEIVE : [Not Connect]  [In rpm Zero]  [In rpm Under]  [In rpm Over]  [Out rpm Zero]  [Out rpm Under]  [Out rpm Over]  [Wrong Airflow]
+2022-11-01 17:30:12,020 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1]     N              N              N             N                N               N                N               N
+2022-11-01 17:30:12,137 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2]     N              N              N             N                N               N                N               N
+2022-11-01 17:30:12,253 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3]     N              N              N             N                N               N                N               N
+2022-11-01 17:30:12,356 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4]     N              N              N             N                N               N                N               N
+2022-11-01 17:30:12,470 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5]     N              N              N             N                N               N                N               N
+2022-11-01 17:30:12,571 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:12,687 - [line:331] - DEBUG: port [2002] RECEIVE : { [Fan 1] - [Fan 5] Right FTM }
+2022-11-01 17:30:12,788 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 1]     N  need 0x57 but using 0xfe
+2022-11-01 17:30:12,904 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 2]     N  need 0x57 but using 0xfe
+2022-11-01 17:30:13,082 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 3]     N  need 0x57 but using 0xfe
+2022-11-01 17:30:13,422 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 4]     N  need 0x57 but using 0xfe
+2022-11-01 17:30:13,739 - [line:331] - DEBUG: port [2002] RECEIVE : [Fan 5]     N  need 0x57 but using 0xfe
+2022-11-01 17:30:13,967 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:14,181 - [line:331] - DEBUG: port [2002] RECEIVE : { Temperature }
+2022-11-01 17:30:14,749 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[NPU (Addr:0x4A)]:		37.8 degrees Celsius.
+2022-11-01 17:30:14,964 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x48)]:		36.0 degrees Celsius.
+2022-11-01 17:30:15,087 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x49)]:		35.0 degrees Celsius.
+2022-11-01 17:30:15,189 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[FanBoard (Addr:0x4A)]:	30.0 degrees Celsius.
+2022-11-01 17:30:15,303 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:15,419 - [line:331] - DEBUG: port [2002] RECEIVE : { Temperature Alert }
+2022-11-01 17:30:15,523 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x48)]:		Normal
+2022-11-01 17:30:15,639 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[PCB (Addr:0x49)]:		Normal
+2022-11-01 17:30:15,755 - [line:331] - DEBUG: port [2002] RECEIVE : LM75B[FanBoard (Addr:0x4A)]:	Normal
+2022-11-01 17:30:15,870 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:15,974 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:16,089 - [line:331] - DEBUG: port [2002] RECEIVE : { CPU core Temperature }
+2022-11-01 17:30:16,204 - [line:331] - DEBUG: port [2002] RECEIVE : Core 0: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:30:16,321 - [line:331] - DEBUG: port [2002] RECEIVE : Core 1: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:30:16,438 - [line:331] - DEBUG: port [2002] RECEIVE : Core 2: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:30:16,555 - [line:331] - DEBUG: port [2002] RECEIVE : Core 3: +54.0 C (high = +82.0 C, crit = +104.0 C)
+2022-11-01 17:30:16,671 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:16,787 - [line:331] - DEBUG: port [2002] RECEIVE : { Multiphase Controller Information }
+2022-11-01 17:30:16,903 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:17,006 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (MB  0x60) Info :
+2022-11-01 17:30:17,121 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 12.015 (V)
+2022-11-01 17:30:17,238 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 0.158 (A)
+2022-11-01 17:30:17,354 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 39.06 (Celsius degree)
+2022-11-01 17:30:17,471 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 0.000 (W)
+2022-11-01 17:30:17,588 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 1.613 (W)
+2022-11-01 17:30:17,704 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 0.930 (V)
+2022-11-01 17:30:17,821 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:30:17,937 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:30:18,038 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 1.100 (V)
+2022-11-01 17:30:18,154 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.000 (A)
+2022-11-01 17:30:18,269 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.000 (A)
+2022-11-01 17:30:18,387 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:18,497 - [line:331] - DEBUG: port [2002] RECEIVE : TPS40428 (MB  0x09) Info :
+2022-11-01 17:30:18,605 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 3.314 (V)
+2022-11-01 17:30:18,721 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A) : 10.687 (A)
+2022-11-01 17:30:18,837 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 0.000 (V)
+2022-11-01 17:30:18,941 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B) : 10.000 (A)
+2022-11-01 17:30:19,055 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-2  (Simul Ch-A & Ch-B) : 62.00 (Celsius degree)
+2022-11-01 17:30:19,171 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:19,272 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (MB  0x5F) Info :
+2022-11-01 17:30:19,388 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 12.031 (V)
+2022-11-01 17:30:19,504 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 2.937 (A)
+2022-11-01 17:30:19,607 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 41.75 (Celsius degree)
+2022-11-01 17:30:19,720 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 13.718 (W)
+2022-11-01 17:30:19,838 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 36.312 (W)
+2022-11-01 17:30:19,955 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 0.880 (V)
+2022-11-01 17:30:20,148 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 7.875 (A)
+2022-11-01 17:30:20,366 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 15.984 (A)
+2022-11-01 17:30:20,582 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 0.800 (V)
+2022-11-01 17:30:20,813 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 13.421 (A)
+2022-11-01 17:30:21,046 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 13.109 (A)
+2022-11-01 17:30:21,156 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:21,271 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (NPU 0x63) Info :
+2022-11-01 17:30:21,372 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 11.984 (V)
+2022-11-01 17:30:21,489 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 1.550 (A)
+2022-11-01 17:30:21,604 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 40.31 (Celsius degree)
+2022-11-01 17:30:21,721 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 10.218 (W)
+2022-11-01 17:30:21,839 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 19.000 (W)
+2022-11-01 17:30:22,063 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 1.790 (V)
+2022-11-01 17:30:22,282 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 6.101 (A)
+2022-11-01 17:30:22,515 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 5.859 (A)
+2022-11-01 17:30:22,731 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 1.050 (V)
+2022-11-01 17:30:22,965 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 1.404 (A)
+2022-11-01 17:30:23,197 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 1.205 (A)
+2022-11-01 17:30:23,306 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:23,421 - [line:331] - DEBUG: port [2002] RECEIVE : TPS53679 (NPU 0x64) Info :
+2022-11-01 17:30:23,538 - [line:331] - DEBUG: port [2002] RECEIVE : Input Voltage  (Shared Channel) : 11.875 (V)
+2022-11-01 17:30:23,655 - [line:331] - DEBUG: port [2002] RECEIVE : Input Current  (Shared Channel) : 0.311 (A)
+2022-11-01 17:30:23,771 - [line:331] - DEBUG: port [2002] RECEIVE : Temperature-1  (Simul Ch-A & Ch-B) : 38.31 (Celsius degree)
+2022-11-01 17:30:23,887 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power   (Simul Ch-A & Ch-B) : 0.000 (W)
+2022-11-01 17:30:24,003 - [line:331] - DEBUG: port [2002] RECEIVE : Input Power    (Simul Ch-A & Ch-B) : 4.203 (W)
+2022-11-01 17:30:24,216 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-A) : 0.000 (V)
+2022-11-01 17:30:24,430 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:30:24,665 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-A, Simul Phase) : 0.000 (A)
+2022-11-01 17:30:24,882 - [line:331] - DEBUG: port [2002] RECEIVE : Output Voltage (Ch-B) : 1.200 (V)
+2022-11-01 17:30:25,114 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.732 (A)
+2022-11-01 17:30:25,364 - [line:331] - DEBUG: port [2002] RECEIVE : Output Current (Ch-B, Simul Phase) : 0.549 (A)
+2022-11-01 17:30:25,488 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:25,590 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:25,892 - [line:331] - DEBUG: port [2002] RECEIVE : { PSU CPLD Information }
+2022-11-01 17:30:26,005 - [line:331] - DEBUG: port [2002] RECEIVE : @ PSU-A (PS1)
+2022-11-01 17:30:26,106 - [line:331] - DEBUG: port [2002] RECEIVE : Existance    : insert
+2022-11-01 17:30:26,221 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power : OK
+2022-11-01 17:30:26,337 - [line:331] - DEBUG: port [2002] RECEIVE : @ PSU-B (PS2)
+2022-11-01 17:30:26,455 - [line:331] - DEBUG: port [2002] RECEIVE : Existance    : insert
+2022-11-01 17:30:26,571 - [line:331] - DEBUG: port [2002] RECEIVE : Output Power : NOT OK
+2022-11-01 17:30:26,688 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:26,791 - [line:331] - DEBUG: port [2002] RECEIVE : { PSU-A (PS1) Information }
+2022-11-01 17:30:26,904 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_in:       118.125
+2022-11-01 17:30:27,022 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_out:      12.028
+2022-11-01 17:30:27,138 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_in:       1.601
+2022-11-01 17:30:27,255 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_out:      14.261
+2022-11-01 17:30:27,372 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_in:       189.250
+2022-11-01 17:30:27,489 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_out:      171.500
+2022-11-01 17:30:27,605 - [line:331] - DEBUG: port [2002] RECEIVE : READ Speed_fan:  6112
+2022-11-01 17:30:27,722 - [line:331] - DEBUG: port [2002] RECEIVE : READ Temp_1:     37.000
+2022-11-01 17:30:27,838 - [line:331] - DEBUG: port [2002] RECEIVE : READ Temp_2:     50.000
+2022-11-01 17:30:27,955 - [line:331] - DEBUG: port [2002] RECEIVE : READ Temp_3:     29.000
+2022-11-01 17:30:28,057 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:28,172 - [line:331] - DEBUG: port [2002] RECEIVE : { PSU-B (PS2) Information }
+2022-11-01 17:30:28,287 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_in:       0.000
+2022-11-01 17:30:28,405 - [line:331] - DEBUG: port [2002] RECEIVE : READ V_out:      0.000
+2022-11-01 17:30:28,521 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_in:       0.000
+2022-11-01 17:30:28,638 - [line:331] - DEBUG: port [2002] RECEIVE : READ I_out:      0.000
+2022-11-01 17:30:28,755 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_in:       0.000
+2022-11-01 17:30:28,872 - [line:331] - DEBUG: port [2002] RECEIVE : READ P_out:      0.000
+2022-11-01 17:30:28,988 - [line:331] - DEBUG: port [2002] RECEIVE : READ Speed_fan:    0
+2022-11-01 17:30:29,106 - [line:331] - DEBUG: port [2002] RECEIVE : Skip detect Temperature data
+2022-11-01 17:30:29,207 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:29,322 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:29,423 - [line:331] - DEBUG: port [2002] RECEIVE : [MFG Msg] PSU (0x58) Alert Status Check:
+2022-11-01 17:30:29,539 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Over Voltage Fault ---> N
+2022-11-01 17:30:29,640 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Over Voltage Warning ---> N
+2022-11-01 17:30:29,756 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Under Voltage Warning ---> N
+2022-11-01 17:30:29,872 - [line:331] - DEBUG: port [2002] RECEIVE : Vout Under Voltage Fault ---> N
+2022-11-01 17:30:29,988 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:30,090 - [line:331] - DEBUG: port [2002] RECEIVE : Iout Over Current Fault ---> N
+2022-11-01 17:30:30,205 - [line:331] - DEBUG: port [2002] RECEIVE : Iout Over Current Warning ---> N
+2022-11-01 17:30:30,306 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:30,422 - [line:331] - DEBUG: port [2002] RECEIVE : Vin Under Voltage Warning ---> N
+2022-11-01 17:30:30,539 - [line:331] - DEBUG: port [2002] RECEIVE : Vin Under Voltage Fault ---> N
+2022-11-01 17:30:30,648 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:30,755 - [line:331] - DEBUG: port [2002] RECEIVE : Over Temperature Fault ---> N
+2022-11-01 17:30:30,873 - [line:331] - DEBUG: port [2002] RECEIVE : Over Temperature Warning ---> N
+2022-11-01 17:30:30,988 - [line:331] - DEBUG: port [2002] RECEIVE : ----------------------------------------
+2022-11-01 17:30:31,105 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 1 Fault ---> N
+2022-11-01 17:30:31,223 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 1 Warning ---> N
+2022-11-01 17:30:31,340 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 1 Speed Overridden ---> N
+2022-11-01 17:30:31,456 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 2 Fault ---> N
+2022-11-01 17:30:31,573 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 2 Warning ---> N
+2022-11-01 17:30:31,690 - [line:331] - DEBUG: port [2002] RECEIVE : FAN 2 Speed Overridden ---> N
+2022-11-01 17:30:31,805 - [line:331] - DEBUG: port [2002] RECEIVE : [MFG Msg] PSU (0x59) power not ok !!!
+2022-11-01 17:30:31,922 - [line:331] - DEBUG: port [2002] RECEIVE : 
+2022-11-01 17:30:32,539 - [line:331] - DEBUG: port [2002] RECEIVE : root@intel-corei7-64:~/mfg#
+2022-11-01 17:30:32,657 - [line:437] - DEBUG: >>>>> Failed In [Check_HW_Monitor] <<<<<
+2022-11-01 17:30:32,657 - [line:451] - DEBUG: >>>>> Out [Check_HW_Monitor] <<<<<

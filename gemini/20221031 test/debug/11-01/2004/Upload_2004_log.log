@@ -1,0 +1,16 @@
+2022-11-01 17:29:37,961 - [line:162] - DEBUG: ------------------------1-------------------------
+2022-11-01 17:30:39,841 - [line:162] - DEBUG: ------------------------1-------------------------
+2022-11-01 17:30:40,224 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: SWITCH
+2022-11-01 17:30:40,302 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: GEMINI
+2022-11-01 17:30:40,380 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: BURN IN
+2022-11-01 17:30:40,443 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: OFF SFIS
+2022-11-01 17:30:40,505 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: 11-01
+2022-11-01 17:30:40,806 - [line:115] - INFO: [FTP Upload] 2004_[992630]_BURNIN_Cycle_1_V0.00.01_[FAIL][QSFT28].txt upload finished
+2022-11-01 17:30:40,878 - [line:162] - DEBUG: ------------------------2-------------------------
+2022-11-01 17:31:42,292 - [line:162] - DEBUG: ------------------------2-------------------------
+2022-11-01 17:31:42,680 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: SWITCH
+2022-11-01 17:31:42,757 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: GEMINI
+2022-11-01 17:31:42,813 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: BURN IN
+2022-11-01 17:31:42,875 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: OFF SFIS
+2022-11-01 17:31:42,954 - [line:71] - INFO: [FTP Open FTP Folder] open FTP folder: 11-01
+2022-11-01 17:31:43,211 - [line:115] - INFO: [FTP Upload] 2004_[992630]_BURNIN_Cycle_2_V0.00.01_[FAIL][QSFT28].txt upload finished

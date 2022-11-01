@@ -1,7 +1,10 @@
 from enum import Enum, auto
 
-base_url = "http://sfistsp-szascd0-n0.sz.pegatroncorp.com/SFISWebService/SFISTSPWebService.asmx/"
+#base_url = "http://sfistsp-szascd0-n0.sz.pegatroncorp.com/SFISWebService/SFISTSPWebService.asmx/" #蘇州
 
+base_url = "http://172.18.125.49/SFISWebService/SFISTSPWebService.asmx/" #新店廠
+
+#base_url = "http://pty-sfwspd-n1.sfis.pegatroncorp.com/SFISWebService/SFISTSPWebService.asmx" #桃園廠
 
 class eLogInOut(Enum):
     Login = 1

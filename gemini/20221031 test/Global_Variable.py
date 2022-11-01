@@ -7,6 +7,7 @@ class _Global_Variable():
     log_model = Log_Model.no_name_no_time   #log存取的型態
     UI_Signal = None
 
+    ftp_function = True
     online_function = False
     sfis_deviceID_list = ['992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622',
                         '992632', '992631', '992630', '992629', '992628', '992627', '992626', '992625', '992624', '992622']
@@ -22,11 +23,12 @@ class _Global_Variable():
     serial_name = 'Gemini'
     test_time = 8
     terminal_comport = 'COM7'
-    open_station = [2002, 2003, 2004]
+    open_station = [2002, 2003, 2004, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ftp_upload_path = '/SWITCH'
     op ='LA2100645'
 
-    total_run_times = 1  #總共需要跑幾次
+    total_run_times = 2  #總共需要跑幾次
 
     main_debug_logger = None
     
@@ -115,11 +117,9 @@ class SingleTon_Global(_Global_Variable):
                         }
     """在一個thread中的全域變數""" '''
     
-
-
-def add_variable(dic:dict, variable:dict):
+''' def add_variable(dic:dict, variable:dict):
     for name, value in variable.items():
-        dic[name] = value
+        dic[name] = value '''
 
 
 
@@ -440,30 +440,36 @@ def thread_global_set(local):
     local.been_checkroute = False 
     local.been_sfis_upload = False 
 
+    local.dut_debug_logger = None
+    local.upload_debug_logger = None
+    local.sys_debug_logger = None
+
 def thread_local_set(local):
+    
     local.log = str()
     local.tmp_log = str()
     local.raw_log = dict()
     local.upload_log = dict()
-    local.sfis_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,V1.00.01\r\n'
-    local.iplas_log = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,V1.00.01\r\n'
-    local.form_log = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time>']]
+    local.sfis_log = str()
+    local.iplas_log = str()
+    local.form_log = list()
     local.dut_info = dict()
+    local.dut_sfis_sn = str()
     local.dut_test_fail = False
     local.error_code = str()
     local.test_item_start_timer = float()
     local.ftp_local_path = str()
     local.ftp_remote_path = str()
+    local.iplas_log_path = str()
     local.check_route_fail = False
     local.sfis_upload_fail = False
+    local.sfis_get_sn_fail = False
     local.test_error_msg = str()
     local.sys_error_msg = list()
     local.ftp_error_msg = str()
     local.sfis_error_msg = str()
     local.iplas_error_msg = str()
-    local.dut_debug_logger = None
-    local.upload_debug_logger = None
-    local.sys_debug_logger = None
+    
     local.debug_logger = None
   
 

@@ -2,12 +2,12 @@
 import sys
 import check_config
 import time
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtCore import QFile, QTimer, QRunnable, QThreadPool,Signal, Qt, QObject
-from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import  QTimer, QRunnable, QThreadPool,Signal, Qt, QObject
 from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow
 from PySide6.QtGui import QFont
+from Burnin_Test_Flow import Main_Test_Flow
 from ui import Ui_MainWindow
 
 config = {'config_error_msg': '', 
@@ -15,6 +15,7 @@ config = {'config_error_msg': '',
         'test_time': 8, 
         'terminal_comport': 'COM7', 
         'open_station': [0, 2003, 2004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        'ftp_function' : True,
         'ftp_upload_path': '/SWITCH/EZ1K-ORT', 
         'online_function': False, 
         'op': 'LA2100645'}
@@ -77,7 +78,7 @@ class MainWindow(QMainWindow):
 
         if config['config_error_msg']:
             self.config_error_flag = True
-            self.custom_message('config error', config['config_error_msg'])
+            self.custom_message(('config error', config['config_error_msg']))
         
         config['VERSION'] = VERSION
         config['config_path'] = config_path
@@ -137,7 +138,7 @@ class MainWindow(QMainWindow):
     
 #region 設定check box
     def init_all_checkbox(self):
-        self.set_all_checkbox('lightgreen', 'Standby')
+        self.set_all_checkbox(('lightgreen', 'Standby'))
 
     def define_checkbox_textpalin(self):
         self.checkbox_list = [self._window.checkBox_1, self._window.checkBox_2, self._window.checkBox_3, self._window.checkBox_4, self._window.checkBox_5,
@@ -175,7 +176,6 @@ class MainWindow(QMainWindow):
         else:
             self.start.setEnabled(True)  
         
-    #按開始後顯示請上電訊息
     def start_burnin(self):
         self.get_start_time()
         self.timer_start()
@@ -195,15 +195,15 @@ class MainWindow(QMainWindow):
 #endregion
 
     def single_light_change(self, data:tuple):
-        #data = (telnet_port, statue)
-        telnet_port, statue = data
+        #data = (telnet_port, statue, color)
+        telnet_port, statue, color = data
         station_no = config['open_station'].index(telnet_port)
-        if statue == 'fail':
-            self.textplain_list[station_no].setStyleSheet("background : red")
-            self.textplain_list[station_no].setText('\n      FAIL')
-        if statue == 'done':
-            self.textplain_list[station_no].setText('\n      Done')
-    
+        if color:
+            self.textplain_list[station_no].setStyleSheet(f"background : {color}")
+        self.textplain_list[station_no].setText(f'\n{statue}')
+        if statue == 'exception':
+            self.timer.stop()
+        
     def test_finish(self):
         self.timer.stop()
         self.set_start_btm()
@@ -250,7 +250,7 @@ class MainWindow(QMainWindow):
 class thread_signal(QObject):
     single_light = Signal(tuple)
     all_light = Signal(tuple)
-    error_msg = Signal(dict)
+    error_msg = Signal(tuple)
     finish = Signal()
 
         
@@ -260,8 +260,8 @@ class Start_Burnin(QRunnable):
         self.signal = thread_signal()
 
     def run(self):
-        Flow.Start_DUT_Initial(config = config,
-                            signal = self.signal)     
+        Main_Test_Flow(config = config,
+                        signal = self.signal)     
 
 if '__main__' == __name__:
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)

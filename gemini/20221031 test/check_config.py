@@ -59,6 +59,8 @@ def check_config(config_path):
                     open_station.append(0)
         
         if info == 'FTP':
+            temp = datas['upload_function'].strip()
+            ftp_function = True if temp == 'ON' else False
             ftp_upload_path = datas['upload_path'].strip()
         
         if info == 'SFIS':
@@ -81,6 +83,7 @@ def check_config(config_path):
     config['test_time'] = test_time
     config['terminal_comport'] = terminal_server_comport
     config['open_station'] = open_station
+    config['ftp_function'] = ftp_function
     config['ftp_upload_path'] = ftp_upload_path
     config['online_function'] = SFIS_function
     config['op'] = op

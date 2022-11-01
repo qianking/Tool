@@ -1,0 +1,31 @@
+2022-11-01 10:40:01,886 - [line:24] - DEBUG: ----------------In Terminal Server----------------
+2022-11-01 10:40:01,886 - [line:36] - DEBUG: >>>>> In [Check_Comport] <<<<<
+2022-11-01 10:40:02,047 - [line:57] - DEBUG: >>>>> Out [Check_Comport] <<<<<
+2022-11-01 10:40:02,047 - [line:65] - DEBUG: >>>>> In [Enter_en_Mode] <<<<<
+2022-11-01 10:40:02,167 - [line:157] - DEBUG: port [COM7] COMMAND: 
+2022-11-01 10:40:02,168 - [line:176] - DEBUG: port [COM7] RECEIVE : 
+2022-11-01 10:40:02,188 - [line:176] - DEBUG: port [COM7] RECEIVE : Router#
+2022-11-01 10:40:02,450 - [line:157] - DEBUG: port [COM7] COMMAND: en
+2022-11-01 10:40:02,463 - [line:176] - DEBUG: port [COM7] RECEIVE : en
+2022-11-01 10:40:02,473 - [line:176] - DEBUG: port [COM7] RECEIVE : Router#
+2022-11-01 10:40:02,633 - [line:88] - DEBUG: >>>>> Out [Enter_en_Mode] <<<<<
+2022-11-01 10:40:02,633 - [line:96] - DEBUG: >>>>> In [Clear_Port_on_Terminal] <<<<<
+2022-11-01 10:40:02,750 - [line:157] - DEBUG: port [COM7] COMMAND: clear line 2
+2022-11-01 10:40:02,775 - [line:176] - DEBUG: port [COM7] RECEIVE : clear line 2
+2022-11-01 10:40:02,874 - [line:176] - DEBUG: port [COM7] RECEIVE : [confirm]
+2022-11-01 10:40:03,150 - [line:157] - DEBUG: port [COM7] COMMAND: 
+2022-11-01 10:40:03,152 - [line:176] - DEBUG: port [COM7] RECEIVE : 
+2022-11-01 10:40:03,173 - [line:176] - DEBUG: port [COM7] RECEIVE : Router#
+2022-11-01 10:40:03,434 - [line:157] - DEBUG: port [COM7] COMMAND: clear line 3
+2022-11-01 10:40:03,452 - [line:176] - DEBUG: port [COM7] RECEIVE : clear line 3
+2022-11-01 10:40:03,565 - [line:176] - DEBUG: port [COM7] RECEIVE : [confirm]
+2022-11-01 10:40:03,834 - [line:157] - DEBUG: port [COM7] COMMAND: 
+2022-11-01 10:40:03,842 - [line:176] - DEBUG: port [COM7] RECEIVE : 
+2022-11-01 10:40:03,855 - [line:176] - DEBUG: port [COM7] RECEIVE : Router#
+2022-11-01 10:40:04,133 - [line:157] - DEBUG: port [COM7] COMMAND: clear line 4
+2022-11-01 10:40:04,151 - [line:176] - DEBUG: port [COM7] RECEIVE : clear line 4
+2022-11-01 10:40:04,269 - [line:176] - DEBUG: port [COM7] RECEIVE : [confirm]
+2022-11-01 10:40:04,551 - [line:157] - DEBUG: port [COM7] COMMAND: 
+2022-11-01 10:40:04,552 - [line:176] - DEBUG: port [COM7] RECEIVE : 
+2022-11-01 10:40:04,570 - [line:176] - DEBUG: port [COM7] RECEIVE : Router#
+2022-11-01 10:40:04,734 - [line:118] - DEBUG: >>>>> Out [Clear_Port_on_Terminal] <<<<<

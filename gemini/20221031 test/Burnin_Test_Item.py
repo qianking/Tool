@@ -41,7 +41,7 @@ class Terminal_Server_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -73,7 +73,7 @@ class Terminal_Server_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
         
         except Exception as ex:
             if len(str(ex)):
@@ -88,7 +88,7 @@ class Terminal_Server_Test_Item():
             self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
         
 
-    def Clear_Port_on_Terminal(self, line_start, line_end):
+    def Clear_Port_on_Terminal(self, open_station):
         """
         清除 line
         """
@@ -97,13 +97,14 @@ class Terminal_Server_Test_Item():
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
         try:
-            for line in range(line_start, line_end):
-                self.connect.send_and_receive(f'clear line {line}', '[confirm]', 5)
-                self.connect.send_and_receive('', 'Router#', 5)
+            for line in open_station:
+                if line:
+                    self.connect.send_and_receive(f'clear line {line-2000}', '[confirm]', 5)
+                    self.connect.send_and_receive('', 'Router#', 5)
             
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
         
         except Exception as ex:
             if len(str(ex)):
@@ -152,7 +153,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False,
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -181,7 +182,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -200,7 +201,7 @@ class Gemini_Test_Item():
         """
         dut 重開機
         """
-        test_item = 'Boot_Up'
+        test_item = 'Rebbot'
         self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
@@ -210,7 +211,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -240,7 +241,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -260,7 +261,7 @@ class Gemini_Test_Item():
         """
         切換雙電源供電
         """
-        test_item = 'Boot_Up'
+        test_item = 'Set_Two_Power'
         self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
@@ -274,7 +275,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -293,7 +294,7 @@ class Gemini_Test_Item():
         """
         切換A電源供電
         """
-        test_item = 'Boot_Up'
+        test_item = 'Set_A_Power'
         self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
@@ -309,7 +310,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -345,7 +346,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -374,7 +375,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -404,7 +405,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -434,7 +435,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -460,13 +461,13 @@ class Gemini_Test_Item():
         try:
 
             self.connect.send_and_receive('./mfg_sources/fan_control.sh speed 0', self.root_word, 10)
-            time.sleep(5)
+            time.sleep(15)
             self.connect.send_and_receive('./mfg_sources/fan_monitor.sh', self.root_word, 20)
             self.check_test.check_Fan_0()
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -493,13 +494,13 @@ class Gemini_Test_Item():
         try:
 
             self.connect.send_and_receive('./mfg_sources/fan_control.sh speed 100', self.root_word, 10)
-            time.sleep(5)
+            time.sleep(15)
             self.connect.send_and_receive('./mfg_sources/fan_monitor.sh', self.root_word, 20)
             self.check_test.check_Fan_100()
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -531,7 +532,7 @@ class Gemini_Test_Item():
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -560,7 +561,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -590,7 +591,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -621,7 +622,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
             
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -650,7 +651,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
 
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
@@ -681,7 +682,7 @@ class Gemini_Test_Item():
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
-            return False
+            raise Test_Fail
         
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:

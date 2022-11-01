@@ -107,7 +107,7 @@ class COM():
                 #print('buffer:', buffer)   
             self.close_telnet()
 
-            self.l.raw_log[test_name]['log'] = ''
+            self.l.raw_log[test_name]['log'] += ''
             self.l.tmp_log = ''
             self.deal_result(True, test_name, self.l)
 
@@ -164,7 +164,7 @@ class COM():
                         self.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
 
                         buffer = self.com.read(self.com.inWaiting())
-                        self.l.raw_log[test_name]['log'] = Tmp_data
+                        self.l.raw_log[test_name]['log'] += Tmp_data
                         self.l.tmp_log = Tmp_data
                         self.deal_result(False, test_name, self.l)
                         raise TimeOutError
@@ -181,7 +181,7 @@ class COM():
                                         buffer = self.com.read(self.com.inWaiting())
                                         #print('buffer:', buffer)
                                         time.sleep(0.1)
-                                        self.l.raw_log[test_name]['log'] = Tmp_data
+                                        self.l.raw_log[test_name]['log'] += Tmp_data
                                         self.l.tmp_log = Tmp_data
                                         self.deal_result(True, test_name, self.l)
                                         return True     
@@ -192,7 +192,7 @@ class COM():
                                     buffer = self.com.read(self.com.inWaiting())
                                     #print('buffer:', buffer)
                                     time.sleep(0.1)
-                                    self.l.raw_log[test_name]['log'] = Tmp_data
+                                    self.l.raw_log[test_name]['log'] += Tmp_data
                                     self.l.tmp_log = Tmp_data
                                     self.deal_result(True, test_name, self.l)
                                     return True  
@@ -318,7 +318,7 @@ class Telnet():
                         self.debug_logger.debug(f"port [{self.port}] timeout! log:{Tmp_data}")
                         buffer = self.tn.read_very_eager()
 
-                        self.l.raw_log[test_name]['log'] = Tmp_data
+                        self.l.raw_log[test_name]['log'] += Tmp_data
                         self.l.tmp_log = Tmp_data
                         self.deal_result(False, test_name, self.l)
                         print('timeout')
@@ -335,7 +335,7 @@ class Telnet():
                                         buffer = self.tn.read_very_eager()
                                         #print('buffer:', buffer)
                                         time.sleep(0.1)
-                                        self.l.raw_log[test_name]['log'] = Tmp_data
+                                        self.l.raw_log[test_name]['log'] += Tmp_data
                                         self.l.tmp_log = Tmp_data
                                         self.deal_result(True, test_name, self.l)
                                         return True         
@@ -345,7 +345,7 @@ class Telnet():
                                     buffer = self.tn.read_very_eager()
                                     #print('buffer:', buffer)
                                     time.sleep(0.1)
-                                    self.l.raw_log[test_name]['log'] = Tmp_data
+                                    self.l.raw_log[test_name]['log'] += Tmp_data
                                     self.l.tmp_log = Tmp_data
                                     self.deal_result(True, test_name, self.l)
                                     return True  

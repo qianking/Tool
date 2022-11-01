@@ -128,18 +128,17 @@ class Gearate_log():
         return self.total_log
 
 
-def transfer_log(l):
-    G = SingleTon_Global()
+def transfer_log(l, G):
     l.log += G.log_model(l.raw_log)
-    l.sfis_log += Upload_Log_Tranfer.transfer_to_sfis(l.upload_log)
-    l.iplas_log += Upload_Log_Tranfer.transfer_to_iplas(l.upload_log)
-    l.form_log += Upload_Log_Tranfer.transfer_to_form(l.upload_log)
+    l.sfis_log += Upload_Log_Tranfer.transfer_to_sfis_raw_data(l.upload_log, G)
+    l.iplas_log += Upload_Log_Tranfer.transfer_to_iplas_raw_data(l, G)
+    l.form_log = Upload_Log_Tranfer.transfer_to_form_raw_data(l.upload_log)
 
 
-def generate_log(local):
-    
-    G = SingleTon_Global()
-    transfer_log(local)
+
+def generate_log(local, G):
+
+    transfer_log(local, G)
 
     if_sfif = 'On SFIS' if G.online_function else 'Off SFIS'
     now_day = datetime.now().strftime("%m-%d")
@@ -147,13 +146,13 @@ def generate_log(local):
     if local.dut_info.get('SN'):
         log_path = fr"{G.log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}"
         if not local.dut_test_fail:
-            log_name = fr"{local.dut_info.get('SN')}_[{local.device_id}]_BURNIN_{local.run_times}_{G.VERSION}_[PASS]"
+            log_name = fr"{local.dut_info.get('SN')}_[{local.device_id}]_BURNIN_Cycle_{local.run_times}_{G.VERSION}_[PASS]"
         else:
-            log_name = fr"{local.dut_info.get('SN')}_[{local.device_id}]_BURNIN_{local.run_times}_{G.VERSION}_[FAIL][{local.error_code}]"
+            log_name = fr"{local.dut_info.get('SN')}_[{local.device_id}]_BURNIN_Cycle_{local.run_times}_{G.VERSION}_[FAIL][{local.error_code}]"
     
     else:
         log_path = fr"{G.log_root_path}\Gemini\Burn in\{if_sfif}\{now_day}\unsort log"
-        log_name = fr"{local.telnet_port}_[{local.device_id}]_BURNIN_{local.run_times}_{G.VERSION}_[FAIL][{local.error_code}]"
+        log_name = fr"{local.telnet_port}_[{local.device_id}]_BURNIN_Cycle_{local.run_times}_{G.VERSION}_[FAIL][{local.error_code}]"
 
     os.makedirs(log_path, exist_ok=True)
 

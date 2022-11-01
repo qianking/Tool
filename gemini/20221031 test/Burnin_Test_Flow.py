@@ -7,12 +7,13 @@ import Burnin_Test_Item as Test_Item
 from datetime import datetime
 import create_log as create_log
 from concurrent.futures import ThreadPoolExecutor
-from exceptions import Test_Fail, Online_Fail
+from exceptions import Test_Fail, Online_Fail, CheckRoute_Fail
 from Upload_Functions import Upload_FTP, SFIS_Function
 from Global_Variable import SingleTon_Global, variable_setter, thread_local_set
 from Log_Dealer import Log_Model
 import Generate_Log
 import exceptions
+from iPLAS.py_producer import PyProducer
 
 local = threading.local()
 ui_lock = threading.Lock()
@@ -30,8 +31,13 @@ def get_veriable_from_controller(**awags):
         G.test_time = config['test_time']
         G.terminal_comport = config['terminal_comport']
         G.open_station = config['open_station']
+        G.ftp_function = config['ftp_function']
         G.ftp_upload_path = config['ftp_upload_path']
         G.op = config['op']
+        if G.test_time == 0:
+            G.total_run_times = 1
+        elif G.test_time == 8:
+            G.total_run_times = 24
 #endregion
 
 
@@ -41,14 +47,16 @@ class UI_Contol():
     def __init__(self, **awags):
         self.signal = awags.get('signal')
 
-    def single_status(self, telnet_port, status):
+    def single_status(self, telnet_port, status, color = None):
         """
         改變單一station的狀態
         status: ['fail', 'done']
+        color: ['red', 'lightgreen']
         """
+
         ui_lock.acquire()
         if self.signal: 
-            self.signal.single_light.emit((telnet_port, status))
+            self.signal.single_light.emit((telnet_port, status, color))
         ui_lock.release()
 
     def all_status(self, color, txt):
@@ -92,13 +100,19 @@ class Fail_Dealer():
             try: 
                 func(*args, **kwargs)
 
+            except Test_Fail:
+                return False
+
             except Online_Fail:
                 return False
+            
+            except CheckRoute_Fail:
+                return 'CheckRoute_Fail'
 
             except Exception as ex:
                 print(ex)
                 """系統錯誤，基本上不應該出現，設定彈窗提示，並且停下來"""
-                return False  
+                return 'Exception' 
 
             else:
                 return True
@@ -118,71 +132,64 @@ class TerminalFlow(Test_Item.Terminal_Server_Test_Item):
         Test_Item.Terminal_Server_Test_Item.__init__(self, self.l, port = self.G.terminal_comport, baud = self.baud)  
 
 
-    @Fail_Dealer()
+    
     def Check_ALL_Comport(self):
         """
         確認terminal server和pg的port口是否正常
         """
-        if not self.Check_Comport():
-            return True
-        return True
-
-
-    @Fail_Dealer()
+        self.Check_Comport()
+      
     def Terminal_Server_Flow(self):
         """
         terminal server清線
         """
-        if not self.Enter_en_Mode():
-            return True
-        if not self.Clear_Port_on_Terminal(2, 5):
-            return True
-        return True
+        self.Enter_en_Mode()
+        self.Clear_Port_on_Terminal(self.G.open_station)
+          
+       
 
 
 class Online_Flow(Upload_FTP, SFIS_Function):
     
     G = SingleTon_Global()
 
-    def __init__(self, l):
-        self.l = l
+    def __init__(self):
+        self.l = local
 
         Upload_FTP.__init__(self, self.G.ftp_upload_path, self.l)
         SFIS_Function.__init__(self, self.G.op, self.l)
 
         self.l.upload_debug_logger.debug(f"{self.l.run_times:-^50}")
 
-
-    @Fail_Dealer()
     def FTP_Upload(self):
-        self.ftb_upload_file(self.l.ftp_local_path, self.l.ftp_remote_path)
+        if self.G.ftp_function:
+            self.ftb_upload_file(self.l.ftp_local_path, self.l.ftp_remote_path)
 
-
-    @Fail_Dealer()
     def SFIS_Check_Route(self):
         if self.G.online_function:
-            if not self.l['been_checkroute']:
+            if not self.l.been_checkroute:
                 self.sfis_checkroute(self.l.dut_info['SN'])
-                self.l['been_checkroute'] = True
+                self.l.been_checkroute = True
 
-    @Fail_Dealer()
     def SFIS_Get_SN(self):
         if self.G.online_function:
-            pass
-
-    @Fail_Dealer()        
+            if not self.l.been_sfis_upload and (len(self.l.error_code) or self.l.run_times == self.G.total_run_times):
+                if self.l.dut_info.get('SN'):
+                    self.sfis_get_dut_sn(self.l.dut_info.get('SN'))
+                else:
+                    self.l.sfis_get_sn_fail = True
+      
     def SFIS_Upload(self):
         if self.G.online_function:
-            if not self.l['been_sfis_upload'] and (len(self.l.dut_error_code) or self.l.run_times == self.G.total_run_times): #如果有ERROR CODE並且還沒上傳過
-                self.l['been_sfis_upload'] = True
-                self.sfis_upload(self.l.dut_info['SN'], self.l.dut_error_code, self.l.sfis_log)
-    
-    
-    @Fail_Dealer()    
+            if not self.l.been_sfis_upload and (len(self.l.error_code) or self.l.run_times == self.G.total_run_times): #如果有ERROR CODE並且還沒上傳過
+                self.sfis_upload(self.l.dut_info['SN'], self.l.error_code, self.l.sfis_log)
+                self.l.been_sfis_upload = True
+        
     def IPLAS_Upload(self):
         if self.G.online_function:
-            if not self.l.check_route_fail:
-                pass
+            if not self.l.been_sfis_upload and (len(self.l.error_code) or self.l.run_times == self.G.total_run_times):
+                if not self.l.check_route_fail and not self.l.sfis_get_sn_fail:
+                    PyProducer.send_ts_data(local.iplas_log_path, local.iplas_log)
 
 
 
@@ -190,153 +197,82 @@ class MainFlow():
 
     G = SingleTon_Global()
 
-    def __init__(self, device_ID, telnet_port):
+    def __init__(self):
         self.l = local
-        print('in ain flow:', id(self.l))
-        self.l.device_id = device_ID
-        self.l.telnet_port = telnet_port
-        now_day = datetime.now().strftime("%m-%d")
-        today_logger_path = fr"{self.G.logger_path}\{now_day}\{telnet_port}"
-
-        self.l.dut_debug_logger = create_log.create_logger(today_logger_path, f"Gemini {telnet_port}_log")
-        self.test = Test_Item.Gemini_Test_Item(self.l, ip = self.G.telnet_ip, port = telnet_port)
-        self.online = Online_Flow(self.l)
+        self.test = Test_Item.Gemini_Test_Item(self.l, ip = self.G.telnet_ip, port = self.l.telnet_port)
+        self.online = Online_Flow()
  
     @Fail_Dealer()
     def Gemini_BurnIn(self):
         """
         Gemini測試流程
         """
-        result = self.test.Check_Telnet_Connect()
-        if not result:
-            return True
-
-        result = self.test.Boot_Up()
-        if not result:
-            return True
-
-        result = self.test.Get_SN()
-        if not result:
-            return True
-          
-        result = self.online.SFIS_Check_Route()
-        if not result:
-            return True
-
-        result = self.Set_Power()
-        if not result:
-            return True
-
-        result = self.test.Check_HW_SW_Ver()
-        if not result:
-            return True
-
-        result = self.test.Check_RTC()  
-        if not result:
-            return True
-
-        result = self.test.Check_HW_Monitor()
-        if not result:
-            return True
-
-        result = self.test.Check_Fan0_Speed()
-        if not result:
-            return True
-
-        result = self.test.Check_Fan100_Speed()
-        if not result:
-            return True
-
-        result = self.test.DRAM_Test()
-        if not result:
-            return True
-
-        result = self.test.SSD_Test()
-        if not result:
-            return True
-
-        result = self.test.Module_Signal_Check()
-        if not result:
-            return True
-
-        result = self.test.Set_Loopback_3_5W()
-        if not result:
-            return True
-
-        result = self.test.Traffic_Test()
-        if not result:
-            return True
-
-        result = self.test.Loopbak_Test()
-        if not result:
-            return True
-
-        result = self.test.Rebbot()
-        if not result:
-            return True
+        self.test.Check_Telnet_Connect()
+        #self.test.Boot_Up()
+        #self.test.Get_SN()
+        #self.online.SFIS_Check_Route()
+        #self.Set_Power()
+        #self.test.Check_HW_SW_Ver()
+        #self.test.Check_RTC()  
+        self.test.Check_HW_Monitor()
+        #self.test.Check_Fan0_Speed()
+        #self.test.Check_Fan100_Speed()
+        #self.test.DRAM_Test()
+        #self.test.SSD_Test()
+        #self.test.Module_Signal_Check()
+        #self.test.Set_Loopback_3_5W()
+        #self.test.Traffic_Test()
+        #self.test.Loopbak_Test()
+        #self.test.Rebbot()
         
-        return True
-
 
     def Set_Power(self):
-        run_times = self.l.run_times
-        if run_times % 3 == 1:
-            result = self.test.Set_Two_Power()
-            if not result:
-                return False
+        if self.l.run_times % 3 == 1:
+            self.test.Set_Two_Power()
 
-        if run_times % 3 == 2:
-            result = self.test.Set_A_Power()
-            if not result:
-                return False
+        if self.l.run_times % 3 == 2:
+            self.test.Set_A_Power()
 
-        if run_times % 3 == 0:
-            result = self.test.Set_B_Power()
-            if not result:
-                return False
-    
+        if self.l.run_times % 3 == 0:
+            self.test.Set_B_Power()
+        
     def Gemini_Reboot(self):
-        result = self.test.Rebbot()
-        if not result:
-            return False
+        self.test.Rebbot()
+        
     
 
 
- 
+@Fail_Dealer()
 def Test_End_Function():
+    G = SingleTon_Global()
     try:
-        Generate_Log.generate_log(local)
+        Generate_Log.generate_log(local, G)
     except Exception as ex:
         error_msg = exceptions.error_dealer(ex)
         local.sys_error_msg.append(error_msg)
-        return False
+        raise Exception
         
-    online = Online_Flow(local)
-    if not online.FTP_Upload():
-        return False
-    if not online.SFIS_Upload():
-        return False
-    if not online.IPLAS_Upload():
-        return False
-    return True
-
-
-
+    online = Online_Flow()
+    online.FTP_Upload()
+    online.SFIS_Upload()
+    online.SFIS_Get_SN()
+    online.IPLAS_Upload()
+        
+    
+@Fail_Dealer()
 def Terminal_Flow():
     terminal = TerminalFlow()
-    if not terminal.Check_ALL_Comport():
-        return False
-    if not terminal.Terminal_Server_Flow():
-        return False
-    return True
+    terminal.Check_ALL_Comport()  
+    terminal.Terminal_Server_Flow()
+  
     
-
 def Create_Debug_Log(logger_path):
     port = local.telnet_port
     now_day = datetime.now().strftime("%m-%d")
+    now_time = datetime.now().strftime("%H-%M-%S")
     today_logger_path = fr"{logger_path}\{now_day}\{port}"
-
-    local.dut_debug_logger = create_log.create_logger(today_logger_path, f"Gemini {port}_log")
+    os.makedirs(today_logger_path, exist_ok = True)
+    local.dut_debug_logger = create_log.create_logger(today_logger_path, f"Gemini_{port}_log")
     local.upload_debug_logger = create_log.create_logger(today_logger_path, f"Upload_{port}_log")
     local.sys_debug_logger = create_log.create_logger(today_logger_path, f"System_{port}_log")
 
@@ -344,44 +280,63 @@ def Create_Debug_Log(logger_path):
 def Gemini_Burn_In_Flow(telnet_port, device_ID):
     G = SingleTon_Global()
     variable_setter(local)
+    local.telnet_port = telnet_port
+    local.device_id = device_ID
     Create_Debug_Log(G.logger_path)
     
     condition = True
     while condition:
-        Main_Flow = MainFlow(device_ID, telnet_port)
+
+        G.UI_Signal.single_status(local.telnet_port, f'cycle {local.run_times}')
+
+        Main_Flow = MainFlow()
 
         local.test_start_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         
         result = Main_Flow.Gemini_BurnIn()
 
         local.test_end_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        print(local.upload_log)
 
-        if result:
+        if result == True or result == False:
 
             """改變UI狀態，如果有error code，就顯示紅燈"""
             if len(local.error_code):
-                G.UI_Signal.single_status(local.telnet_port, 'fail')
+                G.UI_Signal.single_status(local.telnet_port, 'fail', 'red')
 
             """改變UI狀態，顯示紅燈"""
-            if not Test_End_Function():#任何上傳失敗
-                G.UI_Signal.single_status(local.telnet_port, 'fail')
+            result = Test_End_Function()
+            if result == False:#任何上傳失敗
+                G.UI_Signal.single_status(local.telnet_port, 'fail', 'red')
+                
+            if result == 'Exception':
                 if len(local.sys_error_msg):
-                    msg = ",".join(local.sys_error_msg)
+                    msg = "\n".join(local.sys_error_msg)
+                    print('exception:', msg)
+                    local.sys_debug_logger.exception(f'Exception: {msg}')
+                    G.UI_Signal.single_status(local.telnet_port, 'exception', 'red')
                     G.UI_Signal.error_box('sys exception', msg)
-        
+                    break
 
-        else: #system exception
+        elif result == 'CheckRoute_Fail':
+            """顯示check route fail 字樣"""
+            G.UI_Signal.single_status(local.telnet_port, 'check route fail', 'red')
+            break
+        
+        elif result == 'Exception':
             """顯示紅燈，跳出提示視窗並結束測試"""    
-            G.UI_Signal.single_status(local.telnet_port, 'fail')
+            G.UI_Signal.single_status(local.telnet_port, 'exception', 'red')
             if len(local.sys_error_msg):
-                msg = ",".join(local.sys_error_msg)
+                msg = "\n".join(local.sys_error_msg)
+                print('exception:', msg)
+                local.sys_debug_logger.exception(f'Exception: {msg}')
                 G.UI_Signal.error_box('sys exception', msg)
             thread_local_set(local)
             break 
 
-        local.run_time += 1
+        local.run_times += 1
         thread_local_set(local)
-        if local.run_time > G.total_run_times:
+        if local.run_times > G.total_run_times:
             G.UI_Signal.test_finish()
             condition = False
     
@@ -393,15 +348,20 @@ def Main_Test_Flow(**awags):
     G.UI_Signal = UI_Contol(**awags)
 
     G.log_model = Log_Model.only_name
-    G.main_debug_logger = create_log.create_logger(fr"{G.logger_path}", f"Main_log")
+    now_day = datetime.now().strftime("%m-%d")
+    main_log_path = fr"{G.logger_path}\{now_day}"
+    os.makedirs(main_log_path, exist_ok = True)
+    G.main_debug_logger = create_log.create_logger(main_log_path, 'Main_log')
 
-    if not Terminal_Flow():
-        """UI跳視窗並停止"""
-        msg = ".".join(local.sys_error_msg)
-        G.UI_Signal.error_box('termianl error', msg)
+    result = Terminal_Flow()
+    if result == False or result == 'Exception':
+        if result == 'Exception':
+            """UI跳視窗並停止"""
+            msg = "\n".join(local.sys_error_msg)
+            G.main_debug_logger.debug(f'Exception:{msg}')
+            G.UI_Signal.error_box('termianl error', msg)
         return 0
     
-    #Gemini_Burn_In_Flow(2002, '992632')
 
     thread_list = list()
     with ThreadPoolExecutor(max_workers=get_thread_num(G.open_station)) as executor:
@@ -413,7 +373,6 @@ def Main_Test_Flow(**awags):
         if future.exception():
             print(future.exception())
             G.main_debug_logger.exception(f"exeption:{future.exception()}") 
-
 
 
 

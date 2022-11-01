@@ -1,5 +1,6 @@
 from functools import partial
 from enum import Enum
+from datetime import datetime
 
 
 class _log_dealer():
@@ -67,6 +68,12 @@ class Upload_Log_Tranfer():
 
         return temp_log.strip()
 
+    @staticmethod
+    def transfer_to_sfis_raw_data(upload_log, G):
+        title = f'TESTITEM,STATUS,VALUE,UCL,LCL\r\nProgram Version,1,{G.VERSION}\r\n'
+        title += Upload_Log_Tranfer.transfer_to_sfis(upload_log)
+        return title
+
 
     @staticmethod
     def transfer_to_iplas(data:dict):
@@ -74,14 +81,45 @@ class Upload_Log_Tranfer():
         for test_item_name, test_data in data.items():
             temp_log += test_item_name
             temp_log += ',PASS' if test_data[0] else ',FAIL'
-            for i, vlaue in enumerate(test_data[1:]):
-                if vlaue == None and i == 1:
-                    temp_log += f",PASS" if test_data[0] == 1 else ",FAIL"
-                if vlaue != None:
-                    temp_log += f",{vlaue}"
+            temp_log += ',PASS' if test_data[1] == None else f",{test_data[1]}"
+            temp_log += ',' if test_data[2] == None else f",{test_data[2]}"
+            temp_log += ',' if test_data[3] == None else f",{test_data[3]}"
+            temp_log += ',' if test_data[5] == None else f",{test_data[5]}" 
             temp_log += '\r\n'
 
         return temp_log.strip()
+
+    @staticmethod
+    def transfer_to_iplas_raw_data(l, G):
+        project = 'Gemini'
+        model = ''
+        test_result = 'PASS' if not l.dut_test_fail else 'FAIL'
+        error_code = l.error_code if len(l.error_code) else ''
+        send_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+
+        title = "TEST,STATUS,VALUE,UCL,LCL,CYCLE\r\n"
+        title += f"ISN,,{l.dut_sfis_sn},,,0\r\n"
+        title += f"Project,,{project},,,0\r\n"
+        title += f"TSP,,BURNIN,,,0\r\n"
+        title += f"Type,,ONLINE,,,0\r\n"
+        title += f"Test Start Time,,{l.test_start_time},,,0\r\n"
+        title += f"Test end Time,,{l.test_end_time},,,0\r\n"
+        title += f"DeviceId,,{l.device_id},,,0\r\n"
+        title += f"Model,,{model},,,0\r\n"
+        title += f"Line,,61F53D12,,,0\r\n"
+        title += f"Slot,,,,,0\r\n"
+        title += f"MO,,,,,,0\r\n"
+        title += f"SN,,{l.dut_sfis_sn},,,0\r\n"
+        title += f"CVP_Ver,,Pegatron_{G.VERSION},,,0\r\n"
+        title += f"ProducerVersion,,2.0.0.0,,,0\r\n"
+        title += f"Build,,,,,0\r\n"
+        title += f"Test Status,,{test_result},,,0\r\n"
+        title += f"ErrorCode,,{error_code},,,0\r\n"
+        title += f"CONFIG,,,,,0\r\n"
+        title += f"CallerSendTime,,{send_time},,,0\r\n"         
+
+        title += Upload_Log_Tranfer.transfer_to_iplas(l.upload_log)
+        return title
 
     @staticmethod
     def transfer_to_form(data:dict):
@@ -98,10 +136,20 @@ class Upload_Log_Tranfer():
                     temp_log.append(str(vlaue))
             temp_list.append(temp_log)
         return temp_list
+
+    @staticmethod
+    def transfer_to_form_raw_data(upload_log):
+        title = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time (s)>']]
+        title.extend(Upload_Log_Tranfer.transfer_to_form(upload_log))
+        return title
             
 
 
 if "__main__" == __name__:
-    upload_log= {'Check_Telnet_Connect': (1, None, None, None, None, 0), 'Boot_Up': (1, None, None, None, None, 100), 'Get_SN': (1, None, None, None, None, 3), 'Rebbot': (1, None, None, None, None, 14)}
+    upload_log= {'Check_Telnet_Connect': (1, None, None, None, None, 0), 'Boot_Up': (0, None, None, None, 'B00OT000002', 21)}
     j = Upload_Log_Tranfer()
-    print(j.transfer_to_form(upload_log))
+    title = [['<Item>', '<Result>', '<Value>', '<Upper>', '<Lower>', '<Error>', '<Time (s)>']]
+    tmp = j.transfer_to_form(upload_log)
+    title.extend(tmp)
+    
+    print(title)

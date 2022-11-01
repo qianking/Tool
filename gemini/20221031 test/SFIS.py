@@ -37,8 +37,10 @@ class SFIS():
     def Get_MAC(self):
         pass
 
-    def Get_SSN(self):
-        pass
+    def Get_SSN(self, SN, deviceID):
+        sfis_return = self.SFIS_web.WTSP_GETVERSION(ISN = SN, device= deviceID, type='ASSIGN_SSN', ChkData='SSN', ChkData2 = '')
+        sfis_data = get_pure_sfif(sfis_return)
+        return sfis_data
 
     def Get_MNAME(self):
         pass
