@@ -3,10 +3,10 @@ import os
 import time
 import threading
 from datetime import datetime
-from Global_Variable import SingleTon_Variable, get_exception_detail
-from user_login.User_Login import Login_and_Checkinternet
-from lib.chromedriver_helper import Check_Chrome_Driver
-import lib.create_log as create_log
+from iplas.Global_Variable import SingleTon_Variable, get_exception_detail
+from iplas.user_login.User_Login import Login_and_Checkinternet
+from iplas.lib.chromedriver_helper import Check_Chrome_Driver
+import iplas.lib.create_log as create_log
 
 G = SingleTon_Variable()
 
@@ -39,7 +39,7 @@ def main_flow(signal = None):
     thread2 = threading.Thread(target = driver.check_driver_available)  
     thread2.start()  
     tsk.append(thread2)
-    
+
     for tt in tsk:
         tt.join()
     
@@ -48,6 +48,7 @@ def main_flow(signal = None):
     
 
 
+main_flow()
 
-if __name__ == "__main__":
-    main_flow()
+''' if __name__ == "__main__":
+    main_flow() '''

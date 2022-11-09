@@ -1,13 +1,15 @@
 import sys
 import os
-now_dir = os.path.dirname(os.path.abspath(__file__))
-mymodule_dir = '\\'.join(now_dir.split('\\')[:-1])
-sys.path.append(mymodule_dir)
-from Global_Variable import SingleTon_Variable, get_exception_detail
-from lib.login_lib import checkpass_request, Decrypt
 from userlogin_ui_controller import Login
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtGui import QFont
+''' now_dir = os.path.dirname(os.path.abspath(__file__))
+mymodule_dir = '\\'.join(now_dir.split('\\')[:-1])
+sys.path.append(mymodule_dir) '''
+from ..Global_Variable import SingleTon_Variable, get_exception_detail
+from login_lib.loginlib import checkpass_request, Decrypt
+
+
 
  
 class Login_and_Checkinternet():
@@ -69,13 +71,18 @@ class Login_and_Checkinternet():
         app.exec()
 
 
-if __name__ == "__main__":
-    current_path = os.path.dirname(os.path.abspath(__file__))
-    upper_folder_path = '\\'.join(current_path.split('\\')[:-2])     #到上兩層資料夾
 
-    user_data_folder = fr"{upper_folder_path}\docs"   #使用者帳密在上一層資料夾中的data資料夾中
-    os.makedirs(user_data_folder, exist_ok=True)
-    user_data_path = fr"{user_data_folder}\fw7ssv7b9bdb7ddn"  
+current_path = os.path.dirname(os.path.abspath(__file__))
+upper_folder_path = '\\'.join(current_path.split('\\')[:-2])     #到上兩層資料夾
 
-    login = Login_and_Checkinternet(user_data_path)
-    print(login.user_login_and_check_internet())
+user_data_folder = fr"{upper_folder_path}\docs"   #使用者帳密在上一層資料夾中的data資料夾中
+os.makedirs(user_data_folder, exist_ok=True)
+user_data_path = fr"{user_data_folder}\fw7ssv7b9bdb7ddn"  
+
+login = Login_and_Checkinternet(user_data_path)
+print(login.user_login_and_check_internet())
+
+
+
+''' if __name__ == "__main__": '''
+    

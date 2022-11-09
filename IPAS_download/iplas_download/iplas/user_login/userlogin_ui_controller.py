@@ -5,7 +5,7 @@ from login_ui import Ui_MainWindow
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication, QLineEdit
 from PySide6.QtCore import Signal, QRunnable, QThreadPool, QObject 
 from PySide6.QtGui import QFont, QIcon, Qt
-from lib.login_lib import checkpass_request, Encrypt
+from login_lib.loginlib import checkpass_request, Encrypt
 
 
 
