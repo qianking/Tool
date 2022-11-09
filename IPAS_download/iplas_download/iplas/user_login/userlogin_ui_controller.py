@@ -10,12 +10,10 @@ import login_flow
 
 
 class Login(QMainWindow):
-    def __init__(self, user_data_path = None):
+    def __init__(self):
         super(Login, self).__init__()
         self.userdata = list()
-        self.internet_status = None
-
-        self.user_data_path = user_data_path
+        
         self._window = Ui_MainWindow()
         self._window.setupUi(self)
         
@@ -163,7 +161,7 @@ class start_verify(QRunnable):
         self.userdata = userdata
         
     def run(self):
-        login_flow.check_user_data(self.user_data_path, self.userdata, self.signal)
+        login_flow.check_user_data(self.userdata, self.signal)
 
 
 class Load_Thread(QRunnable):

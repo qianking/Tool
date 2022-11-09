@@ -9,9 +9,9 @@ import urllib3
 
 urllib3.disable_warnings()
 
+
 def check_user_data(user_data_path, userdata, signal):
     code = _checkpass_request(userdata)
-    
     if code == 200:
         data = ' '.join(userdata)
         en_data = _crypt.Encrypt(data)
@@ -34,11 +34,7 @@ def _checkpass_request(data):
     else:
         return resp.status_code
 
-def _test(userdata):
-    data = ' '.join(userdata)
-    en_data = _crypt.Encrypt(data)
-    with open(user_data_path, 'wb') as f:
-        f.write(en_data)
+
 
 if __name__ == "__main__":
     user_data_path = r'D:\Qian\python\GIT\Tool\IPAS_download\iplas_download\docs\fw7ssv7b9bdb7ddn'

@@ -15,12 +15,12 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QWidget, Q
 sys.path.append("./user_login")
 sys.path.append("./user_login/lib")
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath( __file__ ))))
-from userlogin_ui_controller import Login
-import login_flow as login_flow
-import _crypt
+from user_login.userlogin_ui_controller import Login
+import user_login.login_flow as login_flow
+import user_login.lib._crypt as _crypt
 from IPLAS_Download import Get_User_Project
 import lib.create_log as create_log
-from Pre_proccess_controller import Pre_process
+#from Pre_proccess_controller import Pre_process
 
 
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -85,7 +85,8 @@ class Login_and_Checkinternet():
             app = QApplication(sys.argv)
         self.login = Login(self.user_data_path)
         self.login.show()
-        return self.login.userdata
+        app.exec()
+        
 
 
 class Check_Chrome_Driver():

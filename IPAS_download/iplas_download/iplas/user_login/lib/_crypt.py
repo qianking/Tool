@@ -1,5 +1,3 @@
-import os
-import sys
 import binascii
 from pyDes import des, CBC, PAD_PKCS5
 
