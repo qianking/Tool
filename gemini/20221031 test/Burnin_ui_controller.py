@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtCore import  QTimer, QRunnable, QThreadPool,Signal, Qt, QObject
 from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow
 from PySide6.QtGui import QFont
-from Burnin_Test_Flow import Main_Test_Flow
+from Burnin_Test_Flow import Main_Test_Flow, Clear_Port_Flow
 from ui import Ui_MainWindow
 
 config = {'config_error_msg': '', 
@@ -22,7 +22,7 @@ config = {'config_error_msg': '',
 
 config_path = r'.\config.ini'
 value_config_path = r".\value_config.ini"                                         
-VERSION = 'V0.00.24'
+VERSION = 'V1.00.01'
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -175,14 +175,30 @@ class MainWindow(QMainWindow):
             self.start.setEnabled(False)
         else:
             self.start.setEnabled(True)  
-        
-    def start_burnin(self):
+
+    def start_init(self):
         self.get_start_time()
         self.timer_start()
-        self.start_burnin_thread()
-        self.set_all_checkbox(('lightgreen', 'Ongoing..'))
+    
+    def start_burnin(self):
+        self.start_init_thread()
         self.start.setEnabled(False)
 
+    def start_init_thread(self):
+        self.init_thread = Start_Init()
+        self.init_thread.signal.single_light.connect(self.single_light_change)
+        self.init_thread.signal.init_finish.connect(self.init_done_box)
+        self.init_thread.signal.all_light.connect(self.set_all_checkbox)
+        self.init_thread.signal.error_msg.connect(self.custom_message)
+        self.init_thread.signal.back_to_origin.connect(self.back_to_init)
+        self.threadpool.start(self.init_thread)
+    
+    def init_done_box(self):
+        reply = self.custom_message(('info', '清線結束，請上電')) 
+        if reply == QMessageBox.Ok:
+            self.get_start_time()
+            self.timer_start()
+            self.start_burnin_thread()
 
     def start_burnin_thread(self):
         self.burnin_thread = Start_Burnin()
@@ -190,8 +206,11 @@ class MainWindow(QMainWindow):
         self.burnin_thread.signal.all_light.connect(self.set_all_checkbox)
         self.burnin_thread.signal.error_msg.connect(self.custom_message)
         self.burnin_thread.signal.finish.connect(self.test_finish)
-
         self.threadpool.start(self.burnin_thread)
+    
+    def back_to_init(self):
+        self.timer.stop()
+        self.set_start_btm()
 #endregion
 
     def single_light_change(self, data:tuple):
@@ -206,6 +225,7 @@ class MainWindow(QMainWindow):
         
     def test_finish(self):
         self.timer.stop()
+        
         self.set_start_btm()
         
     
@@ -252,6 +272,18 @@ class thread_signal(QObject):
     all_light = Signal(tuple)
     error_msg = Signal(tuple)
     finish = Signal()
+    init_finish = Signal()
+    back_to_origin = Signal()
+
+
+class Start_Init(QRunnable):
+    def __init__(self):
+        super(Start_Init, self).__init__()  
+        self.signal = thread_signal()
+
+    def run(self):
+        Clear_Port_Flow(config = config,
+                        signal = self.signal) 
 
         
 class Start_Burnin(QRunnable):

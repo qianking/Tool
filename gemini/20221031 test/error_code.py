@@ -2,6 +2,7 @@
 class Error_Code():
     def __init__(self):
         self._error_code = {'Check_Telnet_Connect' : 'B00WR000003',
+                            'Reboot': 'QSFI06', 
                             'Boot_Up' : 'B00OT000002',
                             'Set_Two_Power' : 'Q0ZP00', 
                             'Set_A_Power' : 'Q0ZP00', 
@@ -58,15 +59,22 @@ class Error_Code():
                             'fan100%_fan_4_outer_r.p.m' : 'QSFT2A', 
                             'fan100%_fan_5_outer_r.p.m' : 'QSFT2B',
                             'Check_Fan0_Speed' : 'Q0FO02',
+                            'Fan_auto_mode' : 'Q0FO02',
                             'DRAM_Test' : 'QSFF38', 
                             'SSD_Test' : 'QSFF39', 
                             'Module_Signal_Check' : 'QSFC32',
                             'Set_Loopback_3_5W' : 'Set_Loopback_3_5W', 
                             'Traffic_Test' : 'Q0ZL00',
-                            'Loopbak_Test' : 'QSFC10'}
+                            'Loopbak_Test' : 'QSFC10',
+                            'Set_Green_light' : 'Q0ZG00',
+                            'Set_Red_light' : 'Q0ZG00',}
 
     def __getitem__(self, data):
-        
-        return self._error_code.get(data)
+        if self._error_code.get(data):
+            return self._error_code.get(data)
+        else:
+            return ''
     
+
+
 

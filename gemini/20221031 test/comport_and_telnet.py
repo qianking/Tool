@@ -11,44 +11,6 @@ from exceptions import TimeOutError
 from Global_Variable import SingleTon_Global
 
 
-''' class Fail_Dealer():
-
-
-    def __init__(self):
-        self.l = self.p[threading.get_ident()]
-        self.ERROR = Error_Code()
-    
-    
-    def __call__(self, func):
-        @wraps(func)
-        def decorated(*args, **kwargs):
-            self.l = self.p[threading.get_ident()]
-            try:
-                test_name = sys._getframe(1).f_code.co_name
-                
-                result, data = func(*args, **kwargs)
-
-                self.l['_log_raw_data'][test_name]['log'] += data
-                self.l['_tmp_log'] = data
-                self.deal_result(result, test_name)
-                if not result:   
-                    raise TimeOutError
-
-            except TimeOutError:
-                raise TimeOutError
-
-            except Exception as ex:
-                print(ex)
-                """連上錯誤"""
-                self.l['_log_raw_data'][test_name]['log'] += ''
-                self.l['_upload_data'][test_name] = (0, None, None, None, self.ERROR[test_name], self.get_runtime())
-                self.sys_exception(ex)
-                raise Exception 
-
-            else:
-                return True
-        return decorated '''
-
 
 class COM():
 

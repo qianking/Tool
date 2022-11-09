@@ -3,5 +3,9 @@
 
 
 
-line = 2002
-print(f"{line-2000}")
+class Newstyle(object):
+    pass
+
+print(Newstyle.__class__ == type)
+
+print(Newstyle().__class__ == Newstyle)

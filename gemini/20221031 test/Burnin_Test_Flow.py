@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from exceptions import Test_Fail, Online_Fail, CheckRoute_Fail
 from Upload_Functions import Upload_FTP, SFIS_Function
 from Global_Variable import SingleTon_Global, variable_setter, thread_local_set
-from Log_Dealer import Log_Model
+
 import Generate_Log
 import exceptions
 from iPLAS.py_producer import PyProducer
@@ -36,8 +36,8 @@ def get_veriable_from_controller(**awags):
         G.op = config['op']
         if G.test_time == 0:
             G.total_run_times = 1
-        elif G.test_time == 8:
-            G.total_run_times = 24
+        else:
+            G.total_run_times = G.test_time*6
 #endregion
 
 
@@ -46,6 +46,24 @@ class UI_Contol():
 
     def __init__(self, **awags):
         self.signal = awags.get('signal')
+    
+    def init_finish(self):
+        """
+        初始化完成
+        """
+        ui_lock.acquire()
+        if self.signal: 
+            self.signal.init_finish.emit()
+        ui_lock.release()
+
+    def back_to_origin(self):
+        """
+        回到原始設定
+        """
+        ui_lock.acquire()
+        if self.signal: 
+            self.signal.back_to_origin.emit()
+        ui_lock.release()   
 
     def single_status(self, telnet_port, status, color = None):
         """
@@ -66,7 +84,7 @@ class UI_Contol():
         """
         ui_lock.acquire()
         if self.signal: 
-            self.signal.set_all_checkbox.emit((color, txt))
+            self.signal.all_light.emit((color, txt))
         ui_lock.release()
 
     def error_box(self, title, msg):
@@ -170,6 +188,14 @@ class Online_Flow(Upload_FTP, SFIS_Function):
             if not self.l.been_checkroute:
                 self.sfis_checkroute(self.l.dut_info['SN'])
                 self.l.been_checkroute = True
+      
+    def SFIS_Upload(self):
+        if self.G.online_function:
+            if not self.l.been_sfis_upload and (len(self.l.error_code) or self.l.run_times == self.G.total_run_times): #如果有ERROR CODE並且還沒上傳過
+                if self.l.dut_info.get('SN'):
+                    self.l.been_sfis_upload = True
+                    self.sfis_upload(self.l.dut_info['SN'], self.l.error_code, self.l.sfis_log)
+    
 
     def SFIS_Get_SN(self):
         if self.G.online_function:
@@ -178,13 +204,7 @@ class Online_Flow(Upload_FTP, SFIS_Function):
                     self.sfis_get_dut_sn(self.l.dut_info.get('SN'))
                 else:
                     self.l.sfis_get_sn_fail = True
-      
-    def SFIS_Upload(self):
-        if self.G.online_function:
-            if not self.l.been_sfis_upload and (len(self.l.error_code) or self.l.run_times == self.G.total_run_times): #如果有ERROR CODE並且還沒上傳過
-                self.sfis_upload(self.l.dut_info['SN'], self.l.error_code, self.l.sfis_log)
-                self.l.been_sfis_upload = True
-        
+
     def IPLAS_Upload(self):
         if self.G.online_function:
             if not self.l.been_sfis_upload and (len(self.l.error_code) or self.l.run_times == self.G.total_run_times):
@@ -208,22 +228,31 @@ class MainFlow():
         Gemini測試流程
         """
         self.test.Check_Telnet_Connect()
-        #self.test.Boot_Up()
-        #self.test.Get_SN()
-        #self.online.SFIS_Check_Route()
-        #self.Set_Power()
-        #self.test.Check_HW_SW_Ver()
-        #self.test.Check_RTC()  
+        if self.l.run_times != 1:
+            self.test.Reboot()
+        self.test.Boot_Up()
+        self.test.Get_SN()
+        self.online.SFIS_Check_Route()
+        self.Set_Power()
+        self.test.Check_HW_SW_Ver()
+        self.test.Check_RTC()  
         self.test.Check_HW_Monitor()
-        #self.test.Check_Fan0_Speed()
-        #self.test.Check_Fan100_Speed()
-        #self.test.DRAM_Test()
-        #self.test.SSD_Test()
-        #self.test.Module_Signal_Check()
-        #self.test.Set_Loopback_3_5W()
-        #self.test.Traffic_Test()
-        #self.test.Loopbak_Test()
-        #self.test.Rebbot()
+        self.test.Check_Fan0_Speed()
+        self.test.Check_Fan100_Speed()
+        self.test.Fan_auto_mode()
+        self.test.DRAM_Test()
+        self.test.SSD_Test()
+        self.test.Module_Signal_Check()
+        self.test.Set_Loopback_3_5W()
+        self.test.Traffic_Test()
+        self.test.Loopbak_Test()
+
+        if local.run_times == self.G.total_run_times:
+            if not local.dut_been_test_fail:
+                self.test.Set_Green_light()
+            else:
+                self.test.Set_Red_light()
+        
         
 
     def Set_Power(self):
@@ -235,37 +264,39 @@ class MainFlow():
 
         if self.l.run_times % 3 == 0:
             self.test.Set_B_Power()
-        
-    def Gemini_Reboot(self):
-        self.test.Rebbot()
-        
-    
+
 
 
 @Fail_Dealer()
 def Test_End_Function():
+    online = Online_Flow()
+    online.SFIS_Get_SN()
+    Generate_log_and_Upload()
+    online.SFIS_Upload()
+    online.IPLAS_Upload()
+
+
+def Generate_log_and_Upload():
     G = SingleTon_Global()
-    try:
-        Generate_Log.generate_log(local, G)
-    except Exception as ex:
-        error_msg = exceptions.error_dealer(ex)
-        local.sys_error_msg.append(error_msg)
-        raise Exception
-        
+    Generate_Log.generate_log(local, G)
     online = Online_Flow()
     online.FTP_Upload()
-    online.SFIS_Upload()
-    online.SFIS_Get_SN()
-    online.IPLAS_Upload()
-        
-    
+
+
 @Fail_Dealer()
 def Terminal_Flow():
     terminal = TerminalFlow()
     terminal.Check_ALL_Comport()  
     terminal.Terminal_Server_Flow()
   
-    
+
+def create_main_logger():
+    G = SingleTon_Global()
+    now_day = datetime.now().strftime("%m-%d")
+    main_log_path = fr"{G.logger_path}\{now_day}"
+    os.makedirs(main_log_path, exist_ok = True)
+    G.main_debug_logger = create_log.create_logger(main_log_path, 'Main_log')
+
 def Create_Debug_Log(logger_path):
     port = local.telnet_port
     now_day = datetime.now().strftime("%m-%d")
@@ -275,6 +306,8 @@ def Create_Debug_Log(logger_path):
     local.dut_debug_logger = create_log.create_logger(today_logger_path, f"Gemini_{port}_log")
     local.upload_debug_logger = create_log.create_logger(today_logger_path, f"Upload_{port}_log")
     local.sys_debug_logger = create_log.create_logger(today_logger_path, f"System_{port}_log")
+
+
 
 
 def Gemini_Burn_In_Flow(telnet_port, device_ID):
@@ -298,71 +331,89 @@ def Gemini_Burn_In_Flow(telnet_port, device_ID):
         local.test_end_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         print(local.upload_log)
 
-        if result == True or result == False:
+        if result == True or result == False: #true為pass，false為有failed
 
-            """改變UI狀態，如果有error code，就顯示紅燈"""
-            if len(local.error_code):
+            if len(local.error_code):  #如果有error code
                 G.UI_Signal.single_status(local.telnet_port, 'fail', 'red')
 
-            """改變UI狀態，顯示紅燈"""
-            result = Test_End_Function()
-            if result == False:#任何上傳失敗
+        
+            result = Test_End_Function() #進去online function
+            if result == False: #任何online function失敗
+                Generate_log_and_Upload() #更新log、上傳FTP
                 G.UI_Signal.single_status(local.telnet_port, 'fail', 'red')
                 
             if result == 'Exception':
+                G.UI_Signal.single_status(local.telnet_port, 'exception', 'red')
                 if len(local.sys_error_msg):
                     msg = "\n".join(local.sys_error_msg)
                     print('exception:', msg)
                     local.sys_debug_logger.exception(f'Exception: {msg}')
-                    G.UI_Signal.single_status(local.telnet_port, 'exception', 'red')
                     G.UI_Signal.error_box('sys exception', msg)
+                    G.UI_Signal.back_to_origin()
                     break
 
         elif result == 'CheckRoute_Fail':
-            """顯示check route fail 字樣"""
             G.UI_Signal.single_status(local.telnet_port, 'check route fail', 'red')
+            Generate_log_and_Upload()
             break
         
-        elif result == 'Exception':
-            """顯示紅燈，跳出提示視窗並結束測試"""    
+        elif result == 'Exception':  
             G.UI_Signal.single_status(local.telnet_port, 'exception', 'red')
             if len(local.sys_error_msg):
                 msg = "\n".join(local.sys_error_msg)
                 print('exception:', msg)
                 local.sys_debug_logger.exception(f'Exception: {msg}')
                 G.UI_Signal.error_box('sys exception', msg)
-            thread_local_set(local)
+                G.UI_Signal.back_to_origin()
             break 
+        
+        time.sleep(60)
 
         local.run_times += 1
         thread_local_set(local)
+        
         if local.run_times > G.total_run_times:
             G.UI_Signal.test_finish()
-            condition = False
-    
+            if local.dut_been_test_fail:
+                G.UI_Signal.single_status(local.telnet_port, 'Done')
+            else:
+                G.UI_Signal.single_status(local.telnet_port, 'PASS')
 
-def Main_Test_Flow(**awags):
+            condition = False
+        
+        
+
+
+
+
+def Clear_Port_Flow(**awags):
     G = SingleTon_Global()
     variable_setter(local)
     get_veriable_from_controller(**awags)
     G.UI_Signal = UI_Contol(**awags)
+    create_main_logger()
 
-    G.log_model = Log_Model.only_name
-    now_day = datetime.now().strftime("%m-%d")
-    main_log_path = fr"{G.logger_path}\{now_day}"
-    os.makedirs(main_log_path, exist_ok = True)
-    G.main_debug_logger = create_log.create_logger(main_log_path, 'Main_log')
+    G.UI_Signal.all_status('lightgreen', 'clear port')
 
     result = Terminal_Flow()
     if result == False or result == 'Exception':
-        if result == 'Exception':
-            """UI跳視窗並停止"""
-            msg = "\n".join(local.sys_error_msg)
-            G.main_debug_logger.debug(f'Exception:{msg}')
-            G.UI_Signal.error_box('termianl error', msg)
+        """UI跳視窗並停止"""
+        msg = "\n".join(local.sys_error_msg)
+        G.main_debug_logger.debug(f'Exception:{msg}')
+        G.UI_Signal.error_box('termianl error', msg)
+        G.UI_Signal.back_to_origin()
         return 0
-    
 
+    G.UI_Signal.all_status('lightgreen', 'done')
+    G.UI_Signal.init_finish()
+
+    
+def Main_Test_Flow(**awags):
+    G = SingleTon_Global()
+    get_veriable_from_controller(**awags)
+    G.UI_Signal = UI_Contol(**awags)
+    
+    
     thread_list = list()
     with ThreadPoolExecutor(max_workers=get_thread_num(G.open_station)) as executor:
         for i, telent_port in enumerate(G.open_station):
@@ -373,7 +424,8 @@ def Main_Test_Flow(**awags):
         if future.exception():
             print(future.exception())
             G.main_debug_logger.exception(f"exeption:{future.exception()}") 
-
+            G.UI_Signal.error_box('sys exception', future.exception())
+            G.UI_Signal.back_to_origin()
 
 
 def get_thread_num(open_station):

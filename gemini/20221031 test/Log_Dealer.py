@@ -84,15 +84,15 @@ class Upload_Log_Tranfer():
             temp_log += ',PASS' if test_data[1] == None else f",{test_data[1]}"
             temp_log += ',' if test_data[2] == None else f",{test_data[2]}"
             temp_log += ',' if test_data[3] == None else f",{test_data[3]}"
-            temp_log += ',' if test_data[5] == None else f",{test_data[5]}" 
+            temp_log += ',0' if test_data[5] == None else f",{test_data[5]}" 
             temp_log += '\r\n'
 
         return temp_log.strip()
 
     @staticmethod
     def transfer_to_iplas_raw_data(l, G):
-        project = 'Gemini'
-        model = ''
+        project = 'GEMINI_2T0'
+        model = 'GEMINI_2T0'
         test_result = 'PASS' if not l.dut_test_fail else 'FAIL'
         error_code = l.error_code if len(l.error_code) else ''
         send_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -129,6 +129,7 @@ class Upload_Log_Tranfer():
             temp_log = list()
             temp_log.append(test_item_name)
             temp_log.append('PASS' if test_data[0] else 'FAIL')
+
             for i, vlaue in enumerate(test_data[1:]):
                 if vlaue == None:
                     temp_log.append('')

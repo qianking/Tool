@@ -4,7 +4,7 @@ from Log_Dealer import Log_Model, Upload_Log_Tranfer
 
 class _Global_Variable():
     VERSION = 'V0.00.01'    #程式版本
-    log_model = Log_Model.no_name_no_time   #log存取的型態
+    log_model = Log_Model.only_name   #log存取的型態
     UI_Signal = None
 
     ftp_function = True
@@ -44,6 +44,56 @@ class SingleTon_Global(_Global_Variable):
             cls._instance = super().__new__(cls)
         return cls._instance 
     
+
+def variable_setter(local):
+    thread_global_set(local)
+    thread_local_set(local)
+    
+
+def thread_global_set(local):
+    local.log_model = Log_Model.only_name   #log存取的型態
+    local.dut_been_test_fail = False
+    local.telnet_port = int() 
+    local.run_times = 1
+    local.test_start_time = str()
+    local.test_end_time = str()
+    local.device_id = str()
+    local.been_checkroute = False 
+    local.been_sfis_upload = False 
+
+    local.dut_debug_logger = None
+    local.upload_debug_logger = None
+    local.sys_debug_logger = None
+
+def thread_local_set(local):
+    
+    local.log = str()
+    local.tmp_log = str()
+    local.raw_log = dict()
+    local.upload_log = dict()
+    local.sfis_log = str()
+    local.iplas_log = str()
+    local.form_log = list()
+    local.dut_info = dict()
+    local.dut_sfis_sn = str()
+    local.dut_test_fail = False
+    local.error_code = str()
+    local.test_item_start_timer = float()
+    local.ftp_local_path = None
+    local.ftp_remote_path = None
+    local.iplas_log_path = None
+    local.check_route_fail = False
+    local.sfis_upload_fail = False
+    local.sfis_get_sn_fail = False
+    local.test_error_msg = str()
+    local.sys_error_msg = list()
+    local.ftp_error_msg = str()
+    local.sfis_error_msg = str()
+    local.iplas_error_msg = str()
+    
+    local.debug_logger = None
+  
+
 
 
 ''' class SingleTone_local(dict):  
@@ -123,7 +173,7 @@ class SingleTon_Global(_Global_Variable):
 
 
 
-class _dut_data():
+''' class _dut_data():
     _telnet_port = int() 
     run_times = 1  #跑到第幾次
     total_run_times = 5  #總共需要跑幾次
@@ -419,60 +469,7 @@ class All_Variable(_error_msg, _dut_data, _online_data, _debug_logger, Upload_Lo
     @form_log.setter    
     def form_log(self, data:list):
         for i in data:
-            self._form_log.append(i)
-
-
-
-
-def variable_setter(local):
-    thread_global_set(local)
-    thread_local_set(local)
-    
-
-def thread_global_set(local):
-    local.log_model = Log_Model.no_name_no_time   #log存取的型態
-    local.dut_been_test_fail = False
-    local.telnet_port = int() 
-    local.run_times = 1
-    local.test_start_time = str()
-    local.test_end_time = str()
-    local.device_id = str()
-    local.been_checkroute = False 
-    local.been_sfis_upload = False 
-
-    local.dut_debug_logger = None
-    local.upload_debug_logger = None
-    local.sys_debug_logger = None
-
-def thread_local_set(local):
-    
-    local.log = str()
-    local.tmp_log = str()
-    local.raw_log = dict()
-    local.upload_log = dict()
-    local.sfis_log = str()
-    local.iplas_log = str()
-    local.form_log = list()
-    local.dut_info = dict()
-    local.dut_sfis_sn = str()
-    local.dut_test_fail = False
-    local.error_code = str()
-    local.test_item_start_timer = float()
-    local.ftp_local_path = str()
-    local.ftp_remote_path = str()
-    local.iplas_log_path = str()
-    local.check_route_fail = False
-    local.sfis_upload_fail = False
-    local.sfis_get_sn_fail = False
-    local.test_error_msg = str()
-    local.sys_error_msg = list()
-    local.ftp_error_msg = str()
-    local.sfis_error_msg = str()
-    local.iplas_error_msg = str()
-    
-    local.debug_logger = None
-  
-
+            self._form_log.append(i) '''
 
 
         

@@ -6,7 +6,7 @@ config_path = r'.\config.ini'
 
 
 serial_name_list = ['Gemini']  #機種名稱
-test_time_list = [0, 8] #測試時間
+test_time_list = [0, 2, 4, 6, 8] #測試時間
 
 computer_ports = []
 for port in list(port_list.comports()):

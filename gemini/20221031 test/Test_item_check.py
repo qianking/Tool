@@ -1,5 +1,6 @@
 from exceptions import TestItemFail
 import re
+import os
 import datetime
 import traceback
 import threading
@@ -13,7 +14,7 @@ from exceptions import TimeOutError
 from Global_Variable import SingleTon_Global
 
 
-value_config_path = r"D:\Qian\python\NPI\Gemini\value_config.ini"
+
 
 class Test_item_limit_Value():
     def __init__(self, value_config_path):
@@ -22,86 +23,36 @@ class Test_item_limit_Value():
     
     def __getitem__(self, data):
         test_item, test_name = data
-        try: 
-            upper_value = float(self._config[test_item][f"{test_name}_upper"])
-            lower_value = float(self._config[test_item][f"{test_name}_lower"])
+        try:
+            upper = self._config[test_item][f"{test_name}_upper"]
+            lower = self._config[test_item][f"{test_name}_lower"]
         except KeyError as ex:
             raise Exception(ex)
+
+        try: 
+            int(upper)
+            int(lower)
+        except ValueError:
+            pass
         else:
-            return lower_value, upper_value
-
-""" class myMetaClass(type):
-    def __new__(cls, name, bases, local):
-        for attr in local:
-            value = local[attr]
-            if not len(bases) and callable(value) and attr != '__init__':
-                local[attr] = Fail_Dealer()(value)
-        return super().__new__(cls, name, bases, local) """
-
-''' class Fail_Dealer():
-
-    p = SingleTone_local()
-
-    def __init__(self):
-        self.l = self.p[threading.get_ident()]
-        self.ERROR = Error_Code()
-
-    def sys_exception(self, ex):
-        error_msg = exceptions.error_dealer(ex)
-        print(error_msg)
-        self.l['_sys_error_msg'].append(error_msg)
-        self.upper_name = None
-    
-    def deal_result(self, results):
-        flag = True
+            return int(lower), int(upper)
         
-        for result in results:
-            test_name = result[1]
-            if not result[1]:  #如果test name為None，代表要使用上一層的func name
-                test_name = self.upper_name
+        try: 
+            float(upper)
+            float(lower)
+        except ValueError:
+            pass
+        else:
+            return float(lower), float(upper)
 
-            if result[0]: #如果為PASS
-                temp = self.l['_upload_data'].get(test_name) #先接原有的log值出來
-                temp = None if not temp else temp[5] #如果有值，那就將其設為test time (temp[5])
-                self.l['_upload_data'][test_name] = (1, result[2][0], result[2][1], result[2][2], None, temp)
-            else:
-                flag = False
-                self.l['dut_been_test_fail'] = True
-                self.l['_dut_test_fail'] = True
-                self.l['_dut_error_code'] = self.ERROR[test_name]
-                temp = self.l['_upload_data'].get(test_name) #先接原有的log值出來
-                temp = None if not temp else temp[5] #如果有值，那就將其設為test time (temp[5])
-                self.l['_upload_data'][test_name] = (0, result[2][0], result[2][1], result[2][2], self.ERROR[test_name], temp)
-
-        return flag
-
-
-    def __call__(self, func):
-        @wraps(func)
-        def decorated(*args, **kwargs):
-            self.l = self.p[threading.get_ident()]
-            try:
-                self.upper_name = sys._getframe(1).f_code.co_name
-                results = func(*args, **kwargs)
-                flag = self.deal_result(results)  
-                
-                if not flag:
-                    raise TestItemFail
-
-            except TestItemFail:
-                raise TestItemFail
-
-            except Exception as ex:
-                """系統錯誤"""
-                print(ex)
-                self.sys_exception(ex)
-                raise Exception 
-
-            else:
-                return True
-        return decorated '''
-
-
+class Test_item_HW_SW_Value():
+    def __init__(self, value_config_path):
+        self._config = read_ini(value_config_path)
+    
+    def __getitem__(self, data):
+        test_item, test_name = data
+        value = self._config[test_item].get(test_name)
+        return value
 
 class Gemini_Test():
 
@@ -112,6 +63,7 @@ class Gemini_Test():
         self.ERROR = Error_Code()
         self.erro_msg = str()
         self.limit_value = Test_item_limit_Value(self.G.value_config_path)
+        self.hw_sw_value = Test_item_HW_SW_Value(self.G.value_config_path)
     
     def sys_exception(self, ex):
         error_msg = exceptions.error_dealer(ex)
@@ -146,6 +98,14 @@ class Gemini_Test():
         test_name = test_name.strip('[').strip(']').lower()
         test_name = re.sub('[\[\]:]', ' ', test_name)
         test_name = '_'.join([i for i in test_name.split(' ') if i.strip() != ''])
+        return test_name
+
+    @staticmethod
+    def _deal_hw_test_name(test_name:str):
+        test_name = test_name.replace('-', ' ')
+        test_name = [i for i in test_name.split(' ') if i.strip()!='']
+        test_name = '_'.join(test_name)
+        test_name = test_name.lower()
         return test_name
 
     @staticmethod
@@ -269,48 +229,22 @@ class Gemini_Test():
         try:
             self.upper_name = sys._getframe(1).f_code.co_name
             tmp_log = list()
-            HW_info = ["Model name: FM6256-BNF",
-                    "CPU: 8-core, Intel(R) Pentium(R) CPU D1517 @ 1.60GHz",
-                    "MAC: Marvell Technology Group Ltd. Device 8400 , LnkSta: Speed 8GT/s , Width x2",
-                    "DDR: 31.27 GB",
-                    "SSD: ATA 256GB SATA Flash , 240GB",
-                    "CPU Board : BDX-DE-BMC_NPU REV. 2.00",
-                    "Main Board : GEMINI REV. 3.00",
-                    "Fan Board : 5x40mm_FC_DB REV:2.00 , Maximum 5pcs Fan Modules ( FtB ) [ Board-ID : 0x57 ]",
-                    "Fan Board EEPROM Info : 0x0957001f"]
-            find = analyze_method.Extract_Method.Extract_Data('Hardware Information(.*)Firmware Version', self.l.tmp_log)
-            get_info = [i.strip() for i in find.strip().split('\r\n')]
-            for i, info in enumerate(HW_info):
-                if info not in get_info[i]:
-                    tmp_log.append((False, None, (None, None, None)))
-                    flag = self.deal_result(tmp_log, self.l)
-                    if not flag:
-                        raise TestItemFail
-                
             
-            SW_info = ["MFG: Gemini v0.2.7",
-                    "SDK: Marvell CPSS 4.2.2020.3",
-                    "Linux: 4.14.66-intel-pk-standard",
-                    "BIOS: v5.11.1.3 , date: 01/25/2022",
-                    "CPLD A (MB) - FW ver: 3  (HW ver value: 4 )",
-                    "CPLD B (MB) - FW ver: 6  (HW ver value: 4 )",
-                    "CPLD C (MB) - FW ver: 5  (HW ver value: 4 )",
-                    "CPLD  (CPU) - FW ver: 6  (HW ver value: 3 )",
-                    "MCU - Main Board: GEMINI (01001), ver. 0.11",
-                    "MCU - Fan  Board: ver. 0.11",
-                    "PMBus FW checksum (CPU 0x63) : 0x841e4474",
-                    "PMBus FW checksum (CPU 0x64) : 0xd50129b2",
-                    "PMBus FW checksum (MB  0x60) : 0x1b0ce447",
-                    "PMBus FW checksum (MB  0x5F) : 0x1c51b6ac"]
-
-            find = analyze_method.Extract_Method.Extract_Data('Firmware Version(.*)root@', self.l.tmp_log)            
-            get_info = [i.strip() for i in find.strip().split('\r\n')]
-            for i, info in enumerate(SW_info):
-                if info not in get_info[i]:
-                    tmp_log.append((False, None, (None, None, None)))
-                    flag = self.deal_result(tmp_log, self.l)
-                    if not flag:
-                        raise TestItemFail
+            extract_str = ['Hardware Information(.*)Firmware Version', 'Firmware Version(.*)root@']
+            for data in extract_str:
+                find = analyze_method.Extract_Method.Extract_Data(data, self.l.tmp_log)
+                get_info = [i.strip() for i in find.strip().split('\r\n')]
+                self.l.debug_logger.debug(f'get hw sw info: {get_info}')
+                for i, info in enumerate(get_info):
+                    test_name = self._deal_hw_test_name(info.split(':', 1)[0])
+                    self.l.debug_logger.debug(f'get test name: {test_name}')
+                    value = self.hw_sw_value['HW_SW_Version', test_name]
+                    self.l.debug_logger.debug(f'get test value: {value}')
+                    if (value != None) and (value not in info.split(':', 1)[1].strip()):
+                        tmp_log.append((False, None, (None, None, None)))
+                        flag = self.deal_result(tmp_log, self.l)
+                        if not flag:
+                            raise TestItemFail
 
             tmp_log.append((True, None, (None, None, None)))
             
@@ -501,8 +435,16 @@ class Gemini_Test():
 
             #找到各警告資料
             check_item_name = 'alertstatuecheck'
-            Alert_status_info = analyze_method.Extract_Method.Extract_Data('\[MFG Msg\] PSU \(0x58\) Alert Status Check:(.*?)\r\n\r\n\t*', self.l.tmp_log)
-            total_count = 32
+            Alert_status_info = analyze_method.Extract_Method.Extract_Data('Alert Status Check:(.*?)\r\n\r\n\t*', self.l.tmp_log)
+            temp_cycle = self.l.run_times % 3
+            if temp_cycle == 1:
+                total_count = 32
+            if temp_cycle == 2:
+                total_count = 16 
+            if temp_cycle == 0:
+                total_count = 16       
+            
+            
             count_N = len(re.findall(r'---> N', Alert_status_info))
             if count_N == total_count:
                 tmp_log.append((True, check_item_name, (count_N, total_count, total_count)))
@@ -790,6 +732,8 @@ class Gemini_Test():
     
 
         
-
+if "__main__" == __name__:
+    value_config_path = r"D:\Qian\python\GIT\Tool\gemini\20221031 test\value_config.ini"
+    oo = Test_item_limit_Value(value_config_path)
            
 

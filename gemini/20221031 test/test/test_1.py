@@ -2,69 +2,62 @@ from copy import deepcopy
 from functools import partial
 from enum import Enum
 from test_3 import SingleTonNew
-from test_3 import SingleTonNew, Borg, get_thread_ctx, CustomLocal
 from datetime import datetime
 import traceback
 import inspect
 import sys
 import time
-<<<<<<< Updated upstream:gemini/20221029/test_1.py
-     
-         
-now_day = datetime.now().strftime("%m/%d")
-print(now_day)
-=======
-from test_3 import SingleTonNew
+import shutil
 
->>>>>>> Stashed changes:gemini/test/test_1.py
+def kkkk():
+    print(iiii())
 
-''' class func():
-    def funcA(data):
-        return data+1
-
-    def funcB():
-        print('B')
-
-    def funcC():
-        print('C')
-
-
-class Model_seletion(Enum):
-    model_A = partial(func.funcA)
-    model_B = partial(func.funcB)
-    model_C = partial(func.funcC)
-
-    def __call__(self, *args, **kwargs):
-        oo = self.value(*args, **kwargs)
-        return oo
-
-o = Model_seletion.model_A
-print(o(5)) '''
-''' a = 1  
-while a != 10:
-    print('o')
-    a+=1
-print(a) '''
-
-class ADD_1():
+def iiii():
     
-<<<<<<< Updated upstream:gemini/20221029/test_1.py
-    print('yy')
-    iii()
-    return 'p', 5
+    return traceback.extract_stack(None, 2)[0][2]
 
-i = 'jjjjj'
 
-sfis_seperate = f"{ 'SFIS':-^50}\r\n"
-print(sfis_seperate)
 
-=======
-    pp = SingleTonNew()
 
-    def __init__(self, b):
-        self.b = b
-        
-    def add(self):
-        self.pp.a += self.b
-        print("in ADD_1 a:", self.pp.a)
->>>>>>> Stashed changes:gemini/test/test_1.py
+def deal_hw_test_name(test_name:str):
+    test_name = test_name.replace('-', ' ')
+    test_name = [i for i in test_name.split(' ') if i.strip()!='']
+    test_name = '_'.join(test_name)
+    test_name = test_name.lower()
+    return test_name
+
+''' print(deal_hw_test_name('CPLD  (CPU) - FW ver'))
+
+o = "MAC: Marvell Technology Group Ltd. Device 8400 , LnkSta: Speed 8GT/s , Width x2"
+print(o.split(':', 1)) '''
+
+def is_num(num):
+    try:
+        int(num)
+    except:
+        pass
+
+    else:
+        return int(num)
+    
+    try:
+        float(num)
+    
+    except:
+        pass
+
+    else:
+        return float(num)
+
+
+
+
+def pppp(command, *fff):
+    print(command)
+    print(fff)
+
+
+a = ['A', 'B', 'B', 'E', 'D', 'C']
+b = ['A', 'C', 'B', 'E', 'E', 'C']
+
+print( len([1 for a, b in zip(a, b) if a != b]) )

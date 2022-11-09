@@ -66,11 +66,14 @@ class Terminal_Server_Test_Item():
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
         try:
-            self.connect.send_and_receive('', 'Router', 100, 'Password:')
+            
+            self.connect.send_and_receive('', 'Router', 5, 'Password:')
             if analyze_method.Find_Method.FindString(self.l.tmp_log, 'Password:'):
-                self.connect.send_and_receive('pega123', 'Router>', 5)            
-            self.connect.send_and_receive('en', 'Router#', 5)
-        
+                self.connect.send_and_receive('pega123', 'Router>', 5)
+            self.connect.send_and_receive('en', 'Router#', 5, 'Password:')   
+            if analyze_method.Find_Method.FindString(self.l.tmp_log, 'Password:'):   
+                self.connect.send_and_receive('pega123', 'Router#', 5)
+
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
             raise Test_Fail
@@ -197,17 +200,22 @@ class Gemini_Test_Item():
             self.l.raw_log[test_item]['end_time'] = datetime.now()
             self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
 
-    def Rebbot(self):
+    def Reboot(self):
         """
         dut 重開機
         """
-        test_item = 'Rebbot'
+        test_item = 'Reboot'
         self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
         self.l.test_item_start_timer = time.time()
         self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
         try:
-
-            self.connect.send_and_receive('reboot', 'Restarting system', 20)
+            self.connect.send_and_receive('', self.root_word, 5, 'Console#')
+            if analyze_method.Find_Method.FindString(self.l.tmp_log, 'Console#'):
+                self.connect.send_and_receive('CLIexit', '->', 5)
+                self.connect.send_and_receive('exit', self.root_word, 5) 
+            self.connect.send_and_receive('root@intel-corei7-64:~/mfg# i2cset -y  0 0x73 0x0 0x2', self.root_word, 5)
+            self.connect.send_and_receive('root@intel-corei7-64:~/mfg# i2cset -y  0 0x75 0x15 0x00', self.root_word, 5)    
+            self.connect.send_and_receive('i2cset -y 0 0x18 0x4 0xe9', 'Loading', 10)
         
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
@@ -273,6 +281,7 @@ class Gemini_Test_Item():
             self.connect.send_and_receive('i2cset -y 0 0x72 0x0 0x0', self.root_word, 5)
             self.connect.send_and_receive('i2cset -y 0 0x73 0x0 0x0', self.root_word, 5)
 
+
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
             raise Test_Fail
@@ -307,6 +316,8 @@ class Gemini_Test_Item():
             self.connect.send_and_receive('i2cset -y 0 0x73 0x0 0x2', self.root_word, 5)
             self.connect.send_and_receive('i2cget -y 0 0x75 0x15', self.root_word, 5)
             self.check_test.check_A_power_address()
+            self.connect.send_and_receive('i2cset -y 0 0x72 0x0 0x0', self.root_word, 5)
+            self.connect.send_and_receive('i2cset -y 0 0x73 0x0 0x0', self.root_word, 5)
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
@@ -343,6 +354,8 @@ class Gemini_Test_Item():
             self.connect.send_and_receive('i2cset -y 0 0x73 0x0 0x2', self.root_word, 5)
             self.connect.send_and_receive('i2cget -y 0 0x75 0x15', self.root_word, 5)
             self.check_test.check_B_power_address()
+            self.connect.send_and_receive('i2cset -y 0 0x72 0x0 0x0', self.root_word, 5)
+            self.connect.send_and_receive('i2cset -y 0 0x73 0x0 0x0', self.root_word, 5)
 
         except (TimeOutError,TestItemFail) :
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
@@ -515,6 +528,33 @@ class Gemini_Test_Item():
             self.l.raw_log[test_item]['end_time'] = datetime.now()
             self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
 
+    def Fan_auto_mode(self):
+        """
+        檢查在風扇0%的情況下風扇轉速是否正常
+        """
+        test_item = 'Fan_auto_mode'
+        self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+        self.l.test_item_start_timer = time.time()
+        self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        try:
+            self.connect.send_and_receive('./mfg_sources/fan_control.sh smart-fan enable', self.root_word, 10)
+
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            raise Test_Fail
+            
+        #當發生系統性的錯誤時會進到這裡
+        except Exception as ex:
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
+            raise Exception
+        
+        else:
+            return True
+        
+        finally:
+            self.l.raw_log[test_item]['end_time'] = datetime.now()
+            self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
     
 
     def DRAM_Test(self):
@@ -684,6 +724,64 @@ class Gemini_Test_Item():
             self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
             raise Test_Fail
         
+        #當發生系統性的錯誤時會進到這裡
+        except Exception as ex:
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
+            raise Exception
+        
+        else:
+            return True
+        
+        finally:
+            self.l.raw_log[test_item]['end_time'] = datetime.now()
+            self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
+
+    def Set_Green_light(self):
+        """
+        dut 設置綠燈
+        """
+        test_item = 'Set_Green_light'
+        self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+        self.l.test_item_start_timer = time.time()
+        self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        try:
+
+            self.connect.send_and_receive('./mfg_sources/led_control.sh green', self.root_word, 20)
+        
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            raise Test_Fail
+            
+        #當發生系統性的錯誤時會進到這裡
+        except Exception as ex:
+            if len(str(ex)):
+                self.sys_exception(ex, self.l)
+            raise Exception
+        
+        else:
+            return True
+        
+        finally:
+            self.l.raw_log[test_item]['end_time'] = datetime.now()
+            self.l.debug_logger.debug(f'>>>>> Out [{test_item}] <<<<<')
+
+    def Set_Red_light(self):
+        """
+        dut 設置紅燈
+        """
+        test_item = 'Set_Red_light'
+        self.l.debug_logger.debug(f'>>>>> In [{test_item}] <<<<<')
+        self.l.test_item_start_timer = time.time()
+        self.l.raw_log[test_item] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        try:
+
+            self.connect.send_and_receive('./mfg_sources/led_control.sh amber', self.root_word, 20)
+        
+        except (TimeOutError,TestItemFail) :
+            self.l.debug_logger.debug(f'>>>>> Failed In [{test_item}] <<<<<')
+            raise Test_Fail
+            
         #當發生系統性的錯誤時會進到這裡
         except Exception as ex:
             if len(str(ex)):

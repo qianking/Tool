@@ -166,7 +166,10 @@ def generate_log(local, G):
         else:
             break
     
-    with open(final_path, 'w+', newline='', encoding="utf-8") as f:
+    if local.ftp_local_path:
+        final_path = local.ftp_local_path
+    
+    with open(final_path, 'w', newline='', encoding="utf-8") as f:
         f.write(str(Gearate_log(local)))
     
     ftp_path = "/".join(log_path.split('\\')[len(log_root_path.split('\\')):-1])

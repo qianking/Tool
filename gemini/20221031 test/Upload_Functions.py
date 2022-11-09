@@ -1,6 +1,7 @@
-import time
+from datetime import datetime
 from FTP import FTP_UP_Down
 from SFIS import SFIS
+import time
 from concurrent.futures import ThreadPoolExecutor
 from exceptions import Online_Fail, CheckRoute_Fail
 
@@ -16,40 +17,6 @@ class Upload_FTP():
         self.port = 2100
         self.user = 'logbackup'
         self.password = 'pega#$34'
-
-
-    ''' def start_upload_ftb_thread(self,upload_file_list):
-        ftp_path_list = list()
-        error_msg = ''
-        ui_msg = dict()
-        future_list = list()
-
-        for path in upload_file_list:  #upload_file_list:[(dut_port, log_path, ftp_path)]
-            ftp_path = f"/{self.ftp_upload_path}/{path[2]}"
-            print('ftp_path:', ftp_path)
-            ftp_path_list.append(ftp_path)
-
-        with ThreadPoolExecutor(max_workers=len(upload_file_list)) as executor:
-            for i, ftp_path in enumerate(ftp_path_list):
-                futures = executor.submit(self.ftb_upload_file, upload_file_list[i][1], ftp_path)
-                future_list.append(futures)
-                time.sleep(0.1)
-
-        for future in future_list:
-            exception = future.exception()
-            if exception:
-                self.FTP_logger.exception(f"Upload FTP exception {exception}")
-                error_msg += f"{upload_file_list[i][0]}\n"
-                upload_flag = False
-            else:
-                self.FTP_logger.info(f'upload {upload_file_list[i][0]} success')
-
-        if not upload_flag:
-            error_msg += f"exception: {exception}"
-            ui_msg['messagebox_2'] = ['Upload FTP error', error_msg]
-             
-        return 0 '''
-
 
     def ftb_upload_file(self, file_path, remotedir):
         try:
@@ -71,63 +38,38 @@ class SFIS_Function():
         self.deviceID = self.Variable.device_id
         self.sfis_op = op
         self.TSP = 'Burnin'
-            
 
-    ''' def SFIS_Checkroute_Thread(self):
-        ui_msgggg = dict()
-        future_dict = dict()
-        umsg = ''
-        self.SFIS_logger.debug(f'[SFIS check route] get dut_SSN_dic:{dut_SSN_dic}')
 
-        with ThreadPoolExecutor(max_workers=len(dut_SSN_dic)) as executor:
-            for port, dut_ssn in dut_SSN_dic.items():
-                futures = executor.submit(self.sfis_checkroute, dut_ssn, self.deviceID[port])
-                future_dict[port] = futures
-        
-        for port, future in future_dict.items():
-            exception = future.exception()
-            if not exception:
-                msg = future.result()
-                if msg:
-                    umsg += f"DUT {port-2002+1}: {msg}\n"
-                    UI_msg['single_status_change'] = [port-2002, 'FAIL']
-                    
-                    print(f"DUT {port-2002+1} : {msg}") 
-                else:
-                    print(f"DUT {port-2002+1} checkroute pass")
-            else:
-                UI_msg['single_status_change'] = [port-2002, 'FAIL']
-                
-                umsg += f"DUT {port-2002+1} EXCEPTION: {exception}\n"
-                print(f"DUT {port-2002+1} EXCEPTION: {exception}")
-            time.sleep(0.1)
-
-        
-        if umsg != '':
-            self.SFIS_logger.debug(f'[SFIS check route] get error, {umsg}')
-            ui_msgggg['messagebox'] = ['sfis check route error', umsg]
-            
-            return False    
-        return True
- '''
-        
-    def sfis_checkroute(self, SSN):
-        self.SFIS_logger.debug(f'[SFIS check route] get SSN: {SSN} ,deviceID: {self.deviceID}')
-        
-        retry_times = 0
-        
+    def sfis_login(self):
         sfis_data = self.sfis.Logout(self.sfis_op, self.deviceID, self.TSP)
         self.SFIS_logger.debug(f'[SFIS check route] logout: {sfis_data}')
         sfis_data = self.sfis.Login(self.sfis_op, self.deviceID, self.TSP)
         self.SFIS_logger.debug(f'[SFIS check route] login: {sfis_data}')
+        
+    def sfis_checkroute(self, SSN):
+        self.Variable.raw_log['sfis_checkroute'] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        test_start_time = time.time()
+        
+        self.sfis_login()
+        self.SFIS_logger.debug(f'[SFIS check route] get SSN: {SSN} ,deviceID: {self.deviceID}')
+        retry_times = 0
         while True:
             sfis_data = self.sfis.CheckRoute(SSN, self.deviceID)
             self.SFIS_logger.debug(f'[SFIS check route] chekroute: {sfis_data}')
             if sfis_data:
                 if int(sfis_data[0]) == 1:
                     self.SFIS_logger.debug(f'[SFIS check route] chekroute >>PASS<<')
+
+                    self.Variable.upload_log['sfis_checkroute'] = (1, None, None, None, None, time.time()-test_start_time)
+                    self.Variable.raw_log['sfis_checkroute']['log'] = ','.join(sfis_data)
+                    self.Variable.raw_log['sfis_checkroute']['end_time'] = datetime.now()
                     return 0
                 else:
+                    self.Variable.upload_log['sfis_checkroute'] = (0, None, None, None, None, time.time()-test_start_time)
+                    self.Variable.raw_log['sfis_checkroute']['log'] = ','.join(sfis_data)
+                    self.Variable.raw_log['sfis_checkroute']['end_time'] = datetime.now()
+
+
                     if "WRONG STEP" in sfis_data[1]:
                         sfis_error_msg = f'進錯站: {sfis_data[1]}'
                         self.SFIS_logger.debug(f'[SFIS check route] chekroute >>WRONG STEP<< : {sfis_data[1]}')
@@ -166,6 +108,11 @@ class SFIS_Function():
                             self.Variable.sfis_upload_fail = True
                             raise CheckRoute_Fail
             else:
+                self.Variable.upload_log['sfis_checkroute'] = (0, None, None, None, None, time.time()-test_start_time)
+                self.Variable.raw_log['sfis_checkroute']['log'] = ' '
+                self.Variable.raw_log['sfis_checkroute']['end_time'] = datetime.now()
+
+
                 sfis_error_msg = f'check route fail, sfis_data error: {sfis_data}'
                 self.SFIS_logger.debug(f'[SFIS check route] chekroute >>FAIL DATA ERROR<< :{sfis_data}')
                 print('check route fail, sfis_data error')
@@ -178,62 +125,13 @@ class SFIS_Function():
                     self.Variable.sfis_upload_fail = True
                     raise CheckRoute_Fail
 
-    ''' def SFIS_Upload_Thread(self):
-        global dut_SSN_dic 
-        global all_sfis_log 
-        global all_sfis_error_code
-        global sfis_deviceID
-        global checkroute_data
-        global UI_msg
-
-        UI_msg.clear()
-        ui_msg = dict()
-        umsg = ''
-        future_dict = dict()
-        self.SFIS_logger.debug(f'[SFIS upload] get all_sfis_error_code: {all_sfis_error_code}, sfis_deviceID: {sfis_deviceID}, all_sfis_log: {all_sfis_log}')
-        with ThreadPoolExecutor(max_workers=len(dut_SSN_dic)) as executor:
-            for port, dut_ssn in dut_SSN_dic.items():
-                futures = executor.submit(self.sfis_upload, dut_ssn, all_sfis_error_code[port], sfis_deviceID[port], all_sfis_log[port])
-                future_dict[port] = futures
-            
-        
-
-        for port, future in future_dict.items():
-            exception = future.exception()
-            if not exception:
-                msg = future.result()
-                if msg:
-                    print(f"DUT {port-2002+1} : {msg}")
-                    UI_msg['single_status_change'] = [port-2002, 'FAIL']
-                    umsg += f"DUT {port-2002+1}: {msg}\n"
-                else:
-                    print(f"DUT {port-2002+1} checkroute pass")
-
-            else:
-                UI_msg['single_status_change'] = [port-2002, 'FAIL']
-                
-                umsg += f"DUT {port-2002+1} EXCEPTION: {exception}\n"
-                print(f"DUT {port-2002+1} EXCEPTION: {exception}")
-
-            time.sleep(0.1)
-        
-        if umsg != '':
-            ui_msg.clear()
-            self.SFIS_logger.debug(f'[SFIS upload] get upload error, {umsg}')
-            ui_msg['messagebox'] = ['sfis upload error', umsg]
-            
-            return False
-        return True '''
-
     def sfis_get_dut_sn(self, SN):
+        self.Variable.raw_log['sfis_get_dut_sn'] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        test_start_time = time.time()
+
+        self.sfis_login()
         self.SFIS_logger.debug(f'[SFIS get sn] ,deviceID: {self.deviceID}')
-        
         retry_times = 0
-        
-        sfis_data = self.sfis.Logout(self.sfis_op, self.deviceID, self.TSP)
-        self.SFIS_logger.debug(f'[SFIS get sn] logout: {sfis_data}')
-        sfis_data = self.sfis.Login(self.sfis_op, self.deviceID, self.TSP)
-        self.SFIS_logger.debug(f'[SFIS get sn] login: {sfis_data}')
         while True:
             sfis_data = self.sfis.Get_SSN(SN, self.deviceID)
             self.SFIS_logger.debug(f'[SFIS get sn] get sn: {sfis_data}')
@@ -241,8 +139,15 @@ class SFIS_Function():
                 if int(sfis_data[0]) == 1:
                     self.SFIS_logger.debug(f'[SFIS get sn] get sn >>PASS<<')
                     self.Variable.dut_sfis_sn = sfis_data[2].strip()
+
+                    self.Variable.upload_log['sfis_get_dut_sn'] = (1, None, None, None, None, time.time()-test_start_time)
+                    self.Variable.raw_log['sfis_get_dut_sn']['log'] = ','.join(sfis_data)
+                    self.Variable.raw_log['sfis_get_dut_sn']['end_time'] = datetime.now()
                     return 0
                 else:
+                    self.Variable.upload_log['sfis_get_dut_sn'] = (0, None, None, None, None, time.time()-test_start_time)
+                    self.Variable.raw_log['sfis_get_dut_sn']['log'] = ','.join(sfis_data)
+                    self.Variable.raw_log['sfis_get_dut_sn']['end_time'] = datetime.now()
 
                     sfis_error_msg = f'sfis get sn fail, sfis_data error: {sfis_data[1]}'
                     self.SFIS_logger.debug(f'[SFIS get sn] get sn >>FAIL<< :{sfis_data[1]}')
@@ -257,6 +162,11 @@ class SFIS_Function():
                         raise Online_Fail
             
             else:
+                self.Variable.upload_log['sfis_get_dut_sn'] = (0, None, None, None, None, time.time()-test_start_time)
+                self.Variable.raw_log['sfis_get_dut_sn']['log'] = ' ' 
+                self.Variable.raw_log['sfis_get_dut_sn']['end_time'] = datetime.now()
+
+
                 sfis_error_msg = f'sfis get sn fail, sfis_data error: {sfis_data}'
                 self.SFIS_logger.debug(f'[SFIS get sn] get sn >>FAIL DATA ERROR<< :{sfis_data}')
 
@@ -273,6 +183,11 @@ class SFIS_Function():
 
 
     def sfis_upload(self, SSN, error, sfis_data, status = 1):
+        self.Variable.raw_log['sfis_upload'] = {'start_time': datetime.now(), 'log':'', 'end_time':None}
+        test_start_time = time.time()
+
+        self.sfis_login()
+        
         self.SFIS_logger.debug(f'[SFIS upload] get SSN: {SSN} , error: {error}, deviceID: {self.deviceID}, sfis_data: {sfis_data}')
         retry_times = 0
         data = str()
@@ -284,8 +199,7 @@ class SFIS_Function():
         data7 = str()
         data8 = str()
 
-        self.sfis.Logout(self.sfis_op, self.deviceID, self.TSP)
-        self.sfis.Login(self.sfis_op, self.deviceID, self.TSP)
+        
         
         data_list = [data,data2,data3,data4,data5,data6,data7,data8]
         
@@ -307,9 +221,16 @@ class SFIS_Function():
             if sfis_data:
                 if int(sfis_data[0]) == 1:
                     self.SFIS_logger.debug(f'[SFIS upload] upload >>PASS<<')
-                    print('SFIS upload success')
+
+                    self.Variable.upload_log['sfis_upload'] = (1, None, None, None, None, time.time()-test_start_time)
+                    self.Variable.raw_log['sfis_upload']['log'] = ','.join(sfis_data)
+                    self.Variable.raw_log['sfis_upload']['end_time'] = datetime.now()
                     return 0
                 else:
+                    self.Variable.upload_log['sfis_upload'] = (0, None, None, None, None, time.time()-test_start_time)
+                    self.Variable.raw_log['sfis_upload']['log'] = ','.join(sfis_data)
+                    self.Variable.raw_log['sfis_upload']['end_time'] = datetime.now()
+
                     if "WRONG STEP" in sfis_data[1]:
                         sfis_error_msg = f'進錯站: {sfis_data[1]}'
                         self.SFIS_logger.debug(f'[SFIS upload] upload >>WRONG STEP<< :{sfis_data[1]}')
@@ -337,6 +258,12 @@ class SFIS_Function():
                             raise Online_Fail
                             #return False
             else:
+                self.Variable.upload_log['sfis_upload'] = (0, None, None, None, None, time.time()-test_start_time)
+                self.Variable.raw_log['sfis_upload']['log'] = ' '
+                self.Variable.raw_log['sfis_upload']['end_time'] = datetime.now()
+
+
+
                 sfis_error_msg = f'SFIS upload failed, sfis_data error: {sfis_data[1]}'
                 self.SFIS_logger.debug(f'[SFIS upload] upload >>FAIL SFIS DATA ERROR<< :{sfis_data[1]}')
                 print('SFIS upload failed')
@@ -349,3 +276,6 @@ class SFIS_Function():
                     self.Variable.sfis_upload_fail = True
                     raise Online_Fail
                     #return False
+    
+if "__main__" == __name__:
+    ii = SFIS_Function('LA2100645', )
