@@ -3,8 +3,8 @@ import sys
 import random
 import traceback
 
-input_path = r'E:\python\github\Tool\hhh\設計報表.txt'
-output_path = r'E:\python\github\Tool\hhh\test.txt'
+input_path = r'C:\Users\andy_chien\Downloads\V125_A_111.08.08.txt'
+output_path = r'C:\Users\andy_chien\Downloads\test-1.txt'
 
 ui_signal = None
 
@@ -13,8 +13,7 @@ def send_to_ui_status(txt):
 
 def data_from_ui(signals):
     global ui_signal
-    ui_sig
-    nal = signals
+    ui_signal = signals
 
 
 def debug(func):
@@ -61,7 +60,7 @@ def transfer(input_path):
                 break
             
         if (not continue_flag) and len(error_index_dic):
-            random_data = find_same_len(data_list[list(error_index_dic.keys())[0]-10: list(error_index_dic.keys())[0]], len(error_index_dic))
+            random_data = find_same_len(data_list[list(error_index_dic.keys())[0]-30: list(error_index_dic.keys())[0]], len(error_index_dic))
             for i, j in enumerate(error_index_dic):
                 ddd = error_index_dic[j] + random_data[i][len(error_index_dic[j]):]
                 data_list[j] = ddd
@@ -91,7 +90,7 @@ def find_same_len(data_n_list, random_num):
     return random_data
 
 
-@debug
+#@debug
 def Transfer_Flow(input_path, signals=None):
     data_from_ui(signals)
     output_path = transfer(input_path)
