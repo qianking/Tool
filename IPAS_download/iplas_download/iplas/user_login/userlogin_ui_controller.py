@@ -2,18 +2,18 @@ import getpass
 import sys
 import time
 from login_ui import Ui_MainWindow
-from PySide6 import QtCore, QtWidgets
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication, QLineEdit
 from PySide6.QtCore import Signal, QRunnable, QThreadPool, QObject 
 from PySide6.QtGui import QFont, QIcon, Qt
-import login_flow
+from lib.login_lib import checkpass_request, Encrypt
+
 
 
 class Login(QMainWindow):
-    def __init__(self):
+    def __init__(self, user_data_path):
         super(Login, self).__init__()
         self.userdata = list()
-        
+        self.user_data_path = user_data_path
         self._window = Ui_MainWindow()
         self._window.setupUi(self)
         
@@ -106,6 +106,10 @@ class Login(QMainWindow):
             self.password_error_msg()
         
         if event == 200:
+            data = ' '.join(self.userdata)
+            en_data = Encrypt(data)
+            with open(self.user_data_path, 'wb') as f:
+                f.write(en_data)
             self.login_msg()
         
         if event == 404:
@@ -135,7 +139,7 @@ class Login(QMainWindow):
 
     def start_thread(self):
         print(self.userdata)
-        self.start_check_data = start_verify(self.user_data_path, self.userdata)
+        self.start_check_data = start_verify(self.userdata)
         self.start_check_data.signal.result.connect(self.event_proccess)
         self.threadpool.start(self.start_check_data)
         self.start_loading('Verify')
@@ -154,14 +158,13 @@ class thread_signal(QObject):
     loading = Signal(str)
 
 class start_verify(QRunnable):
-    def __init__(self, user_data_path, userdata):
+    def __init__(self, userdata):
         super(start_verify, self).__init__()  
         self.signal = thread_signal()
-        self.user_data_path = user_data_path
         self.userdata = userdata
         
     def run(self):
-        login_flow.check_user_data(self.userdata, self.signal)
+        check_user_data(self.userdata, self.signal)
 
 
 class Load_Thread(QRunnable):
@@ -182,6 +185,14 @@ class Load_Thread(QRunnable):
     
     def end(self):
         self.flag = True
+
+
+def check_user_data(userdata, signal):
+    code = checkpass_request(userdata)
+    signal.result.emit(code)    
+
+
+
 
 if __name__ == "__main__":
     data = ['Andy_Chien', 'Qianking0706']

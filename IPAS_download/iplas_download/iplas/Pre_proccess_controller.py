@@ -70,9 +70,9 @@ class Pre_process(QMainWindow):
     
     def start_proccess(self):
         self.get_proccess = Proccess_Thread()
-        #self.get_proccess.signal.status.connect(self.get_status_txt)
-        #self.get_proccess.signal.error.connect(self.error_box)
-        #self.get_proccess.signal.finish.connect(self.close_window)
+        self.get_proccess.signal.status.connect(self.get_status_txt)
+        self.get_proccess.signal.error.connect(self.error_box)
+        self.get_proccess.signal.finish.connect(self.close_window)
         self.threadpool.start(self.get_proccess)
     
     def test(self):
