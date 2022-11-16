@@ -50,17 +50,14 @@ def transfer(input_path):
     
     data_list = data.split('\n')
     error_index_dic = dict()
-    continue_flag = False
     for i, dd in enumerate(data_list):
-        continue_flag = False
         for name in replace_name:
             if name in dd:
-                continue_flag = True
                 error_index_dic[i] = dd.replace(name, '').rstrip()
                 break
             
-        if (not continue_flag) and len(error_index_dic):
-            random_data = find_same_len(data_list[list(error_index_dic.keys())[0]-30: list(error_index_dic.keys())[0]], len(error_index_dic))
+        if len(error_index_dic):  
+            random_data = find_same_len(data_list[list(error_index_dic.keys())[0]-5: list(error_index_dic.keys())[0]], len(error_index_dic))
             for i, j in enumerate(error_index_dic):
                 ddd = error_index_dic[j] + random_data[i][len(error_index_dic[j]):]
                 data_list[j] = ddd
