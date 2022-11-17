@@ -22,7 +22,7 @@ class Pre_process(QMainWindow):
         self.threadpool.start(self.loading)
 
     def start_proccess(self):
-        self.get_proccess = Proccess_Thread()
+        self.get_proccess = Login_Thread()
         self.get_proccess.signal.login_window.connect(self.login_window)
         self.get_proccess.signal.status.connect(self.get_status_txt)
 
@@ -38,9 +38,9 @@ class thread_signal(QObject):
     status = Signal(str)
     loading = Signal(str)
 
-class Proccess_Thread(QRunnable):
+class Login_Thread(QRunnable):
     def __init__(self):
-        super(Proccess_Thread, self).__init__()  
+        super(Login_Thread, self).__init__()  
         self.signal = thread_signal()
        
     def run(self):
@@ -73,7 +73,6 @@ def main(ui_signal):
         # I want it block process until login done
         user_data_list = read_and_get_userdata()
         return user_data_list
-
 
 def read_and_get_userdata():
     """read user data file and return data in list"""
