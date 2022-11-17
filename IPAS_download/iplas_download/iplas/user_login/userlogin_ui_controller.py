@@ -1,17 +1,17 @@
 import getpass
 import sys
 import time
-from login_ui import Ui_MainWindow
-from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication, QLineEdit
-from PySide6.QtCore import Signal, QRunnable, QThreadPool, QObject 
+from .login_ui import Ui_MainWindow
+from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication, QLineEdit, QDialog 
+from PySide6.QtCore import Signal, QRunnable, QThreadPool, QObject
 from PySide6.QtGui import QFont, QIcon, Qt
-from login_lib.loginlib import checkpass_request, Encrypt
+from .login_lib.loginlib import checkpass_request, Encrypt
 
 
 
 class Login(QMainWindow):
-    def __init__(self, user_data_path):
-        super(Login, self).__init__()
+    def __init__(self, user_data_path, parent=None):
+        QMainWindow.__init__(self, parent)
         self.userdata = list()
         self.user_data_path = user_data_path
         self._window = Ui_MainWindow()

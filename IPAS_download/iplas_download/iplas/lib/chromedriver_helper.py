@@ -1,16 +1,12 @@
-import os, sys
-now_dir = os.path.dirname(os.path.abspath(__file__))
-mymodule_dir = '\\'.join(now_dir.split('\\')[:-1])
-sys.path.append(mymodule_dir)
-
-from Global_Variable import SingleTon_Variable, get_exception_detail
-from zipfile import ZipFile
-import requests
-from requests_ntlm import HttpNtlmAuth
-import datetime
 import json
+import os, sys
+import requests
+from ..Global_Variable import SingleTon_Variable, get_exception_detail
+from zipfile import ZipFile
+from requests_ntlm import HttpNtlmAuth
+from datetime import datetime
 from win32com import client as wincom_client
-import traceback
+import pythoncom
 from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog, QWidget, QWidget, QMainWindow, QLabel, QGridLayout
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt, QTimer
@@ -19,20 +15,21 @@ from PySide6.QtCore import Qt, QTimer
 class Check_Chrome_Driver():
 
     G = SingleTon_Variable()
-    docs_folder = G.docs_folder
-    chrome_lastestdriverversion_url = "http://chromedriver.storage.googleapis.com"
-    chrome_driver_mapping_file = fr"{docs_folder}\mapping.json"
-    chrome_driver_exe = fr"{docs_folder}\chromedriver.exe"
-    chrome_driver_zip = fr"{docs_folder}\chromedriver_win32.zip"
 
     def __init__(self):
+        self.docs_folder = self.G.docs_folder
+        self.chrome_lastestdriverversion_url = "http://chromedriver.storage.googleapis.com"
+        self.chrome_driver_mapping_file = fr"{self.docs_folder}\mapping.json"
+        self.chrome_driver_exe = fr"{self.docs_folder}\chromedriver.exe"
+        self.chrome_driver_zip = fr"{self.docs_folder}\chromedriver_win32.zip"
+
         self.ui_signal = self.G.ui_signal
         self.logger = self.G.logger
         self.ui_tool = UI_TOOL()
         self.default_chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
         self.proxies = {"http":"proxy8.intra:80"}
-        self.auth = HttpNtlmAuth(self.G.user_data[0], self.G.user_data[1])
+        self.auth = HttpNtlmAuth(self.G.user_password[0], self.G.user_password[1])
 
     @staticmethod
     def _write_json(file_path, info):
@@ -57,8 +54,10 @@ class Check_Chrome_Driver():
     def get_file_version(file_path):
         if not os.path.exists(file_path):
             raise FileNotFoundError("{!r} file not found".format(file_path))
+        pythoncom.CoInitialize()
         wincom_job = wincom_client.Dispatch('Scripting.FileSystemObject')
         version = wincom_job.GetFileVersion(file_path)
+        pythoncom.CoUninitialize()
         return version.strip()
     
     @staticmethod

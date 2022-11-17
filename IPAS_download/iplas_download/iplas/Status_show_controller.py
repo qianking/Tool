@@ -18,6 +18,7 @@ class Pre_process(QMainWindow):
         self.init_UI()
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(3)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.status_loading()
         self.start_proccess()
         
@@ -82,6 +83,10 @@ class Pre_process(QMainWindow):
         login = Login(user_data_path)
         #self.login.setWindowModality(Qt.ApplicationModal)
         login.show()
+       
+       
+
+    #def 
     
     
     def status_loading(self):

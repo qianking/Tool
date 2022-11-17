@@ -6,6 +6,10 @@ class Send_to_UI():
     def __init__(self, signal = None):
         self.signal = signal
 
+    def open_login_window(self, user_data_path):
+        if self.signal:
+            self.signal.login_window.emit(user_data_path)
+    
     def send_status(self, txt):
         if self.signal:
             self.signal.status.emit(txt)
@@ -17,6 +21,8 @@ class Send_to_UI():
     def send_finish_signal(self):
         if self.signal:
             self.signal.finish.emit()
+    
+
 
 
 def get_exception_detail(ex):
@@ -36,16 +42,16 @@ def get_exception_detail(ex):
 
 class _Global_Variable():
     docs_folder = str()
-    user_data_path = fr"{docs_folder}/fw7ssv7b9bdb7ddn"
+    user_data_name = "fw7ssv7b9bdb7ddn"
     user_password = list()
     logger = None
-    ui_signal = Send_to_UI()
+    ui_signal = None
+    app = None
     chrome_driver_path = str()
 
 
 class SingleTon_Variable(_Global_Variable):
     _instance = None
-
     def __new__(cls, *args, **kwargs): 
         if cls._instance is None: 
             cls._instance = super().__new__(cls)
