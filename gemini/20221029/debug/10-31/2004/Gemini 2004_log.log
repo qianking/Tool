@@ -1,7 +1,0 @@
-[2022-10-31 18:22:49,185 DEBUG]: ------------------------1-------------------------
-[2022-10-31 18:22:49,185 DEBUG]: >>>>> In [Check_Telnet_Connect] <<<<<
-[2022-10-31 18:22:49,185 DEBUG]: port [2004] self.tn is none
-[2022-10-31 18:22:49,296 DEBUG]: port [2004] close port
-[2022-10-31 18:22:49,296 DEBUG]: >>>>> Out [Check_Telnet_Connect] <<<<<
-[2022-10-31 18:22:49,297 DEBUG]: >>>>> In [Get_SN] <<<<<
-[2022-10-31 18:22:49,928 DEBUG]: port [2004] COMMAND: ./mfg_sources/mb_eeprom_rw.sh r serial_number
