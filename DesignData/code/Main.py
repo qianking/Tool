@@ -36,7 +36,7 @@ def debug(func):
             send_to_ui_status(f'OUTPUT PATH: {output_path}')
     return warpper
 
-
+@debug
 def transfer(input_path):
     replace_name = ('Beam/Column capacity ratio exceeds limit', 
                     'Shear stress due to shear force and torsion together exceeds maximum allowed',
