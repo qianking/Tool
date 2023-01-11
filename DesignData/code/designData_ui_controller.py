@@ -7,7 +7,7 @@ import Main as transfer
 from designdata_ui import Ui_MainWindow
 
 UI_file_format = 'py'
-VERSION = '0.01'
+VERSION = '0.03'
 
 
 class MainWindow(QMainWindow):

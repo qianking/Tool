@@ -9,7 +9,7 @@ from PySide6.QtGui import QFont, QColor, QIntValidator, QRegularExpressionValida
 from lfsdata_ui import Ui_MainWindow
 import LFS_Main_Flow
 
-VERSION = '0.01'
+VERSION = '0.02'
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
         self.set_status_plain()
         self.set_table_title()
         self.set_table()
+        self.set_result_label()
         self.set_num_label()
         self.set_floor_label()
          
@@ -60,9 +61,8 @@ class MainWindow(QMainWindow):
     def set_hint_label(self):
         self.hint_label_1 = self._window.label
         self.hint_label_2 = self._window.label_3
-
         self.hint_label_1.setFont(QFont('標楷體', 14, QFont.Bold))
-        self.hint_label_1.setText('請輸入參數:')
+        self.hint_label_1.setText('P.S. 請先輸入參數再選擇資料夾')
         self.hint_label_2.setFont(QFont('標楷體', 14, QFont.Bold))
         self.hint_label_2.setText('請選擇資料夾')
         self.hint_label_2.setAlignment(Qt.AlignRight)
@@ -120,6 +120,12 @@ class MainWindow(QMainWindow):
             item = QTableWidgetItem('F')
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             self.table_2.setItem(i, 0, item) '''
+
+    def set_result_label(self):
+        self.result_label = self._window.result_label
+        self.result_label.setFont(QFont('標楷體', 13, QFont.Bold))
+        self.result_label.setText('Result: ')
+
     
     def set_num_label(self):
         self.num_label = self._window.num_label

@@ -2,8 +2,8 @@ import os
 import sys
 import numpy as np
 
-input_path = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\02_RCD\INPUT_RCD.txt'
-output_folder = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\OUTPUT_TEST'
+input_path = r'C:\Users\Qian\Downloads\V624_INPUT\INPUT\INPUT_RCD.txt'
+output_folder = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\output_tet'
 
 def transfer_rcd(input_path, output_folder, num):
 
@@ -20,6 +20,7 @@ def transfer_rcd(input_path, output_folder, num):
     title_list = [i for i in title.split('\t') if i !='']
     STORY_index = title_list.index('Story')
     Line_index = title_list.index('Line')
+    Line_type = title_list.index('LineType')
     AnalysisSect_index = title_list.index('AnalysisSect')
 
     title_output = (f"Story{' '*(10-len('Story'))}"
@@ -29,10 +30,12 @@ def transfer_rcd(input_path, output_folder, num):
     full_output_data += title_output
 
     for data_n in data_list[1:]:
-        data_n_list = [i for i in data_n.split('\t') if i !='']
-        if data_n_list[0] != 'R1F' and not floor_flag:
+        data_n_list = [i for i in data_n.split('\t') if i !='']       
+        if data_n_list[Line_type] != "Column" and data_n_list[Line_type] != "Beam":
             continue
-        elif data_n_list[0] == 'R1F':
+        if data_n_list[STORY_index] != 'R1F' and not floor_flag:
+            continue
+        elif data_n_list[STORY_index] == 'R1F':
             floor_flag = True
 
         STORY = str(data_n_list[STORY_index])
@@ -57,4 +60,4 @@ def read_output(output_path): #驗證用
     print(repr(data))
 
 if __name__ == "__main__":
-    read_output(output_path)
+    transfer_rcd(input_path, output_folder, 'V650')

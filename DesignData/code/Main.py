@@ -53,15 +53,16 @@ def transfer(input_path):
     for i, dd in enumerate(data_list):
         for name in replace_name:
             if name in dd:
-                error_index_dic[i] = dd.replace(name, '').rstrip()
+                data_list[i] = dd.replace(name, "N/A").rstrip()
+                #error_index_dic[i] = dd.replace(name, '').rstrip()
                 break
-            
-        if len(error_index_dic):  
+        
+        """ if len(error_index_dic):  
             random_data = find_same_len(data_list[list(error_index_dic.keys())[0]-5: list(error_index_dic.keys())[0]], len(error_index_dic))
             for i, j in enumerate(error_index_dic):
                 ddd = error_index_dic[j] + random_data[i][len(error_index_dic[j]):]
                 data_list[j] = ddd
-            error_index_dic.clear()
+            error_index_dic.clear() """
     
     full_data = '\n'.join(data_list)
 
