@@ -8,36 +8,34 @@ import REBAR
 import RCD
 import WALLDA
 import INDATA
+from for_UI_enum import Text_Color
 
 input_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\INPUT'
 output_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\OUTPUT_TEST'
 FC = {1:490, 8:420, 17:350, 23:280}
 HNDL = {'1F': 0.8, '3F': 0.9, '15F': 0.8}
 
-ui_signal = None
+ui_show = None
 
-def send_to_ui_data_send(dic):
-    ui_signal.data_send.emit(dic)
+class UI_SHOW():
+    def __init__(self, ui_signal):
+        self.ui_signal = ui_signal
 
-def send_to_ui_status(txt):
-    ui_signal.status.emit(txt)
+    def floordata_send(self, floor_data:list):
+        if self.ui_signal:
+            self.ui_signal.floor_data_send.emit(floor_data)
 
-def data_from_ui(data, signals):
-    global ui_signal
-    global FC
-    global HNDL
+    def show_status(self, txt, color=Text_Color.black.value):
+        if self.ui_signal:
+            self.ui_signal.status.emit((txt, color))
     
-    ui_signal = signals
-    FC = data['FC'] 
-    FC = dict(sorted(FC.items()))
-    tmp = data['HNDL'] 
-    tmp = dict(sorted(tmp.items()))
-    for floor, num in tmp.items():
-        floor = f"{floor}F"
-        HNDL[floor] = num
-    print(HNDL)
-    return data['input_path']
-
+    def show_result(self, data:dict):
+        if self.ui_signal:
+            self.ui_signal.result_send.emit(data)
+    
+    def reset_all(self):
+        if self.ui_signal:
+            self.ui_signal.reset_all.emit()
 
 def debug(func):
     def warpper(*args, **wargs):
@@ -53,31 +51,48 @@ def debug(func):
             funcName = lastCallStack[2]#取得發生的函數名稱
             errMsg = f"{[error_class]}\n\"{fileName}\", line {lineNum}, in {funcName}\n{detail}"
             print(errMsg)
-            send_to_ui_status(f'Error: {errMsg}')
+            ui_show.show_status(f'Error: {errMsg}', Text_Color.red.value)
+            ui_show.reset_all()
     return warpper
 
+
+@debug
+def Get_FloorData_Flow(data, signals = None):
+    global ui_show
+    ui_show = UI_SHOW(signals)
+    num = Check_File(data['file_name_dic'])
+
+    total_floor, floor_list = INDATA.get_floor_data(data['file_name_dic'][f'{num}INPUT'])
+
+    ui_show.show_result({'num':num, 'floor_num':str(total_floor)})
+    ui_show.floordata_send(floor_list)
+
+
 @debug   
-def main_flow(data, signals=None):
-    input_path = data_from_ui(data, signals)
-    file_list = glob(f"{input_path}\*.txt")
-    file_name = {file.split('\\')[-1].split('.')[0]: file for file in file_list}
-    num = get_number_from_file(file_name)
+def Main_Flow(data, signals=None):
+    global ui_show
+    ui_show = UI_SHOW(signals)
+    output_folder = create_output_path(data['input_path'])
+    copy_file(data['file_list'], output_folder)
+
+    calculate_start(data, output_folder)
+    
+    ui_show.show_status('轉換完成!')
+
+def Check_File(file_name_dic):
+    num = get_number_from_file(file_name_dic)
     if not num:
-        send_to_ui_status(f'WORNING: 找不到案號檔案')
+        ui_show.show_status(f"WORNING: 找不到 '案號INPUT' 檔案", Text_Color.red.value)
+        ui_show.reset_all()
         return 0
 
-    loose_file = check_file_exist(file_name, num)
+    loose_file = check_file_exist(file_name_dic, num)
     if loose_file:
-        send_to_ui_status(f'WORNING: 找不到檔案{loose_file}')
+        ui_show.show_status(f'WORNING: 找不到檔案 {loose_file}', Text_Color.red.value)
+        ui_show.reset_all()
         return 0
     
-    output_folder = create_output_path(input_path)
-    copy_file(file_list, output_folder)
-
-    total_floor = calculate_start(file_name, output_folder, num)
-    send_to_ui_data_send({'num':num, 'floor_num':str(total_floor)})
-    send_to_ui_status('轉換完成')
-    
+    return num
 
 def check_file_exist(file_name, num):
     find_file_name = ('INPUT_RCD', 'INPUT_REBAR', 'INPUT_WALLDA', f'{num}INPUT', f'{num}SHEAR')
@@ -99,7 +114,7 @@ def get_number_from_file(file_name):
             break
     if num:  
         return num
-    return 0
+    return False
 
 def create_output_path(input_path):
     path = '\\'.join(input_path.split('\\')[:-1])
@@ -112,25 +127,23 @@ def copy_file(file_list, output_folder):
         shutil.copy(file, output_folder)
 
 
-def calculate_start(file_name, output_folder, num):
-    for name, path in file_name.items():
+def calculate_start(data, output_folder):
+    for name, path in data['file_name_dic'].items():
         if name == 'INPUT_REBAR':
-            output_path = REBAR.transfer_rebar(path, output_folder, num)
-            send_to_ui_status(f"生成檔案: {output_path}")
+            output_path = REBAR.transfer_rebar(path, output_folder, data['num'])
+            ui_show.show_status(f"生成檔案: {output_path}", Text_Color.blue.value)
         if name == 'INPUT_RCD':
-            output_path = RCD.transfer_rcd(path, output_folder, num)
-            send_to_ui_status(f"生成檔案: {output_path}")
+            output_path = RCD.transfer_rcd(path, output_folder, data['num'])
+            ui_show.show_status(f"生成檔案: {output_path}", Text_Color.blue.value)
         if name == 'INPUT_WALLDA':
             output_path = WALLDA.transfer_wallda(path, output_folder)
-            send_to_ui_status(f"生成檔案: {output_path}")
-        if name == f'{num}INPUT':
-            total_floor, output_list = INDATA.tranfer(path, output_folder, num, FC, HNDL)
-            print('total_floor:', total_floor)
+            ui_show.show_status(f"生成檔案: {output_path}", Text_Color.blue.value)
+        if name == f"{data['num']}INPUT":
+            output_list = INDATA.tranfer(path, output_folder, data)
             for out in output_list:
-                send_to_ui_status(f"生成檔案: {out}")
+                ui_show.show_status(f"生成檔案: {out}", Text_Color.blue.value)
         
-    return total_floor
         
 
 if "__main__" == __name__:
-    main_flow(input_path)
+    Main_Flow(input_path)

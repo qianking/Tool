@@ -20,32 +20,32 @@ def get_story_data(input_path):
             story_data_index = i
 
     story_data_list = [i for i in data_list[story_data_index+2].split('\n') if i !='']
-    #print(story_data_list)
-
-    return story_data_list
-
-def transfer_fhdd(story_data_list, output_folder):
-    full_output_data = ''
     for index, story_data in enumerate(story_data_list):
         if story_data.strip().startswith('R1F'):
             start_index = index
         if story_data.strip().startswith('1F'):
             end_index = index+1
-    total_len = end_index - start_index
-    total_data = story_data_list[start_index:end_index]
-    total_data_str ='\n'.join(total_data)
-    full_output_data += f"{total_len}\n"
-    full_output_data += total_data_str
+    total_floor = end_index - start_index
+    story_data_list = story_data_list[start_index:end_index]
+
+    return story_data_list, total_floor
+
+def transfer_fhdd(story_data_list, total_floor, output_folder):
+    full_output_data = ''
+    
+    total_story_data ='\n'.join(story_data_list)
+    full_output_data += f"{total_floor}\n"
+    full_output_data += total_story_data
 
     output_fhdd_path = fr'{output_folder}\FHDD.txt'
     with open(output_fhdd_path, 'w+') as f:
         f.write(full_output_data)
 
-    return total_data, total_len, output_fhdd_path
+    return output_fhdd_path
 
-def transfer_indatabc(total_data, output_folder, NUM, FC, HNDL):
+def transfer_indatabc(story_data_list, output_folder, NUM, FC, HNDL):
     floor_data = []
-    for story_data in total_data:
+    for story_data in story_data_list:
         data = [i.strip() for i in story_data.split(' ') if i !='']
         floor_data.append(data[0])
     
@@ -98,8 +98,8 @@ def transfer_indatabc(total_data, output_folder, NUM, FC, HNDL):
 
         tmp_floor_numC = f"{floor}{' '*(8-len(floor))}8{tab_times}{tmp_floor_numC}"  
 
-        if FC.get(i):
-            now_fc = FC.get(i)
+        if FC.get(floor):
+            now_fc = FC.get(floor)
         tmp_fc = f"{str(i)}{' '*(8-len(str(i)))}{now_fc}{' '*(8-len(str(now_fc)))}4200    4200    6       8       6       8       10      8       10      8{tab_times}{tmp_fc}" 
 
         if HNDL.get(floor):
@@ -188,13 +188,21 @@ def transfer_point3(input_path, output_folder):
     return output_point_path
 
     
-def tranfer(input_path, output_folder, NUM, FC, HNDL):
-    story_data_list = get_story_data(input_path)
-    total_data, total_floor, output_fhdd = transfer_fhdd(story_data_list, output_folder)
-    output_A_path, output_B_path, output_C_path = transfer_indatabc(total_data, output_folder, NUM, FC, HNDL)
+def get_floor_data(input_path):
+    story_data_list, total_floor = get_story_data(input_path)
+    floor_list = []
+    for story_data in story_data_list:
+        data = [i.strip() for i in story_data.split(' ') if i !='']
+        floor_list.append(data[0])
+    return total_floor, floor_list
+
+def tranfer(input_path, output_folder, data):
+    story_data_list, total_floor = get_story_data(input_path)
+    output_fhdd = transfer_fhdd(story_data_list, total_floor, output_folder)
+    output_A_path, output_B_path, output_C_path = transfer_indatabc(story_data_list, output_folder, data['num'], data['FC'], data['HNDL'])
     output_point_path = transfer_point3(input_path, output_folder)
     output_list = [output_fhdd, output_A_path, output_B_path, output_C_path, output_point_path] 
-    return total_floor, output_list
+    return output_list
 
 
 if __name__ == "__main__":
