@@ -73,6 +73,7 @@ def Main_Flow(data, signals=None):
     global ui_show
     ui_show = UI_SHOW(signals)
     output_folder = create_output_path(data['input_path'])
+    deal_copy_file_list(data)
     copy_file(data['file_list'], output_folder)
 
     calculate_start(data, output_folder)
@@ -121,6 +122,12 @@ def create_output_path(input_path):
     output_folder = fr"{path}\OUTPUT"
     os.makedirs(output_folder, exist_ok=True)
     return output_folder
+
+def deal_copy_file_list(data):
+    delet_list=["INPUT_RCD", "INPUT_REBAR", "INPUT_WALLDA"]
+    for name in delet_list:
+        if name in data['file_list']:
+            data['file_list'].remove(name)
 
 def copy_file(file_list, output_folder):
     for file in file_list:

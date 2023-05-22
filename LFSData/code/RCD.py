@@ -41,13 +41,25 @@ def transfer_rcd(input_path, output_folder, num):
         STORY = str(data_n_list[STORY_index])
         Line = str(data_n_list[Line_index])
         AnalysisSect = str(data_n_list[AnalysisSect_index])
+
+        if (AnalysisSect.startswith("C")) and ("-" in AnalysisSect):
+            tmp = AnalysisSect.split("-")
+            AnalysisSect = f"SRC-{tmp[0]}-B{tmp[1]}"
         
+        elif (AnalysisSect.startswith("RH") or AnalysisSect.startswith("BH")) and ("-" in AnalysisSect):
+            tmp = AnalysisSect.split("-")
+            AnalysisSect = f"{tmp[0][1:]}"
+
+        elif (AnalysisSect.startswith("B")) and ("-" in AnalysisSect):
+            tmp = AnalysisSect.split("-")
+            AnalysisSect = f"SRC-{tmp[0]}-H{tmp[1]}"
+
 
         output_data = (f"{STORY}{' '*(10-len(STORY))}"
                         f"{Line}{' '*(10-len(Line))}"
                         f"{AnalysisSect}{' '*(40-len(AnalysisSect))}\n")
 
-        full_output_data += output_data 
+        full_output_data += output_data
 
     output_path = fr"{output_folder}\{num}RCD.txt"
     with open(output_path, 'w+') as f:
