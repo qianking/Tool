@@ -10,7 +10,7 @@ from glob import glob
 
 import LFS_Main_Flow
 
-VERSION = '0.02'
+VERSION = '0.04'
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
 
     def set_table(self):
         self.table_1 = self._window.table_1       
-        table_title = ["樓層", "fc'", "樑深"]
+        table_title = ["樓層", "fc'", "梁深(m)"]
         self.table_setting(self.table_1, table_title)
 
     def table_setting(self, table, title):

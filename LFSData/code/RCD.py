@@ -42,7 +42,11 @@ def transfer_rcd(input_path, output_folder, num):
         Line = str(data_n_list[Line_index])
         AnalysisSect = str(data_n_list[AnalysisSect_index])
 
-        if (AnalysisSect.startswith("C")) and ("-" in AnalysisSect):
+        if (AnalysisSect.startswith("CC")) and ("-" in AnalysisSect):
+            tmp = AnalysisSect.split("-")
+            AnalysisSect = f"H{tmp[0][2:]}"
+        
+        elif (AnalysisSect.startswith("C")) and ("-" in AnalysisSect):
             tmp = AnalysisSect.split("-")
             AnalysisSect = f"SRC-{tmp[0]}-B{tmp[1]}"
         

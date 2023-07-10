@@ -124,10 +124,11 @@ def create_output_path(input_path):
     return output_folder
 
 def deal_copy_file_list(data):
-    delet_list=["INPUT_RCD", "INPUT_REBAR", "INPUT_WALLDA"]
-    for name in delet_list:
-        if name in data['file_list']:
-            data['file_list'].remove(name)
+    delet_list=["INPUT_RCD.txt", "INPUT_REBAR.txt", "INPUT_WALLDA.txt"]
+    for file_path in data['file_list'][:]:
+        for name in delet_list:
+            if file_path.endswith(name):
+                data['file_list'].remove(file_path)
 
 def copy_file(file_list, output_folder):
     for file in file_list:
