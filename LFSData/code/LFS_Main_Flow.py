@@ -8,6 +8,7 @@ import REBAR
 import RCD
 import WALLDA
 import INDATA
+import SHEAR
 from for_UI_enum import Text_Color
 
 input_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\INPUT'
@@ -149,9 +150,11 @@ def calculate_start(data, output_folder):
         if name == f"{data['num']}INPUT":
             output_list = INDATA.tranfer(path, output_folder, data)
             for out in output_list:
-                ui_show.show_status(f"生成檔案: {out}", Text_Color.blue.value)
+                ui_show.show_status(f"生成檔案: {out}", Text_Color.blue.value)     
+        if name == f"{data['num']}SHEAR":
+            output_path = SHEAR.transfer(path, output_folder)
+            ui_show.show_status(f"生成檔案: {output_path}", Text_Color.blue.value)
         
         
-
 if "__main__" == __name__:
     Main_Flow(input_path)
