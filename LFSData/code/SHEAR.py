@@ -10,7 +10,7 @@ def transfer(input_path, output_folder):
     with open(input_path, 'r') as f:
         data = f.read()
     
-    matches = re.findall(r'S T O R Y   F O R C E S\s+(STORY.*)["]+\s+ETABS', data, re.DOTALL)
+    matches = re.findall(r'S T O R Y   F O R C E S\s+(STORY.*)["]*\s+ETABS', data, re.DOTALL)
     if matches:
         print(matches[0].strip())  # 使用strip來移除前後的空白
 

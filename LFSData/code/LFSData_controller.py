@@ -10,7 +10,7 @@ from glob import glob
 
 import LFS_Main_Flow
 
-VERSION = '0.04'
+VERSION = '0.05'
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
