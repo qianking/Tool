@@ -1,7 +1,7 @@
 
 root_path = r"C:\Users\andy_chien\Downloads\資料\弱層檢核\OUTPUT"
 
-data = {'input_X_shear':rf'{root_path}\V534VPDATXE_NSW.txt',
+data_in = {'input_X_shear':rf'{root_path}\V534VPDATXE_NSW.txt',
         'input_X':rf'{root_path}\V534VPDATXE.txt',
         'input_Y_shear':rf'{root_path}\V534VPDATYE_NSW.txt',
         'input_Y':rf'{root_path}\V534VPDATYE.txt',
@@ -230,13 +230,13 @@ def DataTransfer(data):
         temp_lst.append('')
     Y_shear_data[1] = temp_lst 
     #endregion
-    
+
     return X_shear_data, Y_shear_data
 
     
 
 if __name__ == "__main__":
-    DataTransfer(data) 
+    DataTransfer(data_in) 
 
     
 
