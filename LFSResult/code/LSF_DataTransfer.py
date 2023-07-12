@@ -1,15 +1,13 @@
-import os 
-import sys
-import re
-from copy import deepcopy
 
-input_X_shear = r'E:\python\github\Tool\LFSResult\資料\弱層檢核\OUTPUT\V534VPDATXE_NSW.txt'
-input_X = r'E:\python\github\Tool\LFSResult\資料\弱層檢核\OUTPUT\V534VPDATXE.txt'
-input_Y_shear = r'E:\python\github\Tool\LFSResult\資料\弱層檢核\OUTPUT\V534VPDATYE_NSW.txt'
-input_Y = r'E:\python\github\Tool\LFSResult\資料\弱層檢核\OUTPUT\V534VPDATYE.txt'
-adjust = True
-level = '1MF'
-H = 5.45
+root_path = r"C:\Users\andy_chien\Downloads\資料\弱層檢核\OUTPUT"
+
+data = {'input_X_shear':rf'{root_path}\V534VPDATXE_NSW.txt',
+        'input_X':rf'{root_path}\V534VPDATXE.txt',
+        'input_Y_shear':rf'{root_path}\V534VPDATYE_NSW.txt',
+        'input_Y':rf'{root_path}\V534VPDATYE.txt',
+        'adjust':True,
+        'level':'1MF',
+        'H':5.45,}
 
 
 class CustomList(list):
@@ -38,18 +36,20 @@ def convert_to_number(s):
     else:
         return s  # 不轉換
 
-def datatransfer():
-    with open(input_X_shear, 'r') as f:
+def DataTransfer(data):
+    with open(data['input_X_shear'], 'r') as f:
         X_shear= f.read()
 
-    with open(input_X, 'r') as f:
+    with open(data['input_X'], 'r') as f:
         X= f.read()
 
-    with open(input_Y_shear, 'r') as f:
+    with open(data['input_Y_shear'], 'r') as f:
         Y_shear= f.read()
 
-    with open(input_Y, 'r') as f:
+    with open(data['input_Y'], 'r') as f:
         Y= f.read()
+
+    #region 前處理
 
     #取得LEVEL後面的所有資料
     #pattern = r'(LEVEL.*)' re.findall(pattern, X_shear, re.DOTALL)
@@ -95,9 +95,13 @@ def datatransfer():
     Y_shear_all_data = Y_shear_data[3:]
     Y_all_data = Y_data[3:]
 
-    #X計算
+    #endregion
+
+    #region X計算
     X_floor_list = list()
     X_VPXw = list()
+
+    len_X = len(X_shear_title)
 
     for i, x in enumerate(X_shear_all_data):
         X_floor_list.append(x[0])
@@ -108,30 +112,63 @@ def datatransfer():
         if a_data == "" or b_data == "":
             X_VPXw.append("")
         else:
-            X_VPXw.append(a_data - b_data)
+            X_VPXw.append(round((a_data - b_data), 2))
 
     #如果有需要調整的樓層    
-    if adjust:
-        adjust_INDEX = X_floor_list.index(level)
+    if data['adjust']:
+        adjust_INDEX = X_floor_list.index(data['level'])
         FirstF_INDEX = X_floor_list.index('1F')
 
         adjust_MPT = X_shear_all_data[adjust_INDEX][X_shear_title['MPT(t-m)']]
         adjust_MPB = X_shear_all_data[-1][X_shear_title['MPB(t-m)']]
-        adjust_VPX = round(((adjust_MPT + adjust_MPB)/H)+ X_VPXw[FirstF_INDEX], 2)
+        adjust_VPX = round(((adjust_MPT + adjust_MPB)/data['H']),2)
+        adjust_VPXt = round(adjust_VPX + X_VPXw[FirstF_INDEX], 2)
         adjust_VEX = X_shear_all_data[-1][X_shear_title['VEX(t)']]
-        adjust_VPVE = round(adjust_VPX/adjust_VEX, 2)
+        adjust_VPVE = round(adjust_VPXt/adjust_VEX, 2)
         adjust_Bx = round(adjust_VPVE/X_shear_all_data[adjust_INDEX-1][X_shear_title['VP/VE']], 2)
         adjust_08Bx= "OK" if adjust_Bx >0.8 else "NG"
         
-        new_FirstF_data = ['1F', H, adjust_MPT, adjust_MPB, adjust_VPX, adjust_VEX, adjust_VPVE, adjust_Bx, adjust_08Bx]
+        new_FirstF_data = ['1F', data['H'], adjust_MPT, adjust_MPB, adjust_VPX, adjust_VEX, adjust_VPVE, adjust_Bx, adjust_08Bx]
         X_shear_all_data[FirstF_INDEX] = new_FirstF_data
         X_shear_all_data.remove(X_shear_all_data[adjust_INDEX])
-    
-    
-    
-    #Y計算
+        X_VPXw.remove(X_VPXw[adjust_INDEX])
+
+
+    insert_index = X_shear_title['VPX(t)'] + 1  
+    for i, datas in enumerate(X_shear_all_data):    
+        for _ in range(len_X-len(datas)):  #長度補齊
+            datas.append('')
+
+        bx = datas[X_shear_title['Bx']]   #檢查Bx大小
+        if bx != '' and bx < 0.8:
+            datas[X_shear_title['Bx>0.8']] = "NG"   
+
+        datas.insert(insert_index, X_VPXw[i])  #插入VPXw
+ 
+    X_shear_data[2].insert(insert_index, "VPXw")
+    X_shear_data[3:] = X_shear_all_data
+
+    temp_lst = list()
+    temp_lst.append("X向")
+    for datas in X_shear_data[0]:
+        temp_lst.append(datas)
+    for _ in range(len(X_shear_data[2])-len(temp_lst)):
+        temp_lst.append('')
+    X_shear_data[0] = temp_lst
+
+    temp_lst = list()
+    temp_lst.append("")    
+    for datas in X_shear_data[1]:
+        temp_lst.append(datas)
+    for _ in range(len(X_shear_data[2])-len(temp_lst)):
+        temp_lst.append('')
+    X_shear_data[1] = temp_lst  
+    #endregion
+
+
+    #region Y計算
     Y_floor_list = list()
-    Y_VPXw = list()
+    Y_VPYw = list()
 
     for i, y in enumerate(Y_shear_all_data):
         Y_floor_list.append(y[0])
@@ -140,40 +177,66 @@ def datatransfer():
         a_data = a.get(Y_shear_title['VPY(t)'], "")
         b_data = b.get(Y_shear_title['VPY(t)'], "")
         if a_data == "" or b_data == "":
-            Y_VPXw.append("")
+            Y_VPYw.append("")
         else:
-            Y_VPXw.append(a_data - b_data)
+            Y_VPYw.append(round((a_data - b_data), 2))
 
     #如果有需要調整的樓層    
-    if adjust:
-        adjust_INDEX = Y_floor_list.index(level)
+    if data['adjust']:
+        adjust_INDEX = Y_floor_list.index(data['level'])
         FirstF_INDEX = Y_floor_list.index('1F')
 
         adjust_MPT = Y_shear_all_data[adjust_INDEX][Y_shear_title['MPT(t-m)']]
         adjust_MPB = Y_shear_all_data[-1][Y_shear_title['MPB(t-m)']]
-        adjust_VPX = round(((adjust_MPT + adjust_MPB)/H) + Y_VPXw[FirstF_INDEX], 2)
-        adjust_VEX = Y_shear_all_data[-1][Y_shear_title['VEY(t)']]
-        adjust_VPVE = round(adjust_VPX/adjust_VEX, 2)
-        adjust_Bx = round(adjust_VPVE/Y_shear_all_data[adjust_INDEX-1][Y_shear_title['VP/VE']], 2)
-        adjust_08Bx= "OK" if adjust_Bx >0.8 else "NG"
-        
-        
-        new_FirstF_data = ['1F', H, adjust_MPT, adjust_MPB, adjust_VPX, adjust_VEX, adjust_VPVE, adjust_Bx, adjust_08Bx]
+        adjust_VPY = round(((adjust_MPT + adjust_MPB)/data['H']),2)
+        adjust_VPYt = round(adjust_VPY + Y_VPYw[FirstF_INDEX], 2)
+        adjust_VEY = Y_shear_all_data[-1][Y_shear_title['VEY(t)']]
+        adjust_VPVE = round(adjust_VPYt/adjust_VEY, 2)
+        adjust_By = round(adjust_VPVE/Y_shear_all_data[adjust_INDEX-1][Y_shear_title['VP/VE']], 2)
+        adjust_08By= "OK" if adjust_By >0.8 else "NG"
+                
+        new_FirstF_data = ['1F', data['H'], adjust_MPT, adjust_MPB, adjust_VPY, adjust_VEY, adjust_VPVE, adjust_By, adjust_08By]
         Y_shear_all_data[FirstF_INDEX] = new_FirstF_data
         Y_shear_all_data.remove(Y_shear_all_data[adjust_INDEX])
+        Y_VPYw.remove(Y_VPYw[adjust_INDEX])
 
+    insert_index = Y_shear_title['VPY(t)'] + 1  
+    for i, datas in enumerate(Y_shear_all_data):    
+        for _ in range(len_X-len(datas)):  #長度補齊
+            datas.append('')
 
+        by = datas[Y_shear_title['By']]   #檢查By大小
+        if by != '' and by < 0.8:
+            datas[Y_shear_title['By>0.8']] = "NG"   
 
-        
+        datas.insert(insert_index, Y_VPYw[i])  #插入VPYw
+ 
+    Y_shear_data[2].insert(insert_index, "VPYw")
+    Y_shear_data[3:] = Y_shear_all_data
+
+    temp_lst = list()
+    temp_lst.append("Y向")
+    for datas in Y_shear_data[0]:
+        temp_lst.append(datas)
+    for _ in range(len(Y_shear_data[2])-len(temp_lst)):
+        temp_lst.append('')
+    Y_shear_data[0] = temp_lst
+
+    temp_lst = list()
+    temp_lst.append("")    
+    for datas in Y_shear_data[1]:
+        temp_lst.append(datas)
+    for _ in range(len(Y_shear_data[2])-len(temp_lst)):
+        temp_lst.append('')
+    Y_shear_data[1] = temp_lst 
+    #endregion
     
-        
-        
+    return X_shear_data, Y_shear_data
+
     
-
-
 
 if __name__ == "__main__":
-    datatransfer() 
+    DataTransfer(data) 
 
     
 
