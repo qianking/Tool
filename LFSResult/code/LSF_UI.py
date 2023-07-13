@@ -1,7 +1,7 @@
 from glob import glob
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget, QPushButton, QRadioButton, QLabel, QLineEdit, QHBoxLayout, QPlainTextEdit, QFileDialog, QTextBrowser,QMessageBox
-from PySide6.QtGui import QTextCharFormat, QFont, QColor, QTextCursor
-from PySide6.QtCore import Qt, Signal, QRunnable, QObject, QThreadPool, QTimer
+from PySide6.QtGui import QColor, QDesktopServices
+from PySide6.QtCore import Qt, Signal, QRunnable, QObject, QThreadPool, QTimer, QUrl
 from LSF_Main import Main
 
 class MainWindow(QWidget):
@@ -197,9 +197,20 @@ class MainWindow(QWidget):
     #endregion
 
     def finish(self):
-        self.setDisplayText(("\n\nDone!", Qt.black))
+        self.setDisplayText(("\nDone!", Qt.black))
         self.Reset_To_Defult()
         self.timer.stop()
+
+    #region 超連結
+    def show_outputpath(self, path:str):
+        self.show_result.setOpenLinks(False)
+        self.show_result.setOpenExternalLinks(False)
+        self.show_result.append(f"<a href='file:///{path}'>Open File</a>")
+        self.show_result.anchorClicked.connect(self.open_file)
+
+    def open_file(self, url):
+        QDesktopServices.openUrl(url)
+    #endregion
 
     #region transfer thread
     def start_thread(self):
@@ -208,6 +219,7 @@ class MainWindow(QWidget):
         self.start_thread.signals.status.connect(self.setDisplayText)
         self.start_thread.signals.exception.connect(self.MSGBox_WARN)
         self.start_thread.signals.finish.connect(self.finish)
+        self.start_thread.signals.final_path.connect(self.show_outputpath)
         self.threadpool.start(self.start_thread)
     #endregion
 
@@ -216,6 +228,7 @@ class ThreadSignal(QObject):
     status = Signal(tuple)
     exception = Signal(str)
     finish = Signal()
+    final_path = Signal(str)
 
 class start_process(QRunnable):
     def __init__(self, data):
