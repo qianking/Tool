@@ -1,4 +1,5 @@
 from glob import glob
+import os
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget, QPushButton, QRadioButton, QLabel, QLineEdit, QHBoxLayout, QPlainTextEdit, QFileDialog, QTextBrowser,QMessageBox
 from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtCore import Qt, Signal, QRunnable, QObject, QThreadPool, QTimer, QUrl
@@ -116,7 +117,7 @@ class MainWindow(QWidget):
                     self.data[value] = file
         
         if len(file_list) == 4:
-            self.setDisplayText((f"總共發現{len(file_list)}個檔案, 檔案正確\n", Qt.darkYellow))
+            self.setDisplayText((f"總共發現{len(file_list)}個檔案, 檔案正確", Qt.darkYellow))
             self.start_btm.setEnabled(True)
         else:
             self.setDisplayText((f"發現{len(file_list)}個檔案, 有檔案缺少!!", Qt.red))
@@ -205,8 +206,9 @@ class MainWindow(QWidget):
     def show_outputpath(self, path:str):
         self.show_result.setOpenLinks(False)
         self.show_result.setOpenExternalLinks(False)
-        self.show_result.append(f"<a href='file:///{path}'>Open File</a>")
-        self.show_result.anchorClicked.connect(self.open_file)
+        if os.path.exists(path):
+            self.show_result.insertHtml(f"<a href='file:///{path}'>Open File</a>")
+            self.show_result.anchorClicked.connect(self.open_file)
 
     def open_file(self, url):
         QDesktopServices.openUrl(url)
