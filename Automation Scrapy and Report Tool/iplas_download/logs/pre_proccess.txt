@@ -1,2 +1,0 @@
-2022-11-10 18:07:11,743 - [line:22] - DEBUG: Check user data
-2022-11-10 18:07:11,744 - [line:39] - DEBUG: user login
