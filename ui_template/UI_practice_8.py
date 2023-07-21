@@ -1,5 +1,6 @@
 import sys
-import PySide6.QtGui
+from PySide6.QtGui import QDrag
+from PySide6.QtCore import Qt, QMimeData
 from PySide6.QtWidgets import (QPushButton, QWidget, QLineEdit,
                                QApplication)
 
@@ -33,11 +34,58 @@ class Drag(QWidget):
 
         self.setGeometry(300, 300, 300, 150)
         self.setWindowTitle('Simple Drag')
+
+
+
+class Button2(QPushButton):
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+    
+    def mouseMoveEvent(self, Event):
+        if Event.buttons() != Qt.MouseButton.RightButton:
+            return 
+        
+        mimeDate = QMimeData()
+
+        drag = QDrag(self)
+        drag.setMimeData(mimeDate)
+
+        drag.setHotSpot(Event.position().toPoint() - self.rect().topLeft())
+        dropAction = drag.exec(Qt.DropAction.MoveAction)
+    
+    def mousePressEvent(self, Event):
+        super().mousePressEvent(Event)
+
+        if Event.buttons() == Qt.MouseButton.LeftButton:
+            print('press')
+
+class Move(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setAcceptDrops(True)
+        self.button = Button2('Button', self)
+        self.button.move(100, 65)
+
+        self.setGeometry(300, 300, 300, 150)
+        self.setWindowTitle('click and move')
+
+    def dragEnterEvent(self, event):
+        event.accept()
+    
+    def dropEvent(self, event):
+        position = event.position()
+        self.button.move(position.toPoint())
+
+        event.setDropAction(Qt.DropAction.MoveAction)
+        event.accept()
         
 
 def main():
     app = QApplication(sys.argv)
-    ex=Drag()
+    ex=Move()
     ex.show()
     app.exec()
 
