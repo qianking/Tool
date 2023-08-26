@@ -2,8 +2,8 @@ import os
 import sys
 import numpy as np
 
-input_path = r'C:\Users\Qian\Downloads\V624_INPUT\INPUT\INPUT_RCD.txt'
-output_folder = r'E:\python\virtualenv\Tool\LFSData\data\弱層資料整理\output_tet'
+input_path = r'C:\Users\Qian\Downloads\INPUT_RCD.txt'
+output_folder = r'C:\Users\Qian\Downloads\T'
 
 def transfer_rcd(input_path, output_folder, num):
 
@@ -29,14 +29,23 @@ def transfer_rcd(input_path, output_folder, num):
 
     full_output_data += title_output
 
+    line_letter = None
     for data_n in data_list[1:]:
-        data_n_list = [i for i in data_n.split('\t') if i !='']       
+        data_n_list = [i for i in data_n.split('\t') if i !='']
+        temp_letter = data_n_list[Line_index][0]
+        if not line_letter:
+            line_letter = data_n_list[Line_index][0]
+        if line_letter != temp_letter:
+            floor_flag = False
         if data_n_list[Line_type] != "Column" and data_n_list[Line_type] != "Beam":
             continue
         if data_n_list[STORY_index] != 'R1F' and not floor_flag:
             continue
         elif data_n_list[STORY_index] == 'R1F':
             floor_flag = True
+
+        
+        line_letter = data_n_list[Line_index][0]
 
         STORY = str(data_n_list[STORY_index])
         Line = str(data_n_list[Line_index])
