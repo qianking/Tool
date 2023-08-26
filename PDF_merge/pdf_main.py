@@ -33,10 +33,8 @@ def get_variable_form_UI(outline_infor, pdf_infor, config):
     global outline_information
     global config_path
 
-    print(outline_infor, pdf_infor)
     outline_information = outline_infor
     
-
     pdf_information = pdf_infor
     self = pdf_infor.get('self')
     status = pdf_infor.get('status')
@@ -51,7 +49,7 @@ def get_merger_folder():
 def merge_pdf():
     get_merger_folder()
     pdf = merger.Merge_Pdf_and_GetOutline(pdf_information)
-    pdf.create_order_dic()
+    pdf.create_order_dic()  #創建字典
     pdf.find_special_chapter_file()     #需先找特殊檔案，因為找到特殊檔案後會先pop出來
     pdf.find_same_chapter_file()        #在找共通檔案
     pdf.order_same_chpater()
@@ -97,17 +95,22 @@ def delete_file(delete_list):
          os.remove(file)
 
 def main(basic_data, special_data, config):
-    print(basic_data)
-    print(special_data)
+    #print('basic_data',basic_data)
+    #print('special_data',special_data)
+    #print('config',config)
     try:
         start_time = time.time()
         
-        get_variable_form_UI(basic_data, special_data, config)
+        #獲取從UI傳入的參數和信號
+        get_variable_form_UI(basic_data, special_data, config) 
 
+        #讀取config中的資料
         All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title = config_load.load_ini(config_path)
-        print(All_Same_Chapter)
-        print(Stamp_ver_Chapter_1_2_data)
-        print(Audit_ver_Chapter_1_inner_title)
+        # print('All_Same_Chapter',All_Same_Chapter)
+        # print('Stamp_ver_Chapter_1_2_data',Stamp_ver_Chapter_1_2_data)
+        # print('Audit_ver_Chapter_1_inner_title',Audit_ver_Chapter_1_inner_title)
+
+        #將config中，title名子合併到Stamp_ver_Chapter_1_2_data和Audit_ver_Chapter_1_inner_title全域變數中
         merger.get_title_data(All_Same_Chapter, Stamp_ver_Chapter_1_2_data, Audit_ver_Chapter_1_inner_title)
         
         send_msg_to_UI('合併開始...')
@@ -171,7 +174,7 @@ def main(basic_data, special_data, config):
 
 
 if "__main__" == __name__:
-    basic_data = {'number': 'V555', 'address': '555', 'name': '555', 'file_name': None}
-    special_data = {'select_stytle': 'Stamp_single', 'input_folder_path': 'E:\\python\\virtualenv\\Tool\\PDF_merger\\整合PDF(all)\\整合前\\核章版', 'self': None, 'status': None}
+    basic_data = {'number': 'V440', 'address': '555', 'name': '555', 'file_name': '555'}
+    special_data = {'select_stytle': 'Stamp_multi', 'build_num': 2, 'build_no': ['A', 'B'], 'input_folder_path': 'C:\\Users\\Qian\\Downloads\\V440_計算書整合', 'page_num': False, 'self': None, 'status': None}
     #pdf_information = {'select_stytle': 'Stamp_multi', 'build_num': 4, 'build_no': ['1', '2', '3', '4'], 'input_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多', 'self': '<__main__.Merge_PDF_Thread(0x2784804e4c0) at 0x000002783D58B100>', 'status': '<PySide6.QtCore.SignalInstance status(QString) at 0x000002783D581AB0>', 'tmp_file_folder_path': 'E:\\python\\github\\Tool\\pdf_merge\\整合PDF(all)\\整合前\\核章版 多\\2022-08-14_merger'}
-    main(basic_data, special_data)
+    main(basic_data, special_data, ".\config.ini")

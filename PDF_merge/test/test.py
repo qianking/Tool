@@ -1,47 +1,14 @@
-from dataclasses import replace
-from PyPDF2 import PdfFileReader, PdfFileWriter, PdfMerger
-from PyPDF2.generic import DecodedStreamObject, EncodedStreamObject
+import unicodedata
+import re
 
+a = "主要材料強度"
+b = "主要材料強度"
+c = "主要材料強度"
+a_nfc = unicodedata.normalize('NFC', a)
+b_nfc = unicodedata.normalize('NFC', b)
+txt= "1-4．設計規範：\n(1)建築物耐震設計規範及解說(民國111年10月)(2)最新建築技術規則(3)建築物基礎構造設計規範(民國90年10月)(4)混凝土結構設計規範(民國100年7月)(5)建築物耐風設計規範及解說(民國104年3月)\n1-5．主要材料強度：\n(1)混凝土符合： (一)水泥採用卜特蘭第1型水泥,並符合中國國家標準CNS 61 R2001(二)混凝土粒料須符合CNS 1240 A2029規範標準混凝土fc'=280k\ngf/cm2 (筏基板)混凝土fc'=350k\ngf/cm2 (5FL以下,不含FS版,含5FL版)混凝土fc'=280k\ngf/cm2 (5FL~R1FL,不含5FL版,含R1FL版)混凝土fc'=245k\ngf/cm2 (R1FL以上,不含R1FL版)(2)鋼筋符合： CNS560~A2006，並禁止使用水淬鋼筋。(一)F\ny=2800k gf/cm2 (#3以下，SD280W)(二)F\ny=4200k gf/cm2 (#4~#8，SD420W)(三)F\ny=5000k gf/cm2 (#10~#11，SD490W)備註：\n1-6．設計載重：\n(1)靜載重：依實際計算 (A棟)樓版地坪粉刷防水隔熱隔間牆 其他靜載重(k\ngf/m2\n(15cm版厚) 360 80 100 540\n(30cm版厚) 720 80 100 900\n(30cm版厚) 720 80 100 900\n(15cm版厚) 360 80 390 830\n(24cm版厚) 576 80 80 736\n(15cm版厚) 360 80 300 740\n(15cm版厚) 360 80 210 650\n(18cm版厚) 432 80 80 592\n(15cm版厚) 360 80 210 650\n(15cm版厚) 360 80 210 650\n(15cm版厚) 360 80 80 520(B棟)樓版地坪粉刷防水隔熱隔間牆 其他靜載重(k\ngf/m2\n(15cm版厚) 360 80 100 540\n(30cm版厚) 720 80 100 900\n(30cm版厚) 720 80 100 900\n(15cm版厚) 360 80 390 830\n(24cm版厚) 576 80 80 736\n(15cm版厚) 360 80 300 740\n(15cm版厚) 360 80 210 650\n(18cm版厚) 432 80 80 592\n(15cm版厚) 360 80 210 650\n(15cm版厚) 360 80 210 650\n(15cm版厚) 360 80 80 520R1F室內R1F室外R2FR3FPRF1F室外R3FPRF2F~14FR1F室內R1F室外R2F樓層B3FB2FB1F1F室內1F室外2F~13F樓層B3FB2FB1F1F室內c. 除上述a.與b.情況外，CNS 560中SD420及SD280鋼筋亦可使用。a. 大梁、柱及剪力牆等用以承受地震力之構材，應符合 CNS560中SD420W 及SD280W之要求。b. 有焊接需求之鋼筋，亦應符合CNS 560中SD280W與SD420W之規定。"
+pattern = re.compile(fr"(\d)-(\d\d*)．{a}", re.I)
+find_pattern = pattern.findall(txt)
+print(find_pattern)
 
-input_path = r'C:\Users\andy_chien\Downloads\555\555\555.pdf'
-out = r'C:\Users\andy_chien\Downloads\整合PDF(all)\整合前\第一次意見回覆_text.pdf'
-
-''' PdfReader = PdfFileReader(input_path)
-total_page = PdfReader.getNumPages()
-
-Page_n = PdfReader.getPage(1)
-txt = Page_n.extractText()
-
-txt = txt.replace('p.1', ' ')
-print(txt)
-
-Page_n = PdfReader.getPage(1)
-txt = Page_n.extractText()
-print(txt) '''
-
-
-''' out_put = PdfFileWriter()
-out_put.addPage(Page_n)
-with open(out, 'wb') as f:
-    out_put.write(f)
- '''
-
-
-
-replacements = [
-    ("p.1", " 555")
-]
-
-pdf = PdfFileReader(input_path).getPage(1)
-print(pdf)
-writer = PdfFileWriter() 
-
-print(pdf.getContents())
-contents = pdf.getContents()    .getData()
-for (a,b) in replacements:
-    contents = contents.replace(a.encode('utf-8'), b.encode('utf-8'))
-page.getContents().setData(contents)
-writer.addPage(page)
-    
-with open(out, "wb") as f:
-     writer.write(f)
+print(a==b)

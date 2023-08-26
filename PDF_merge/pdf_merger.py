@@ -5,6 +5,7 @@ from glob import glob
 from copy import deepcopy
 import re
 import datetime
+import unicodedata
 import write_word_pdf as word_pdf
 
 """
@@ -41,8 +42,8 @@ All_Same_Chapter = {}
 
 #核章版
 Stamp_ver_Chapter_1_2_data = {
-    1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
-    2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2.5．動力分析樓層剪力', '2.6．動力分析質心位移', '2.7．動力分析層間變位角', '2.8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}
+    1:{'title': '設計概要說明', 'inner_title' : ('1-1．建築概要','1-2．結構系統', '1-3．結構模型示意圖', '1-4．設計規範', '1-5．主要材料強度', '1-6．設計載重', '1-7．構材尺寸', '1-8．分析程式', '1-9．載重組合', '1-10．地震作用時層間變位檢討', '1-11．建築物重量計算', '1-12．動力分析週期', '1-13．振態說明', '1-14．剛性隔板質心及剛心')},
+    2: {'title': '地震力與風力計算', 'inner_title' :('2-1．建築物設計地震力計算', '2-2．垂直地震力計算', '2-3．建築物地震力之豎向分配', '2-4．動力反應譜分析調整放大係數', '2-5．動力分析樓層剪力', '2-6．動力分析質心位移', '2-7．動力分析層間變位角', '2-8．意外扭矩放大係數計算', '2-9．碰撞間隔及層間變位角計算', '2-10．風力計算')}
 }
 
 
@@ -79,12 +80,13 @@ class Merge_Pdf_and_GetOutline():
         self.delete_file_list = []
         self.all_chapter_dic = {}
         self.to_word_outline = {}
-        print(All_Same_Chapter)
-        print(Stamp_ver_Chapter_1_2_data)
-        print(Audit_ver_Chapter_1_inner_title)
+        print('All_Same_Chapter',All_Same_Chapter)
+        print('Stamp_ver_Chapter_1_2_data',Stamp_ver_Chapter_1_2_data)
+        print('Audit_ver_Chapter_1_inner_title',Stamp_ver_Chapter_1_2_data)
         
 
     def create_order_dic(self):
+        #創建共同的章節字典和特殊章節(核章版多棟)的字典
         self.same_chapter_dic = {}
         len_order = len(Chapter_number)
         for chapter in range(1, len_order+1):
@@ -94,6 +96,7 @@ class Merge_Pdf_and_GetOutline():
 
 
     def find_same_chapter_file(self):
+        #找到3、4、5、6章節的PDF檔
         for pdf in self.file_list:
             pdf_file = self.find_the_same_chapter(pdf)
             if pdf_file:
@@ -171,6 +174,7 @@ class Merge_Pdf_and_GetOutline():
                 self.same_chapter_dic.pop(capter)
 
     def find_special_chapter_file(self):
+        #找到核章版第一張多棟時的PDF檔案，並且進行排序
         find_file_flag = False
         file_NO_special_pattern = re.compile(r"^\d[1,2]_\d\d", re.I)
         for pdf_path in self.file_list:
@@ -194,11 +198,7 @@ class Merge_Pdf_and_GetOutline():
                 Stamp_multi_chapter_file_list = []
                 debug_special_chapter_file = deepcopy(self.special_chapter_dic[1])      #將核章版多棟第一章檔案名稱跟使用者填寫的建築編號做一個確認並且排序整齊
                 for no in range(1, (len(self.pdf_data['build_no']))+1):
-                    if no < 10:
-                        no = str(f'0{no}')
-                    else:
-                        no = str(no)
-                    file_name_pattern = re.compile(fr"^\d[2]_{no}", re.I)
+                    file_name_pattern = re.compile(fr"^\d[1,2]_{no:02}", re.I)
                     for pdf_path in self.special_chapter_dic[1]:
                         find_pattern = file_name_pattern.findall(pdf_path.split('\\')[-1])
                         if len(find_pattern):
@@ -243,10 +243,12 @@ class Merge_Pdf_and_GetOutline():
         for pages in range(total_page):
             Page_n = PdfReader.getPage(pages)
             txt = Page_n.extractText()
+            txt = unicodedata.normalize('NFC', txt)
             if len(title_1_2_list) != 0:
                 for title in title_1_2_list:
                     title_name = title.split('．')[1]
-                    pattern = re.compile(fr"(\d).(\d\d*)．({title_name})", re.I)
+                    title_name = unicodedata.normalize('NFC', title_name)
+                    pattern = re.compile(fr"(\d)-(\d\d*)．({title_name})", re.I)
                     find_pattern = pattern.findall(txt)
                     if len(find_pattern) != 0:
                         chapter = int(find_pattern[0][0])
@@ -267,8 +269,10 @@ class Merge_Pdf_and_GetOutline():
         special_chapter_file_list = deepcopy(self.special_chapter_dic[1])
         self.special_chapter_dic.clear()
         build_NO = self.pdf_data['build_no']
-        
+
+        #新增第一章節副標題名子
         title_1_2_list = list(deepcopy(Stamp_ver_Chapter_1_2_data[1]['inner_title']))
+        #新增第二章節副標題名子 
         title_1_2_list.extend(list(deepcopy(Stamp_ver_Chapter_1_2_data[2]['inner_title'])))
 
         same_title_1_2 = set(title_1_2_list[:10])      #1-1 ~ 1-10為所有檔案都有的，拿來做為查看是否有漏掉title用
@@ -285,11 +289,12 @@ class Merge_Pdf_and_GetOutline():
             for pages in range(total_page):
                 Page_n = PdfReader.getPage(pages)
                 txt = Page_n.extractText()
-
+                txt = unicodedata.normalize('NFC', txt)
                 if len(title_1_2_list) != 0:
                     for title in title_1_2_list:
                         title_name = title.split('．')[1]
-                        pattern = re.compile(fr"(\d).(\d\d*)．({title_name})", re.I)
+                        title_name = unicodedata.normalize('NFC', title_name)
+                        pattern = re.compile(fr"(\d)-(\d\d*)．({title_name})", re.I)
                         find_pattern = pattern.findall(txt)
                         if len(find_pattern) != 0:
                             chapter = int(find_pattern[0][0])
