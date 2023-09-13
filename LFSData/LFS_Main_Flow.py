@@ -10,6 +10,7 @@ import WALLDA
 import INDATA
 import SHEAR
 from for_UI_enum import Text_Color
+from PySide6.QtCore import QEventLoop
 
 input_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\INPUT'
 output_path = r'C:\Users\andy_chien\Downloads\弱層資料整理_1\弱層資料整理\OUTPUT_TEST'
@@ -17,6 +18,7 @@ FC = {1:490, 8:420, 17:350, 23:280}
 HNDL = {'1F': 0.8, '3F': 0.9, '15F': 0.8}
 
 ui_show = None
+file_ok=True
 
 class UI_SHOW():
     def __init__(self, ui_signal):
@@ -37,6 +39,24 @@ class UI_SHOW():
     def reset_all(self):
         if self.ui_signal:
             self.ui_signal.reset_all.emit()
+    
+    def check_file(self, msg:str):
+        if self.ui_signal:
+            self.ui_signal.check_file.emit(msg)
+
+    def user_input_received(self, sing):
+        if self.ui_signal:
+            self.ui_signal.user_input_received.connect(sing)
+    
+    def user_response(self):
+        if self.ui_signal:
+            return self.ui_signal.user_response_value
+    
+
+def Change_File_Flag(flag:bool):
+    global file_ok
+    file_ok = flag
+
 
 def debug(func):
     def warpper(*args, **wargs):
@@ -53,7 +73,7 @@ def debug(func):
             errMsg = f"{[error_class]}\n\"{fileName}\", line {lineNum}, in {funcName}\n{detail}"
             print(errMsg)
             ui_show.show_status(f'Error: {errMsg}', Text_Color.red.value)
-            ui_show.reset_all()
+            #ui_show.reset_all()
     return warpper
 
 
@@ -62,11 +82,11 @@ def Get_FloorData_Flow(data, signals = None):
     global ui_show
     ui_show = UI_SHOW(signals)
     num = Check_File(data['file_name_dic'])
+    if num:
+        total_floor, floor_list = INDATA.get_floor_data(data['file_name_dic'][f'{num}INPUT'])
 
-    total_floor, floor_list = INDATA.get_floor_data(data['file_name_dic'][f'{num}INPUT'])
-
-    ui_show.show_result({'num':num, 'floor_num':str(total_floor)})
-    ui_show.floordata_send(floor_list)
+        ui_show.show_result({'num':num, 'floor_num':str(total_floor)})
+        ui_show.floordata_send(floor_list)
 
 
 @debug   
@@ -82,16 +102,26 @@ def Main_Flow(data, signals=None):
     ui_show.show_status('轉換完成!')
 
 def Check_File(file_name_dic):
+    global file_ok
     num = get_number_from_file(file_name_dic)
     if not num:
         ui_show.show_status(f"WORNING: 找不到 '案號INPUT' 檔案", Text_Color.red.value)
-        ui_show.reset_all()
         return 0
 
     loose_file = check_file_exist(file_name_dic, num)
     if loose_file:
-        ui_show.show_status(f'WORNING: 找不到檔案 {loose_file}', Text_Color.red.value)
-        ui_show.reset_all()
+        ui_show.check_file(','.join(loose_file))
+        
+        # 我們阻塞這個函數直到主 UI 給出回應
+        loop = QEventLoop() 
+        ui_show.user_input_received(loop.quit)
+        loop.exec_()
+
+        if ui_show.user_response():
+            return num
+        
+        #ui_show.show_status(f'WORNING: 找不到檔案 {loose_file}', Text_Color.red.value)
+        #ui_show.reset_all()
         return 0
     
     return num
@@ -108,6 +138,7 @@ def check_file_exist(file_name, num):
     return 0
 
 def get_number_from_file(file_name):
+    print(file_name)
     pattern = re.compile(r"(^[A-Z]\d\d\d)", re.I)
     for file_name in file_name.keys():
         find =pattern.findall(file_name)

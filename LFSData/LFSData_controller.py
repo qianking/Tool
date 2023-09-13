@@ -10,7 +10,7 @@ from glob import glob
 
 import LFS_Main_Flow
 
-VERSION = '0.05'
+VERSION = '0.07'
 
 class MainWindow(QMainWindow):
     def __init__(self, UI_file_format, parent=None):
@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
         self.floor_show.setText('')
 
     def show_status(self, show_data:tuple):
-        print(show_data)
+        print('show_data', show_data)
         txt, color = show_data
         fft1 = self.status.currentCharFormat()
         fft1.setForeground(color)     
@@ -194,6 +194,7 @@ class MainWindow(QMainWindow):
         return all_data
     
     def import_btm_connect(self):
+        self.reset_all()
         self.import_btm.clicked.connect(self.select_folder)
         self.import_btm.clicked.connect(self.start_getfloordata_thread)
     
@@ -207,7 +208,8 @@ class MainWindow(QMainWindow):
         self.start_get_thread.signals.result_send.connect(self.set_num_floor_result)
         self.start_get_thread.signals.floor_data_send.connect(self.set_table_floor_data)
         self.start_get_thread.signals.reset_all.connect(self.reset_all)
-
+        self.start_get_thread.signals.check_file.connect(self.check_file_message_box)
+        
         self.threadpool.start(self.start_get_thread)      
 
     def start_ouput_thread(self):
@@ -216,14 +218,35 @@ class MainWindow(QMainWindow):
         self.start_thread.signals.status.connect(self.show_status)
         self.start_thread.signals.reset_all.connect(self.reset_all)
         self.threadpool.start(self.start_thread)
-
-
+    
+    def check_file_message_box(self, msg:str):
+        msg_box = QMessageBox()
+        msg_box.setText(f"缺少檔案 {msg}，是否要繼續?")
+        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        ret = msg_box.exec()
+        if ret == QMessageBox.Ok:
+            self.start_get_thread.signals.user_response.emit(True)
+        else:
+            self.start_get_thread.signals.user_response.emit(False)
+        print(self.start_get_thread.signals.user_response)
+        self.start_get_thread.signals.user_input_received.emit()
 
 class thread_signal(QObject):
     status = Signal(tuple)
     floor_data_send = Signal(list)
     result_send = Signal(dict)
     reset_all = Signal()
+    check_file = Signal(str)
+    user_input_received = Signal()
+    user_response = Signal(bool)
+
+    def __init__(self):
+        super().__init__()
+        self.user_response_value = None
+        self.user_response.connect(self.store_response)
+
+    def store_response(self, response):
+        self.user_response_value = response
 
 class start_get_floor_data_proccess(QRunnable):
     def __init__(self, input_path):
@@ -233,6 +256,8 @@ class start_get_floor_data_proccess(QRunnable):
 
     def run(self):
         LFS_Main_Flow.Get_FloorData_Flow(self.input_path, self.signals)
+    def check_file_ok(self, flag:bool):
+        LFS_Main_Flow.Change_File_Flag(flag)
 
 
 class start_process(QRunnable):
