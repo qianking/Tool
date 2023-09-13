@@ -161,6 +161,7 @@ class MainWindow(QMainWindow):
     def reset_all(self):
         self.set_table()
         self.status.clear()
+        self.data.clear()
         self.num_show.setText('')
         self.floor_show.setText('')
 
@@ -228,7 +229,6 @@ class MainWindow(QMainWindow):
             self.start_get_thread.signals.user_response.emit(True)
         else:
             self.start_get_thread.signals.user_response.emit(False)
-        print(self.start_get_thread.signals.user_response)
         self.start_get_thread.signals.user_input_received.emit()
 
 class thread_signal(QObject):
