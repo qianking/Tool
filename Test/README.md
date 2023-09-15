@@ -5,6 +5,7 @@
     * [TimeSubtract](#timesubtract)
     * [ToDateTime](#todatetime)
 * [OSBasic](#osbasic)
+    * [CMD](#cmd)
 
 # Reg
 
@@ -220,4 +221,28 @@
 
 此部分function主要是收錄電腦基本操作，包含CMD、check file等
 
+## CMD
 
+* 執行CMD命令 (CMD)
+
+    **輸入**
+    ```sh
+    :Utility2.CMD,"file path","arguments","timeout(ms)"
+    ```
+    _sfile path: 應用程式路徑_
+
+    _arguments: 輸入參數_
+
+        多參數的話請以","分隔, 沒參數的話請填""
+    
+    _timeout(ms):超時時間_
+
+        時間單位為ms, 如果沒timeout就填-1
+    
+    **輸出**
+        normal:
+            Reply: 0
+            Ref: Return
+        timeout:
+            Reply: 1
+            Ref: "The proccess time out!"
