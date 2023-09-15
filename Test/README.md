@@ -1,6 +1,6 @@
-*[Reg](#reg)
-    *[stringGet](#stringget)
-
+* [Reg](#reg)
+   * [StringGet](#stringget)
+   * [StringCount](#stringcount)
 
 
 # Reg
@@ -102,7 +102,8 @@
     **REMINDER**
 
     -  **正則 pattern中不能出現 "{" 和 "}" 符號，如果需要使用，請用 "[[" 和 "]]" 代替**
-
+    -  
+## StringCount
 * 計算字串 (StringCount)
     1. 此function用來計算該參數在字串中的數量
 
