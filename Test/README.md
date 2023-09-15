@@ -1,31 +1,25 @@
 * [Reg](#reg)
-   * [StringGet](#stringget)
-   * [StringCount](#stringcount)
-
+    * [StringGet](#stringget)
+    * [StringCount](#stringcount)
+* [DateTime](#datetime)
+    * [TimeSubtract](#timesubtract)
+    * [ToDateTime](#todatetime)
+* [OSBasic](#osbasic)
 
 # Reg
 
+此部分function是使用正則表達式從data中提取特定字串時使用
+
 ## stringGet
-### Background
 
-此Dll用在需要從data中提取特定字串時使用，主要是使用正則表達式，因此要對於正則有一定熟悉度
-
-## Install
-
-將 RTCDateTime.dll 放入 Centinmani\API底下
-
-在Script中，在DUTs頁面將"DLL:StringRegex.dll","Reg",""加到需要使用的站點的Connection
-
-## Usage
-
-* 獲得字串 (StringGet)
+* 字串獲得 (StringGet)
     1. 此function可以處理字串中多行的情況
     2. 可使用正則中群組功能
     3. 各參數皆以 "," 做區隔
 
     **輸入格式**
     ```sh
-    :Reg.StringGet,"輸入資料","正則pattern","分組組號","預計獲得參數個數"
+    :Utility2.StringGet,"輸入資料","正則pattern","分組組號","預計獲得參數個數"
     ```
     _輸入資料: 輸入需要拆解的字串_
 
@@ -39,7 +33,7 @@
 
         範例 1:
         input = 0/0  QSGMII  Up  1G  Full  None  No  None  None  Link-Up
-        * :Reg.StringGet,"input","0/0\s+(\w+)\s+(\w+)","1,2","2"
+        * :Utility2.StringGet,"input","0/0\s+(\w+)\s+(\w+)","1,2","2"
         Output:
             result_1 = QSGMII
             result_2 = Up
@@ -67,7 +61,7 @@
     ```sh
     input:
 
-    :Reg.StringGet,"*(input_data)","^0/(?:[0-3])\s+(?:[^\s]+\s+)([^\s]+)","1","4"
+    :Utility2.StringGet,"*(input_data)","^0/(?:[0-3])\s+(?:[^\s]+\s+)([^\s]+)","1","4"
     ```
 
     ```sh
@@ -87,7 +81,7 @@
     ```sh
     input:
 
-    :Reg.StringGet,"*(input_data)","^(\d[[4]])(\d[[2]])(\d[[2]])(\d[[2]])(\d[[2]])(\d[[2]])","1,2,3,4,5,6","6"
+    :Utility2.StringGet,"*(input_data)","^(\d[[4]])(\d[[2]])(\d[[2]])(\d[[2]])(\d[[2]])(\d[[2]])","1,2,3,4,5,6","6"
     ```
 
     ```sh
@@ -102,14 +96,15 @@
     **REMINDER**
 
     -  **正則 pattern中不能出現 "{" 和 "}" 符號，如果需要使用，請用 "[[" 和 "]]" 代替**
-    -  
+
 ## StringCount
-* 計算字串 (StringCount)
+
+* 字串計算 (StringCount)
     1. 此function用來計算該參數在字串中的數量
 
     **輸入格式**
     ```sh
-    :Reg.StringGet,"輸入資料","正則pattern"
+    :Utility2.StringGet,"輸入資料","正則pattern"
     ```
 
     **EXAMPLE**
@@ -139,10 +134,90 @@
     ```sh
     input:
 
-    :Reg.StringGet,"*(input_data)","ff\s+"
+    :Utility2.StringGet,"*(input_data)","ff\s+"
     ```
 
     ```sh
     output:
         256
     ```
+
+# DateTime
+
+此部分function是用來做時間的相關計算
+
+## TimeSubtract
+
+* 時間相減 (TimeSubtract)
+
+    **輸入**
+    ```sh
+    :Utility2.TimeSubtract,"start time","end time","time type"
+    ```
+    _start time & end time: 開始時間與結束時間_
+
+        接受格式:
+        * %Y-%m-%d %H:%M:%S  
+        * %Y/%m/%d %H:%M:%S
+        * %Y%m%d%H%M%S
+
+    _time type: 輸出時間尺度_
+
+        接受格式:
+        * days (無條件進位)
+        * hours
+        * minutes
+        * seconds
+    
+    **輸出**
+
+        Reply: 0
+        Ref: Value
+
+    **EXAMPLE**
+
+    ```sh
+    input:
+    :Utility2.TimeSubtract,"20230404000000","20230405000001","days"
+    ```
+
+    ```sh
+    output:
+    2
+    ```
+
+## ToDateTime
+
+* 時間轉換 (ToDateTime)
+
+    **輸入**
+    ```sh
+    :Utility2.ToDateTime,"year,mon,day,hour,minute,second"
+    ```
+    _year,mon,day,hour,minute,second: 各時間尺度_
+
+        * 需皆為數字
+        * 輸入參數需要6個
+    
+    **輸出**
+
+        Reply: 0
+        Ref: Value
+    
+    **EXAMPLE**
+
+    ```sh
+    input:
+    :Utility2.ToDateTime,"2023,4,4,0,0,0"
+    ```
+
+    ```sh
+    output:
+    20230404000000
+    ```
+
+# OSBasic
+
+此部分function主要是收錄電腦基本操作，包含CMD、check file等
+
+
