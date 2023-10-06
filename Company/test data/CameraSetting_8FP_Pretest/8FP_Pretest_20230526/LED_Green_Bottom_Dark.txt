@@ -1,0 +1,15 @@
+[LED_Config]
+TestCount=5
+Color_STR=BLACK
+CaseName=LED_G_01_D;LED_G_03_D;LED_G_05_D;LED_G_07_D;LED_G_09_D;
+LengthInput_W=20;20;20;20;20;
+LengthInput_H=20;20;20;20;20;
+H_Upper=360;360;360;360;360;
+H_Lower=0;0;0;0;0;
+S_Upper=100;100;100;100;100;
+S_Lower=0;0;0;0;0;
+V_Upper=10;10;10;10;10;
+V_Lower=0;0;0;0;0;
+Location=128,121;233,121;341,123;449,121;555,125;
+V_Spec=25;25;25;25;25;
+PASS_Count=300;300;300;300;300;
