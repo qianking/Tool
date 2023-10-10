@@ -44,17 +44,16 @@ class MainWindow(QMainWindow):
             self._window = loader.load(file)
             file.close()
         self.set_window_title()
+        self.set_status_plain()
+        self.set_floor_label()
         self.set_hint_label()
+        self.set_num_label()
         self.set_import_btm()
         self.set_start_btm()
         self.import_btm_connect()
-        self.start_btm_connect()
-        self.set_status_plain()
+        self.start_btm_connect() 
         self.set_table()
-        self.set_num_label()
-        self.set_floor_label()
-         
-
+        
     def set_window_title(self):
         if UI_file_format == 'ui':
             self._window.setWindowTitle(f'LFSD V{VERSION}')    #.ui版本
